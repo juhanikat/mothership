@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1spf4ifa2e2j"]
+
+[ext_resource type="Script" uid="uid://bej65is377k75" path="res://scenes/hud.gd" id="1_ahhtf"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_ahhtf")
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LShapeButton" type="Button" parent="TopBar"]
+layout_mode = 2
+text = "Add L Shape"
+
+[node name="SquareButton" type="Button" parent="TopBar"]
+layout_mode = 2
+text = "Add Square Shape"
+
+[connection signal="pressed" from="TopBar/LShapeButton" to="." method="_on_l_shape_button_pressed"]
+[connection signal="pressed" from="TopBar/SquareButton" to="." method="_on_square_button_pressed"]
