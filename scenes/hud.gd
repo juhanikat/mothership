@@ -3,9 +3,10 @@ extends CanvasLayer
 
 @onready var main: Main = get_parent()
 
-func _on_l_shape_button_pressed() -> void:
-	main.spawn_tile(Tile.TileType.LShape)
+
+func _on_command_room_button_pressed() -> void:
+	main.spawn_room(RoomData.RoomType.COMMAND_ROOM)
 
 
-func _on_square_button_pressed() -> void:
-	main.spawn_tile(Tile.TileType.SquareShape)
+func _on_power_plant_button_pressed() -> void:
+	main.spawn_room(RoomData.RoomType.POWER_PLANT)

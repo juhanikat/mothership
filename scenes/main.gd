@@ -2,24 +2,24 @@ extends Node2D
 class_name Main
 
 
-var tile_scene = load("res://scenes/tile.tscn")
-var tile_spawn_pos: Vector2 = Vector2(0, 0)
+var room_scene = load("res://scenes/room.tscn")
+var room_spawn_pos: Vector2 = Vector2(0, 0)
+
+const room_data = RoomData.room_data
 
 func _ready() -> void:
-	var new_tile = tile_scene.instantiate()
-	new_tile.type = Tile.TileType.SquareShape
-	add_child(new_tile)
-	new_tile.position = tile_spawn_pos
+	spawn_room(RoomData.RoomType.COMMAND_ROOM)
 
 
 
-func spawn_tile(tile_type: Tile.TileType):
-	var new_tile = tile_scene.instantiate()
-	new_tile.type = tile_type
-	for tile in get_tree().get_nodes_in_group("Tile"):
-		if tile.global_position == tile_spawn_pos:
-			print("Cannot spawn new tile on top of existing one")
+
+func spawn_room(room_type: RoomData.RoomType):
+	var new_room = room_scene.instantiate()
+	new_room.init_room(RoomData.room_data[room_type])
+	for room in get_tree().get_nodes_in_group("Tile"):
+		if room.global_position == room_spawn_pos:
+			print("Cannot spawn new room on top of existing one")
 			return
 
-	add_child(new_tile)
-	new_tile.global_position = tile_spawn_pos
+	new_room.global_position = room_spawn_pos
+	add_child(new_room)

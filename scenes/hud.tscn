@@ -9,13 +9,13 @@ script = ExtResource("1_ahhtf")
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="LShapeButton" type="Button" parent="TopBar"]
+[node name="CommandRoomButton" type="Button" parent="TopBar"]
 layout_mode = 2
-text = "Add L Shape"
+text = "Add Command Room"
 
-[node name="SquareButton" type="Button" parent="TopBar"]
+[node name="PowerPlantButton" type="Button" parent="TopBar"]
 layout_mode = 2
-text = "Add Square Shape"
+text = "Add Power Plant"
 
-[connection signal="pressed" from="TopBar/LShapeButton" to="." method="_on_l_shape_button_pressed"]
-[connection signal="pressed" from="TopBar/SquareButton" to="." method="_on_square_button_pressed"]
+[connection signal="pressed" from="TopBar/CommandRoomButton" to="." method="_on_command_room_button_pressed"]
+[connection signal="pressed" from="TopBar/PowerPlantButton" to="." method="_on_power_plant_button_pressed"]

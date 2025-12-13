@@ -1,9 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://blhna1q65fnk7"]
+[gd_scene load_steps=2 format=3 uid="uid://c83mgqdw0ck3c"]
 
-[ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/tile.gd" id="1_3dk36"]
+[ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/room.gd" id="1_36trf"]
 
-[node name="Tile" type="Node2D" node_paths=PackedStringArray("tile_area", "polygon", "all_tile_shapes") groups=["Tile"]]
-script = ExtResource("1_3dk36")
+[node name="Room" type="Node2D" node_paths=PackedStringArray("tile_area", "polygon", "all_tile_shapes") groups=["Tile"]]
+script = ExtResource("1_36trf")
 tile_area = NodePath("Area2D")
 polygon = NodePath("Area2D/Polygon")
 all_tile_shapes = NodePath("AllTileShapes")
