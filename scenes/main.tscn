@@ -9,4 +9,4 @@ script = ExtResource("1_0wfyh")
 [node name="HUD" parent="." instance=ExtResource("2_0wfyh")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(520, 280)
+position = Vector2(424, 208)

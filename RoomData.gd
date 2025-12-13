@@ -10,8 +10,7 @@ enum RoomShape {LShape, SquareShape}
 enum RoomType {COMMAND_ROOM, POWER_PLANT, CREW_QUARTERS}
 
 # NOTE: Remember to modify these if you change the polygons!
-const LShape_dimensions = Vector2(128, 128)
-const SquareShape_dimensions = Vector2(64, 64)
+
 
 const _command_room_data: Dictionary[String, Variant] = {
 	"room_name": "Command Room",
@@ -29,4 +28,19 @@ const _power_plant_data: Dictionary[String, Variant] = {
 const room_data = {
 	RoomType.COMMAND_ROOM: _command_room_data,
 	RoomType.POWER_PLANT: _power_plant_data
+}
+
+
+## Maps a RoomShape to the rooms to a Vector indicating the room's width and height.
+## NOTE: Remember to update these if you change the room shapes!
+const room_shape_dimensions = {
+	RoomShape.LShape: Vector2(128, 128),
+	RoomShape.SquareShape: Vector2(64, 64)
+}
+
+
+## Maps a RoomShape to an Array containing the locations of its connectors.
+const room_connectors = {
+	RoomShape.LShape: [Vector2(-32, -64),Vector2(32, -64), Vector2(32, -32)],
+	RoomShape.SquareShape: [Vector2(0, -32),Vector2(32, 0), Vector2(0, 32), Vector2(-32, 0)]
 }

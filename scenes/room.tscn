@@ -2,26 +2,22 @@
 
 [ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/room.gd" id="1_36trf"]
 
-[node name="Room" type="Node2D" node_paths=PackedStringArray("tile_area", "polygon", "all_tile_shapes") groups=["Tile"]]
+[node name="Room" type="Node2D" node_paths=PackedStringArray("room_area", "polygon", "all_room_shapes") groups=["Room"]]
 script = ExtResource("1_36trf")
-tile_area = NodePath("Area2D")
-polygon = NodePath("Area2D/Polygon")
-all_tile_shapes = NodePath("AllTileShapes")
+room_area = NodePath("RoomArea")
+polygon = NodePath("RoomArea/Polygon")
+all_room_shapes = NodePath("AllRoomShapes")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="RoomArea" type="Area2D" parent="."]
 
-[node name="Polygon" type="CollisionPolygon2D" parent="Area2D"]
+[node name="Polygon" type="CollisionPolygon2D" parent="RoomArea"]
 
-[node name="AllTileShapes" type="Area2D" parent="."]
+[node name="AllRoomShapes" type="Area2D" parent="."]
 
-[node name="LShapePolygon" type="CollisionPolygon2D" parent="AllTileShapes"]
+[node name="LShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
 visible = false
-position = Vector2(-64, -64)
-polygon = PackedVector2Array(0, 0, 128, 0, 128, 64, 64, 64, 64, 128, 0, 128)
+polygon = PackedVector2Array(-64, -64, 64, -64, 64, 0, 0, 0, 0, 64, -64, 64)
 
-[node name="SquarePolygon" type="CollisionPolygon2D" parent="AllTileShapes"]
+[node name="SquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
 visible = false
-position = Vector2(-32, -32)
-polygon = PackedVector2Array(0, 0, 64, 0, 64, 64, 0, 64)
-
-[connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
