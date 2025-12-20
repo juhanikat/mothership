@@ -1,0 +1,16 @@
+Rooms
+
+When spawning a new room, call the init_room function and give the correct room data as a parameter
+(these are in the room_data dict inside the RoomData script). That's all!
+
+If a room is picked up and then put down near or on top of another room, the check_connector_snap()
+method inside room.gd is called to see if the room connectors are close enough to connect. If not,
+the room cannot be put down there.
+
+
+RoomData (IMPORTANT!)
+
+Remember to change the room_shape_dimensions dict if you resize the rooms!
+
+Add some offset to connector placements in the room_connectors dict, so the rooms are not adjacent when snapped.
+Otherwise, room area detection does not work because the room areas are too close together!

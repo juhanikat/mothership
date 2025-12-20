@@ -1,25 +1,34 @@
 extends Node2D
 class_name Main
 
-
+@export var room_spawn_area: Area2D
 var room_scene = load("res://scenes/room.tscn")
-var room_spawn_pos: Vector2 = Vector2(0, 0)
 
 const room_data = RoomData.room_data
+var room_inside_spawn_area: bool = false
+
 
 func _ready() -> void:
-	spawn_room(RoomData.RoomType.COMMAND_ROOM)
-
-
+	spawn_room(RoomData.RoomType.POWER_PLANT)
 
 
 func spawn_room(room_type: RoomData.RoomType):
 	var new_room = room_scene.instantiate()
 	new_room.init_room(RoomData.room_data[room_type])
-	for room in get_tree().get_nodes_in_group("Tile"):
-		if room.global_position == room_spawn_pos:
-			print("Cannot spawn new room on top of existing one")
-			return
+	new_room.global_position = room_spawn_area.position
 
-	new_room.global_position = room_spawn_pos
+	if room_inside_spawn_area:
+		print("Cannot spawn new room while existing one is inside spawn area!")
+		return
+
 	add_child(new_room)
+
+
+func _on_room_spawn_area_area_entered(area: Area2D) -> void:
+	if area.is_in_group("RoomClickableArea"):
+		room_inside_spawn_area = true
+
+
+func _on_room_spawn_area_area_exited(area: Area2D) -> void:
+	if area.is_in_group("RoomClickableArea"):
+		room_inside_spawn_area = false

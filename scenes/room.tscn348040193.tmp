@@ -2,13 +2,13 @@
 
 [ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/room.gd" id="1_36trf"]
 
-[node name="Room" type="Node2D" node_paths=PackedStringArray("room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
+[node name="Room" type="Node2D" node_paths=PackedStringArray("room_area", "polygon", "all_room_shapes") groups=["Room"]]
 script = ExtResource("1_36trf")
 room_area = NodePath("RoomArea")
 polygon = NodePath("RoomArea/Polygon")
 all_room_shapes = NodePath("AllRoomShapes")
 
-[node name="RoomArea" type="Area2D" parent="." groups=["RoomArea"]]
+[node name="RoomArea" type="Area2D" parent="."]
 
 [node name="Polygon" type="CollisionPolygon2D" parent="RoomArea"]
 
@@ -21,6 +21,3 @@ polygon = PackedVector2Array(-64, -64, 64, -64, 64, 0, 0, 0, 0, 64, -64, 64)
 [node name="SquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
 visible = false
 polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
-
-[connection signal="area_entered" from="RoomArea" to="." method="_on_room_area_area_entered"]
-[connection signal="area_exited" from="RoomArea" to="." method="_on_room_area_area_exited"]

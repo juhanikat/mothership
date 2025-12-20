@@ -40,7 +40,9 @@ const room_shape_dimensions = {
 
 
 ## Maps a RoomShape to an Array containing the locations of its connectors.
+## NOTE: Add some offset to these so the rooms are not adjacent when snapped,
+## otherwise room area detection does not work!
 const room_connectors = {
-	RoomShape.LShape: [Vector2(-32, -64),Vector2(32, -64), Vector2(32, -32)],
-	RoomShape.SquareShape: [Vector2(0, -32),Vector2(32, 0), Vector2(0, 32), Vector2(-32, 0)]
+	RoomShape.LShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
+	RoomShape.SquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)]
 }

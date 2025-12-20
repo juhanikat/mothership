@@ -15,11 +15,16 @@ run/main_scene="uid://ony8uad06hvx"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GlobalSignals="*res://scenes/GlobalSignals.gd"
+
 [global_group]
 
 Connector=""
 Room=""
 RoomClickableArea=""
+RoomArea=""
 
 [input]
 
@@ -31,7 +36,7 @@ rotate_tile={
 
 [layer_names]
 
-2d_physics/layer_1="Tiles"
+2d_physics/layer_1="Rooms"
 
 [rendering]
 
