@@ -10,6 +10,10 @@ the room cannot be put down there.
 
 RoomData (IMPORTANT!)
 
+Lots of stuff in ROomData should probably be moved elsewhere and reimplemented,
+for example each room shape could have its own scene since there should not be that
+many of them and it would be much better to see the rooms visually.
+
 Remember to change the room_shape_dimensions dict if you resize the rooms!
 
 Add some offset to connector placements in the room_connectors dict, so the rooms are not adjacent when snapped.

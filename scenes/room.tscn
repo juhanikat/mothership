@@ -2,11 +2,33 @@
 
 [ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/room.gd" id="1_36trf"]
 
-[node name="Room" type="Node2D" node_paths=PackedStringArray("room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
+[node name="Room" type="Node2D" node_paths=PackedStringArray("room_info", "room_name_label", "power_usage_label", "nav_region", "room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
 script = ExtResource("1_36trf")
+room_info = NodePath("Info")
+room_name_label = NodePath("Info/RoomName")
+power_usage_label = NodePath("Info/PowerUsage")
+nav_region = NodePath("NavigationRegion2D")
 room_area = NodePath("RoomArea")
 polygon = NodePath("RoomArea/Polygon")
 all_room_shapes = NodePath("AllRoomShapes")
+
+[node name="Info" type="VBoxContainer" parent="."]
+anchors_preset = -1
+offset_right = 100.0
+offset_bottom = 464.0
+mouse_filter = 2
+
+[node name="RoomName" type="RichTextLabel" parent="Info"]
+layout_mode = 2
+mouse_filter = 2
+text = "room name"
+fit_content = true
+
+[node name="PowerUsage" type="RichTextLabel" parent="Info"]
+layout_mode = 2
+mouse_filter = 2
+text = "power usage"
+fit_content = true
 
 [node name="RoomArea" type="Area2D" parent="." groups=["RoomArea"]]
 
@@ -21,6 +43,8 @@ polygon = PackedVector2Array(-64, -64, 64, -64, 64, 0, 0, 0, 0, 64, -64, 64)
 [node name="SquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
 visible = false
 polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 
 [connection signal="area_entered" from="RoomArea" to="." method="_on_room_area_area_entered"]
 [connection signal="area_exited" from="RoomArea" to="." method="_on_room_area_area_exited"]

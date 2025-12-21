@@ -3,6 +3,13 @@ class_name Room
 
 var connector_scene = load("res://scenes/connector.tscn")
 
+
+@export var room_info: Control
+@export var room_name_label: RichTextLabel
+@export var power_usage_label: RichTextLabel
+
+@export var nav_region: NavigationRegion2D
+
 @export var room_area: Area2D # actual CollisionPolygon of the room
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
@@ -20,7 +27,7 @@ var hovering: bool = false # true when mouse is hovering over this room
 var is_picked: bool = false
 var locked: bool = false # true once room has been placed and can no longer be moved
 
-var is_overlapping_clickable_area: bool = false # true if another room's ClickableArea overlaps this one's
+var overlapping_clickable_areas: Array[Area2D] = []
 var overlapping_room_areas: Array[Area2D] = []
 
 var target_rotation: float = 0
@@ -37,8 +44,14 @@ func init_room(i_data: Dictionary[String, Variant]) -> void:
 	# creates connectors for the room, depending on it's shape
 	create_connectors()
 
-	# creates the clickable area for the node, depending on its shape
+	# creates the clickable area for the room, depending on its shape
 	create_clickable_area()
+
+
+
+	# positions the info box of the room depending on its shape, and fills information
+	# from _data
+	create_info_box()
 
 
 func _ready() -> void:
@@ -52,22 +65,30 @@ func _ready() -> void:
 
 	polygon.polygon = room_shapes[_shape]
 
+	# creates and shapes the NavigationRegion for the room (connectors included)
+	create_navigation_region()
+
 
 func _unhandled_input(event: InputEvent) -> void:
+	await get_tree().physics_frame # to make sure area overlap is detected
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
 	if locked:
 		return
 
 	if event is InputEventMouseButton and hovering and event.is_pressed():
 		if is_picked:
 			check_connector_snap()
-			print(is_overlapping_clickable_area)
-
-			if is_overlapping_clickable_area:
+			if len(overlapping_clickable_areas) > 0:
 				return
 			else:
+				print("not overlapping")
+
 				is_picked = false
-		elif not is_overlapping_clickable_area:
+		elif len(overlapping_clickable_areas) == 0:
 			is_picked = true
+		return
 
 	if event is InputEventMouseMotion:
 		if is_picked:
@@ -77,7 +98,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			target_rotation += 90
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
 	#snap rotation to target value once close enough, might prevent some bugs with rounding
 	if abs(rotation_degrees - target_rotation) < 0.05:
@@ -125,6 +146,19 @@ func create_connectors() -> void:
 		add_child(new_connector)
 		new_connector.position = connector_pos
 
+func create_info_box() -> void:
+	room_info.position = RoomData.room_info_pos[_shape]
+
+	room_name_label.text = _data["room_name"]
+	power_usage_label.text = "P" + str(_data["power_usage"])
+
+
+func create_navigation_region() -> void:
+	return
+	nav_region.navigation_polygon = NavigationPolygon.new()
+	nav_region.navigation_polygon.add_outline(room_shapes[_shape])
+	nav_region.bake_navigation_polygon()
+
 
 func get_own_connectors() -> Array[Area2D]:
 	## Returns all connectors that are children of this room.
@@ -141,10 +175,12 @@ func check_connector_snap() -> void:
 	## loop through all connectors (in the entire game),
 	## and find first two connectors that are in range of each other.
 	## If found, try to snap those connectors.
+	locked = true
 	var all_connectors = get_tree().get_nodes_in_group("Connector")
 	var own_connectors = get_own_connectors()
 	var closest_pair = []
 	var closest_pair_distance = null
+	var was_snapped: bool = false
 	for own_connector: Area2D in own_connectors:
 		for other_connector: Area2D in all_connectors:
 			if other_connector in own_connectors:
@@ -156,49 +192,51 @@ func check_connector_snap() -> void:
 				closest_pair_distance = distance
 	if closest_pair:
 		var other_room = closest_pair[1].get_parent()
-		try_to_snap_connectors(closest_pair[0], closest_pair[1], other_room)
+		was_snapped = await try_to_snap_connectors(closest_pair[0], closest_pair[1], other_room)
+	if not was_snapped:
+		locked = false
 	return
 
 
-func try_to_snap_connectors(emitters_connector: Area2D, other_connector: Area2D, other_room: Room) -> void:
-	locked = true # this is done at the start and reversed later, so that mouse movement won't interfere with the function
+func try_to_snap_connectors(emitters_connector: Area2D, other_connector: Area2D, other_room: Room) -> bool:
+	## Called inside check_connector_snap, returns true if connectors were snapped so that
+	## that function can keep the locked status enabled.
 	var to = other_connector.global_position - emitters_connector.global_position
 	global_position += to
+	print(locked)
 	await get_tree().physics_frame
+	await get_tree().physics_frame
+	#await get_tree().physics_frame
 
-	var overlapping_room_areas = room_area.get_overlapping_areas()
 	for area in overlapping_room_areas:
 		if area.is_in_group("RoomArea"):
 			print("Tried to snap connectors, but rooms are oriented incorrectly.")
-			locked = false
-			return
+			return false
 
 	print("Connectors ({0}) and ({1}) snapped together.".format([str(emitters_connector), str(other_connector)]))
 	# Also lock the other room!
 	other_room.locked = true
 	#clickable_area.hide()
 	#other_room.clickable_area.hide()
+	return true
 
 
 func _on_clickable_area_area_entered(area: Area2D) -> void:
-	## When any area is inside this room's ClickableArea, you cannot place the room
+	## When any ClickableArea is inside this room's ClickableArea, you cannot place the room
 	if area.is_in_group("RoomClickableArea"):
-		is_overlapping_clickable_area = true
+		overlapping_clickable_areas.append(area)
 
 
 func _on_clickable_area_area_exited(area: Area2D) -> void:
-	## The ClickableArea is larger than the area used for the actual tile
 	if area.is_in_group("RoomClickableArea"):
-		is_overlapping_clickable_area = false
+		overlapping_clickable_areas.erase(area)
 
 
 func _on_clickable_area_mouse_entered() -> void:
-	## The ClickableArea is larger than the area used for the actual tile
 	hovering = true
 
 
 func _on_clickable_area_mouse_exited() -> void:
-	## The ClickableArea is larger than the area used for the actual tile
 	hovering = false
 
 

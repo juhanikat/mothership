@@ -9,9 +9,8 @@ class_name RoomData
 enum RoomShape {LShape, SquareShape}
 enum RoomType {COMMAND_ROOM, POWER_PLANT, CREW_QUARTERS}
 
-# NOTE: Remember to modify these if you change the polygons!
 
-
+## TODO: Use classes instead of dicts here to get autocomplete?
 const _command_room_data: Dictionary[String, Variant] = {
 	"room_name": "Command Room",
 	"room_shape": RoomShape.SquareShape,
@@ -36,6 +35,12 @@ const room_data = {
 const room_shape_dimensions = {
 	RoomShape.LShape: Vector2(128, 128),
 	RoomShape.SquareShape: Vector2(64, 64)
+}
+
+## Where the top left corner of the room info should be.
+const room_info_pos = {
+	RoomShape.LShape: Vector2(-64, -64),
+	RoomShape.SquareShape: Vector2(-32, -32)
 }
 
 
