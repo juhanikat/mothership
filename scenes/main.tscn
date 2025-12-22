@@ -6,8 +6,11 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0wfyh"]
 size = Vector2(320, 320)
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("room_spawn_area")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("nav_actor", "nav_agent", "path_line", "room_spawn_area")]
 script = ExtResource("1_0wfyh")
+nav_actor = NodePath("NavActor")
+nav_agent = NodePath("NavActor/NavigationAgent")
+path_line = NodePath("PathLine")
 room_spawn_area = NodePath("RoomSpawnArea")
 
 [node name="HUD" parent="." instance=ExtResource("2_0wfyh")]
@@ -20,6 +23,12 @@ position = Vector2(224, 224)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomSpawnArea"]
 shape = SubResource("RectangleShape2D_0wfyh")
+
+[node name="NavActor" type="Node2D" parent="."]
+
+[node name="NavigationAgent" type="NavigationAgent2D" parent="NavActor"]
+
+[node name="PathLine" type="Line2D" parent="."]
 
 [connection signal="area_entered" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_entered"]
 [connection signal="area_exited" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_exited"]

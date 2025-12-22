@@ -9,6 +9,7 @@ var connector_scene = load("res://scenes/connector.tscn")
 @export var power_usage_label: RichTextLabel
 
 @export var nav_region: NavigationRegion2D
+@export var nav_agent: NavigationAgent2D
 
 @export var room_area: Area2D # actual CollisionPolygon of the room
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
@@ -43,12 +44,8 @@ func init_room(i_data: Dictionary[String, Variant]) -> void:
 
 	# creates connectors for the room, depending on it's shape
 	create_connectors()
-
 	# creates the clickable area for the room, depending on its shape
 	create_clickable_area()
-
-
-
 	# positions the info box of the room depending on its shape, and fills information
 	# from _data
 	create_info_box()
@@ -65,7 +62,7 @@ func _ready() -> void:
 
 	polygon.polygon = room_shapes[_shape]
 
-	# creates and shapes the NavigationRegion for the room (connectors included)
+	# creates and shapes the NavigationRegion for the room.
 	create_navigation_region()
 
 
@@ -77,14 +74,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	if locked:
 		return
 
+	if GlobalInputFlags.path_build_mode:
+		return
+
 	if event is InputEventMouseButton and hovering and event.is_pressed():
 		if is_picked:
 			check_connector_snap()
 			if len(overlapping_clickable_areas) > 0:
 				return
 			else:
-				print("not overlapping")
-
 				is_picked = false
 		elif len(overlapping_clickable_areas) == 0:
 			is_picked = true
@@ -105,14 +103,7 @@ func _process(_delta: float) -> void:
 		rotation_degrees = target_rotation
 
 
-func get_room_center() -> Vector2:
-	if _shape == RoomShape.LShape:
-		return LShape_dimensions / 2
-	elif _shape == RoomShape.SquareShape:
-		return SquareShape_dimensions / 2
 
-	push_error("ERROR: Invalid tile type given!")
-	return Vector2(0, 0)
 
 
 func create_clickable_area() -> void:
@@ -146,6 +137,7 @@ func create_connectors() -> void:
 		add_child(new_connector)
 		new_connector.position = connector_pos
 
+
 func create_info_box() -> void:
 	room_info.position = RoomData.room_info_pos[_shape]
 
@@ -154,9 +146,11 @@ func create_info_box() -> void:
 
 
 func create_navigation_region() -> void:
-	return
-	nav_region.navigation_polygon = NavigationPolygon.new()
-	nav_region.navigation_polygon.add_outline(room_shapes[_shape])
+	## Creates a navigation region for this room (connector regions are made in connector.gd).
+	var new_nav_polygon = NavigationPolygon.new()
+	new_nav_polygon.agent_radius = 0 # otherwise the shape will be too small to exist!
+	new_nav_polygon.add_outline(room_shapes[_shape])
+	nav_region.navigation_polygon = new_nav_polygon
 	nav_region.bake_navigation_polygon()
 
 
@@ -169,6 +163,9 @@ func get_own_connectors() -> Array[Area2D]:
 			if is_ancestor_of(connector):
 				own_connectors.append(connector)
 	return own_connectors
+
+
+
 
 
 func check_connector_snap() -> void:
@@ -198,12 +195,11 @@ func check_connector_snap() -> void:
 	return
 
 
-func try_to_snap_connectors(emitters_connector: Area2D, other_connector: Area2D, other_room: Room) -> bool:
+func try_to_snap_connectors(emitters_connector: Connector, other_connector: Connector, other_room: Room) -> bool:
 	## Called inside check_connector_snap, returns true if connectors were snapped so that
 	## that function can keep the locked status enabled.
 	var to = other_connector.global_position - emitters_connector.global_position
 	global_position += to
-	print(locked)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	#await get_tree().physics_frame
@@ -214,8 +210,9 @@ func try_to_snap_connectors(emitters_connector: Area2D, other_connector: Area2D,
 			return false
 
 	print("Connectors ({0}) and ({1}) snapped together.".format([str(emitters_connector), str(other_connector)]))
-	# Also lock the other room!
+	## NOTE: Also lock the other room, and remove the other connectors navigationregion!
 	other_room.locked = true
+	other_connector.delete_navigation_region()
 	#clickable_area.hide()
 	#other_room.clickable_area.hide()
 	return true

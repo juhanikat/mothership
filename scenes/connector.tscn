@@ -1,9 +1,13 @@
 [gd_scene load_steps=2 format=3 uid="uid://cj2et7h4d8c1"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_36trf"]
-size = Vector2(16, 16)
+[ext_resource type="Script" uid="uid://cilnba8yxxsj2" path="res://scenes/connector.gd" id="1_ti7c2"]
 
-[node name="Connector" type="Area2D" groups=["Connector"]]
+[node name="Connector" type="Area2D" node_paths=PackedStringArray("collision_polygon", "nav_region") groups=["Connector"]]
+script = ExtResource("1_ti7c2")
+collision_polygon = NodePath("CollisionPolygon2D")
+nav_region = NodePath("NavigationRegion2D")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_36trf")
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-8, -8, -8, 8, 8, 8, 8, -8)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]

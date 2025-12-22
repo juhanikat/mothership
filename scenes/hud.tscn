@@ -11,10 +11,12 @@ offset_bottom = 40.0
 
 [node name="CommandRoomButton" type="Button" parent="TopBar"]
 layout_mode = 2
+focus_mode = 0
 text = "Add Command Room"
 
 [node name="PowerPlantButton" type="Button" parent="TopBar"]
 layout_mode = 2
+focus_mode = 0
 text = "Add Power Plant"
 
 [connection signal="pressed" from="TopBar/CommandRoomButton" to="." method="_on_command_room_button_pressed"]
