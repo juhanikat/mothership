@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://6umoox1qwm3k" path="res://scenes/main.gd" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://d1spf4ifa2e2j" path="res://scenes/hud.tscn" id="2_0wfyh"]
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("nav_actor", "nav_agent", "path_line", "room_spawn_area", "room_spawn_area_polygon", "texture_polygon", "room_info_nodes")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("nav_actor", "nav_agent", "path_line", "room_spawn_area", "room_spawn_area_polygon", "texture_polygon", "room_nodes", "room_info_nodes")]
 script = ExtResource("1_0wfyh")
 nav_actor = NodePath("NavActor")
 nav_agent = NodePath("NavActor/NavigationAgent")
@@ -11,18 +11,15 @@ path_line = NodePath("PathLine")
 room_spawn_area = NodePath("RoomSpawnArea")
 room_spawn_area_polygon = NodePath("RoomSpawnArea/CollisionPolygon2D")
 texture_polygon = NodePath("RoomSpawnArea/TexturePolygon")
+room_nodes = NodePath("RoomNodes")
 room_info_nodes = NodePath("RoomInfoNodes")
 
 [node name="HUD" parent="." instance=ExtResource("2_0wfyh")]
 
-[node name="RoomInfoNodes" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
+
+[node name="RoomNodes" type="Node2D" parent="."]
 
 [node name="RoomSpawnArea" type="Area2D" parent="."]
 position = Vector2(192, 192)
@@ -31,6 +28,7 @@ position = Vector2(192, 192)
 polygon = PackedVector2Array(-128, -128, -128, 128, 128, 128, 128, -128)
 
 [node name="TexturePolygon" type="Polygon2D" parent="RoomSpawnArea"]
+z_index = -1
 color = Color(0.952941, 0.717647, 0, 1)
 
 [node name="NavActor" type="Node2D" parent="."]
@@ -40,6 +38,12 @@ color = Color(0.952941, 0.717647, 0, 1)
 [node name="PathLine" type="Line2D" parent="."]
 z_index = 1
 default_color = Color(0.286147, 0.60386, 1, 1)
+
+[node name="RoomInfoNodes" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [connection signal="area_entered" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_entered"]
 [connection signal="area_exited" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_exited"]

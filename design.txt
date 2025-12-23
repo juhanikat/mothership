@@ -1,3 +1,8 @@
+TODO:
+	1. Don't let room be placed if any connectors are partially overlapped by another connector (but not fully)?
+	2. This might cause bugs with naivgation regions if not fixed.
+
+
 Rooms
 
 When spawning a new room, call the init_room function and give the correct room data as a parameter

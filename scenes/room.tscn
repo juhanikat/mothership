@@ -40,3 +40,5 @@ polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
 
 [connection signal="area_entered" from="RoomArea" to="." method="_on_room_area_area_entered"]
 [connection signal="area_exited" from="RoomArea" to="." method="_on_room_area_area_exited"]
+[connection signal="mouse_entered" from="RoomArea" to="." method="_on_room_area_mouse_entered"]
+[connection signal="mouse_exited" from="RoomArea" to="." method="_on_room_area_mouse_exited"]

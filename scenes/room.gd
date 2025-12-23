@@ -13,8 +13,7 @@ var connector_scene = load("res://scenes/connector.tscn")
 @export var all_room_shapes: Area2D # all possible room types are children of this node
 @onready var room_shapes: Dictionary[RoomData.RoomShape, PackedVector2Array]
 
-var clickable_area: Area2D # the clickable area around the room
-var room_info: Control # The room's info box, this is a child of the main node
+var room_info: RoomInfo # The room's info box, this is a child of the main node
 
 const RoomShape = RoomData.RoomShape
 
@@ -24,7 +23,6 @@ var hovering: bool = false # true when mouse is hovering over this room
 var is_picked: bool = false
 var locked: bool = false # true once room has been placed and can no longer be moved
 
-var overlapping_clickable_areas: Array[Area2D] = []
 var overlapping_room_areas: Array[Area2D] = []
 
 var target_rotation: float = 0
@@ -40,8 +38,6 @@ func init_room(i_data: Dictionary[String, Variant]) -> void:
 
 	# creates connectors for the room, depending on it's shape
 	create_connectors()
-	# creates the clickable area for the room, depending on its shape
-	create_clickable_area()
 
 
 func _ready() -> void:
@@ -66,7 +62,7 @@ func _ready() -> void:
 	create_navigation_region()
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	await get_tree().physics_frame # to make sure area overlap is detected
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -80,12 +76,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and hovering and event.is_pressed():
 		if is_picked:
 			check_connector_snap()
-			if len(overlapping_clickable_areas) > 0:
+			if len(overlapping_room_areas) > 0:
+				print("Cannot place room on top of another room.")
 				return
 			else:
 				is_picked = false
-		elif len(overlapping_clickable_areas) == 0:
+		elif len(overlapping_room_areas) == 0:
 			is_picked = true
+			var global_mouse_pos = get_global_mouse_position()
+			global_position = global_mouse_pos
+			room_info.global_position = global_position + RoomData.room_info_pos[_shape]
 		return
 
 	if event is InputEventMouseMotion:
@@ -99,32 +99,19 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	if hovering:
+		## NOTE: room_infos description label is toggled here since room_info itself
+		## cannot be easily set to read input without consuming it :(
+		room_info.description_popup_label.show()
+	else:
+		room_info.description_popup_label.hide()
+
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
 
 	#room_info.rotation_degrees =
 	#snap rotation to target value once close enough, might prevent some bugs with rounding
 	if abs(rotation_degrees - target_rotation) < 0.05:
 		rotation_degrees = target_rotation
-
-
-func create_clickable_area() -> void:
-	var area = Area2D.new()
-	var collision = CollisionShape2D.new()
-	var shape = RectangleShape2D.new()
-
-	shape.size = RoomData.room_shape_dimensions[_shape] * 2
-
-	collision.shape = shape
-	area.add_child(collision)
-	area.area_entered.connect(_on_clickable_area_area_entered)
-	area.area_exited.connect(_on_clickable_area_area_exited)
-	area.mouse_entered.connect(_on_clickable_area_mouse_entered)
-	area.mouse_exited.connect(_on_clickable_area_mouse_exited)
-	area.add_to_group("RoomClickableArea")
-	area.name = "ClickableArea"
-
-	clickable_area = area
-	add_child(area)
 
 
 func create_connectors() -> void:
@@ -194,39 +181,18 @@ func try_to_snap_connectors(emitters_connector: Connector, other_connector: Conn
 	room_info.global_position += to
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	#await get_tree().physics_frame
+	await get_tree().physics_frame
 
 	for area in overlapping_room_areas:
 		if area.is_in_group("RoomArea"):
-			print("Tried to snap connectors, but rooms are oriented incorrectly.")
+			print("Tried to snap connectors, but rooms are overlapping.")
 			return false
 
 	print("Connectors ({0}) and ({1}) snapped together.".format([str(emitters_connector), str(other_connector)]))
 	## NOTE: Also lock the other room, and remove the other connectors navigationregion!
 	other_room.locked = true
 	other_connector.delete_navigation_region()
-	#clickable_area.hide()
-	#other_room.clickable_area.hide()
 	return true
-
-
-func _on_clickable_area_area_entered(area: Area2D) -> void:
-	## When any ClickableArea is inside this room's ClickableArea, you cannot place the room
-	if area.is_in_group("RoomClickableArea"):
-		overlapping_clickable_areas.append(area)
-
-
-func _on_clickable_area_area_exited(area: Area2D) -> void:
-	if area.is_in_group("RoomClickableArea"):
-		overlapping_clickable_areas.erase(area)
-
-
-func _on_clickable_area_mouse_entered() -> void:
-	hovering = true
-
-
-func _on_clickable_area_mouse_exited() -> void:
-	hovering = false
 
 
 func _on_room_area_area_entered(area: Area2D) -> void:
@@ -237,3 +203,11 @@ func _on_room_area_area_entered(area: Area2D) -> void:
 func _on_room_area_area_exited(area: Area2D) -> void:
 	if area.is_in_group("RoomArea"):
 		overlapping_room_areas.erase(area)
+
+
+func _on_room_area_mouse_entered() -> void:
+	hovering = true
+
+
+func _on_room_area_mouse_exited() -> void:
+	hovering = false

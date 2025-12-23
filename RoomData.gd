@@ -16,18 +16,21 @@ const room_colors = [Color("ff5a55"), Color("77a6fb"), Color("e2c964")]
 const _command_room_data: Dictionary[String, Variant] = {
 	"room_name": "Command Room",
 	"room_shape": RoomShape.SmallSquareShape,
+	"room_desc": "test",
 	"power_usage": 0
 }
 
 const _power_plant_data: Dictionary[String, Variant] = {
 	"room_name": "Power Plant",
 	"room_shape": RoomShape.LShape,
+	"room_desc": "Provides power for nearby rooms.",
 	"power_usage": 0
 }
 
 const _crew_quarters_data: Dictionary[String, Variant] = {
 	"room_name": "Crew Quarters",
 	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "abc",
 	"power_usage": 1
 }
 

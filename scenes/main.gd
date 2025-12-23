@@ -11,6 +11,10 @@ class_name Main
 @export var room_spawn_area_polygon: CollisionPolygon2D
 @export var texture_polygon: Polygon2D
 
+# All rooms are children of this node
+## NOTE: This node has to be above RoomInfoNodes in the node tree,
+## otherwise input event propagation won't work correctly!
+@export var room_nodes: Node2D
 # All room info boxes are children of this node
 @export var room_info_nodes: Control
 
@@ -79,7 +83,7 @@ func spawn_room(room_type: RoomData.RoomType):
 		print("Cannot spawn new room while existing one is inside spawn area!")
 		return
 
-	add_child(new_room)
+	room_nodes.add_child(new_room)
 	for connector in new_room.get_own_connectors():
 		all_connectors.append(connector)
 
