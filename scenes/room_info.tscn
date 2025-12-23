@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://b2hljfbu67bkx"]
+
+[ext_resource type="Script" uid="uid://ckk2sqm7720y" path="res://scenes/room_info.gd" id="1_xv4oe"]
+
+[node name="RoomInfo" type="VBoxContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label")]
+z_index = 1
+custom_minimum_size = Vector2(128, 0)
+anchors_preset = -1
+anchor_right = 0.111111
+anchor_bottom = 0.197531
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("1_xv4oe")
+room_name_label = NodePath("RoomName")
+power_usage_label = NodePath("PowerUsage")
+metadata/_edit_use_anchors_ = true
+
+[node name="RoomName" type="RichTextLabel" parent="."]
+layout_mode = 2
+mouse_filter = 2
+text = "room name"
+fit_content = true
+
+[node name="PowerUsage" type="RichTextLabel" parent="."]
+layout_mode = 2
+mouse_filter = 2
+text = "power usage"
+fit_content = true

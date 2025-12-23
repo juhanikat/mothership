@@ -2,11 +2,8 @@
 
 [ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/room.gd" id="1_36trf"]
 
-[node name="Room" type="Node2D" node_paths=PackedStringArray("room_info", "room_name_label", "power_usage_label", "texture_polygon", "nav_region", "nav_agent", "room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
+[node name="Room" type="Node2D" node_paths=PackedStringArray("texture_polygon", "nav_region", "nav_agent", "room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
 script = ExtResource("1_36trf")
-room_info = NodePath("Info")
-room_name_label = NodePath("Info/RoomName")
-power_usage_label = NodePath("Info/PowerUsage")
 texture_polygon = NodePath("TexturePolygon")
 nav_region = NodePath("NavigationRegion2D")
 nav_agent = NodePath("Node2D/NavigationAgent2D")
@@ -16,25 +13,7 @@ all_room_shapes = NodePath("AllRoomShapes")
 
 [node name="TexturePolygon" type="Polygon2D" parent="."]
 color = Color(0.884932, 0.78636, 0.391851, 1)
-polygon = PackedVector2Array(-472, -25, -221, -28, -235, 58)
 uv = PackedVector2Array(-472, -25, -221, -28, -235, 58)
-
-[node name="Info" type="VBoxContainer" parent="."]
-offset_right = 100.0
-offset_bottom = 464.0
-mouse_filter = 2
-
-[node name="RoomName" type="RichTextLabel" parent="Info"]
-layout_mode = 2
-mouse_filter = 2
-text = "room name"
-fit_content = true
-
-[node name="PowerUsage" type="RichTextLabel" parent="Info"]
-layout_mode = 2
-mouse_filter = 2
-text = "power usage"
-fit_content = true
 
 [node name="RoomArea" type="Area2D" parent="." groups=["RoomArea"]]
 

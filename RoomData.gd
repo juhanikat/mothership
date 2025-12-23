@@ -39,7 +39,7 @@ const room_shape_dimensions = {
 	RoomShape.SquareShape: Vector2(64, 64)
 }
 
-## Where the top left corner of the room info should be.
+## Maps the shape of a room to the top left corner of the room the info should be.
 const room_info_pos = {
 	RoomShape.LShape: Vector2(-64, -64),
 	RoomShape.SquareShape: Vector2(-32, -32)

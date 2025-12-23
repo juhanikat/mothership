@@ -3,10 +3,6 @@ class_name Room
 
 var connector_scene = load("res://scenes/connector.tscn")
 
-
-@export var room_info: Control
-@export var room_name_label: RichTextLabel
-@export var power_usage_label: RichTextLabel
 @export var texture_polygon: Polygon2D
 
 @export var nav_region: NavigationRegion2D
@@ -16,7 +12,9 @@ var connector_scene = load("res://scenes/connector.tscn")
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
 @onready var room_shapes: Dictionary[RoomData.RoomShape, PackedVector2Array]
+
 var clickable_area: Area2D # the clickable area around the room
+var room_info: Control # The room's info box, this is a child of the main node
 
 
 const LShape_dimensions = RoomData.room_shape_dimensions[RoomShape.LShape]
@@ -47,9 +45,6 @@ func init_room(i_data: Dictionary[String, Variant]) -> void:
 	create_connectors()
 	# creates the clickable area for the room, depending on its shape
 	create_clickable_area()
-	# positions the info box of the room depending on its shape, and fills information
-	# from _data
-	create_info_box()
 
 
 func _ready() -> void:
@@ -96,7 +91,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event is InputEventMouseMotion:
 		if is_picked:
-			global_position = get_global_mouse_position()
+			var global_mouse_pos = get_global_mouse_position()
+			global_position = global_mouse_pos
+			room_info.global_position = global_position + RoomData.room_info_pos[_shape]
 
 	elif event.is_action_pressed("rotate_tile") and is_picked:
 			target_rotation += 90
@@ -104,6 +101,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
+
+	#room_info.rotation_degrees =
 	#snap rotation to target value once close enough, might prevent some bugs with rounding
 	if abs(rotation_degrees - target_rotation) < 0.05:
 		rotation_degrees = target_rotation
@@ -141,13 +140,6 @@ func create_connectors() -> void:
 		new_connector.position = connector_pos
 
 
-func create_info_box() -> void:
-	room_info.position = RoomData.room_info_pos[_shape]
-
-	room_name_label.text = _data["room_name"]
-	power_usage_label.text = "P" + str(_data["power_usage"])
-
-
 func create_navigation_region() -> void:
 	## Creates a navigation region for this room (connector regions are made in connector.gd).
 	var new_nav_polygon = NavigationPolygon.new()
@@ -171,9 +163,6 @@ func get_own_connectors() -> Array[Area2D]:
 			if is_ancestor_of(connector):
 				own_connectors.append(connector)
 	return own_connectors
-
-
-
 
 
 func check_connector_snap() -> void:
