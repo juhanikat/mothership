@@ -19,5 +19,11 @@ layout_mode = 2
 focus_mode = 0
 text = "Add Power Plant"
 
+[node name="CrewQuartersButton" type="Button" parent="TopBar"]
+layout_mode = 2
+focus_mode = 0
+text = "Add Crew Quarters"
+
 [connection signal="pressed" from="TopBar/CommandRoomButton" to="." method="_on_command_room_button_pressed"]
 [connection signal="pressed" from="TopBar/PowerPlantButton" to="." method="_on_power_plant_button_pressed"]
+[connection signal="pressed" from="TopBar/CrewQuartersButton" to="." method="_on_crew_quarters_button_pressed"]

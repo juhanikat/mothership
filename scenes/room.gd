@@ -16,9 +16,6 @@ var connector_scene = load("res://scenes/connector.tscn")
 var clickable_area: Area2D # the clickable area around the room
 var room_info: Control # The room's info box, this is a child of the main node
 
-
-const LShape_dimensions = RoomData.room_shape_dimensions[RoomShape.LShape]
-const SquareShape_dimensions = RoomData.room_shape_dimensions[RoomShape.SquareShape]
 const RoomShape = RoomData.RoomShape
 
 const MAX_CONNECTOR_DISTANCE = 40
@@ -54,7 +51,9 @@ func _ready() -> void:
 		if room_shape.name == "LShapePolygon":
 			room_shapes[RoomShape.LShape] = room_shape.polygon
 		if room_shape.name == "SquareShapePolygon":
-			room_shapes[RoomShape.SquareShape] = room_shape.polygon
+			room_shapes[RoomShape.SmallSquareShape] = room_shape.polygon
+		if room_shape.name == "BigSquareShapePolygon":
+			room_shapes[RoomShape.BigSquareShape] = room_shape.polygon
 
 	polygon.polygon = room_shapes[_shape]
 
@@ -113,12 +112,7 @@ func create_clickable_area() -> void:
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
 
-	if _shape == RoomShape.LShape:
-		shape.size = LShape_dimensions * 2
-	elif _shape == RoomShape.SquareShape:
-		shape.size = SquareShape_dimensions * 2
-	else:
-		push_error("Room shape (" + str(_shape) + ") did not match any enum!")
+	shape.size = RoomData.room_shape_dimensions[_shape] * 2
 
 	collision.shape = shape
 	area.add_child(collision)
@@ -197,6 +191,7 @@ func try_to_snap_connectors(emitters_connector: Connector, other_connector: Conn
 	## that function can keep the locked status enabled.
 	var to = other_connector.global_position - emitters_connector.global_position
 	global_position += to
+	room_info.global_position += to
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	#await get_tree().physics_frame

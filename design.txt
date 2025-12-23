@@ -7,10 +7,9 @@ If a room is picked up and then put down near or on top of another room, the che
 method inside room.gd is called to see if the room connectors are close enough to connect. If not,
 the room cannot be put down there.
 
-
 RoomData (IMPORTANT!)
 
-Lots of stuff in ROomData should probably be moved elsewhere and reimplemented,
+Lots of stuff in RoomData should probably be moved elsewhere and reimplemented,
 for example each room shape could have its own scene since there should not be that
 many of them and it would be much better to see the rooms visually.
 
@@ -18,3 +17,14 @@ Remember to change the room_shape_dimensions dict if you resize the rooms!
 
 Add some offset to connector placements in the room_connectors dict, so the rooms are not adjacent when snapped.
 Otherwise, room area detection does not work because the room areas are too close together!
+
+CREATING A NEW ROOM TYPE:
+	1. Add the new room type (e.g. MY_ROOM) to the RoomTyåe enum in RoomData.gd.
+	(If the new room has a new, non-existing shape as well, add the shape to the RoomShape enum)
+	2. Create a data dict for the room, e.g. _my_room_data = {}
+	3. Add RoomType.MY_ROOM: _my_room_data to the room_data dict.
+	4. If you created a new shape, update room_shape_dimensions, room_info_pos and
+	room_connectors appropriately.
+	5. Finally, if you created a new shape, add a polygon representing it to the "AllRoomShapes"
+	node inside the Room scene, and update the (_ready(), create_clickable_area()) function in room.gd accordingly.
+	(This should be simplified!)

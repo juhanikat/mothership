@@ -29,6 +29,9 @@ polygon = PackedVector2Array(-64, -64, 64, -64, 64, 0, 0, 0, 0, 64, -64, 64)
 visible = false
 polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 
+[node name="BigSquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
+
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 
 [node name="Node2D" type="Node2D" parent="."]
