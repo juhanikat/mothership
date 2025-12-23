@@ -7,6 +7,7 @@ var connector_scene = load("res://scenes/connector.tscn")
 @export var room_info: Control
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
+@export var texture_polygon: Polygon2D
 
 @export var nav_region: NavigationRegion2D
 @export var nav_agent: NavigationAgent2D
@@ -62,6 +63,11 @@ func _ready() -> void:
 
 	polygon.polygon = room_shapes[_shape]
 
+	# shapes the texture (Polygon2D) according to the room's shape,
+	# and colors it randomly.
+	# Replace this when creating actual textures for rooms.
+	create_texture()
+
 	# creates and shapes the NavigationRegion for the room.
 	create_navigation_region()
 
@@ -101,9 +107,6 @@ func _process(_delta: float) -> void:
 	#snap rotation to target value once close enough, might prevent some bugs with rounding
 	if abs(rotation_degrees - target_rotation) < 0.05:
 		rotation_degrees = target_rotation
-
-
-
 
 
 func create_clickable_area() -> void:
@@ -152,6 +155,11 @@ func create_navigation_region() -> void:
 	new_nav_polygon.add_outline(room_shapes[_shape])
 	nav_region.navigation_polygon = new_nav_polygon
 	nav_region.bake_navigation_polygon()
+
+
+func create_texture() -> void:
+	texture_polygon.polygon = polygon.polygon
+	texture_polygon.color = RoomData.room_colors.pick_random()
 
 
 func get_own_connectors() -> Array[Area2D]:

@@ -9,6 +9,8 @@ class_name RoomData
 enum RoomShape {LShape, SquareShape}
 enum RoomType {COMMAND_ROOM, POWER_PLANT, CREW_QUARTERS}
 
+const room_colors = [Color("ff5a55"), Color("77a6fb"), Color("e2c964")]
+
 
 ## TODO: Use classes instead of dicts here to get autocomplete?
 const _command_room_data: Dictionary[String, Variant] = {
