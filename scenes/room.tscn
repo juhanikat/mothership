@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://c83mgqdw0ck3c"]
+[gd_scene load_steps=2 format=3 uid="uid://b5dj4e3qdd2f6"]
 
-[ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/room.gd" id="1_36trf"]
+[ext_resource type="Script" path="res://scenes/room.gd" id="1_36trf"]
 
 [node name="Room" type="Node2D" node_paths=PackedStringArray("room_info", "room_name_label", "power_usage_label", "nav_region", "nav_agent", "room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
 script = ExtResource("1_36trf")

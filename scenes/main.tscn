@@ -29,6 +29,7 @@ shape = SubResource("RectangleShape2D_0wfyh")
 [node name="NavigationAgent" type="NavigationAgent2D" parent="NavActor"]
 
 [node name="PathLine" type="Line2D" parent="."]
+default_color = Color(0.286147, 0.60386, 1, 1)
 
 [connection signal="area_entered" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_entered"]
 [connection signal="area_exited" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_exited"]
