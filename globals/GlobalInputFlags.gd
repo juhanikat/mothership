@@ -9,3 +9,4 @@ var path_build_mode: bool = false:
 			print("Path build mode ON")
 		else:
 			print("Path build mode OFF")
+		GlobalSignals.path_build_mode_toggled.emit(path_build_mode)

@@ -1,16 +1,23 @@
 TODO:
-	1. Don't let room be placed if any connectors are partially overlapped by another connector (but not fully)?
-	2. This might cause bugs with naivgation regions if not fixed.
+	1. What if a room is connected to 2 or more rooms at the same time, what happens to the adjacency lists etc? Check.
 
 
-Rooms
+
+ROOMS
 
 When spawning a new room, call the init_room function and give the correct room data as a parameter
 (these are in the room_data dict inside the RoomData script). That's all!
 
-If a room is picked up and then put down near or on top of another room, the check_connector_snap()
+If a room is picked up and then put down near or on top of another room, the connect_rooms()
 method inside room.gd is called to see if the room connectors are close enough to connect. If not,
 the room cannot be put down there.
+
+If the room can be connected, it is, and the room_connected signal is emitted. Each room will listen to
+this signal, and if the connectors in the emitted signal match their own connectors, they will react
+accordingly. Everything that needs to be done AFTER rooms have been placed should therefore be in
+the _on_room_connected function inside room.gd.
+
+
 
 RoomData (IMPORTANT!)
 
@@ -23,6 +30,8 @@ Remember to change the room_shape_dimensions dict if you resize the rooms!
 Add some offset to connector placements in the room_connectors dict, so the rooms are not adjacent when snapped.
 Otherwise, room area detection does not work because the room areas are too close together!
 
+
+
 CREATING A NEW ROOM TYPE:
 	1. Add the new room type (e.g. MY_ROOM) to the RoomTyåe enum in RoomData.gd.
 	(If the new room has a new, non-existing shape as well, add the shape to the RoomShape enum)
@@ -33,3 +42,11 @@ CREATING A NEW ROOM TYPE:
 	5. Finally, if you created a new shape, add a polygon representing it to the "AllRoomShapes"
 	node inside the Room scene, and update the (_ready(), create_clickable_area()) function in room.gd accordingly.
 	(This should be simplified!)
+
+
+
+FOLDER STRUCTURE FOR THE PROJECT
+
+The "room" folder has everything that is related to a single room: the room scene, the connector scene etc.
+There's also the  "RoomConnections" script, which holds functions related to connecting rooms or checking distances etc.
+(These are not in room.gd mainly to not make that script too lengthy)

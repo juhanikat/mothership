@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b2hljfbu67bkx"]
 
-[ext_resource type="Script" uid="uid://ckk2sqm7720y" path="res://scenes/room_info.gd" id="1_xv4oe"]
+[ext_resource type="Script" uid="uid://ckk2sqm7720y" path="res://room/room_info.gd" id="1_xv4oe"]
 
 [node name="RoomInfo" type="VBoxContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "description_popup_label")]
 z_index = 1

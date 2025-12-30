@@ -18,8 +18,8 @@ class_name Main
 # All room info boxes are children of this node
 @export var room_info_nodes: Control
 
-var room_scene = load("res://scenes/room.tscn")
-var room_info_scene = load("res://scenes/room_info.tscn")
+var room_scene = load("res://room/room.tscn")
+var room_info_scene = load("res://room/room_info.tscn")
 
 const room_data = RoomData.room_data
 var room_inside_spawn_area: bool = false
@@ -30,7 +30,9 @@ var all_connectors = []
 
 
 var path_start: Vector2
+var path_start_room: Room # the room where the path starts
 var path_end: Vector2
+var path_end_room: Room # the room where the path ends
 
 
 
@@ -53,9 +55,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		if not path_start:
 			path_line.clear_points() # clear the line from previous navigation
 			path_start = event.global_position
+			for room: Room in get_tree().get_nodes_in_group("Room"):
+				if room.hovering:
+					# if mouse is inside a room when clicking, that room becomes the starting room
+					print(room)
+					path_start_room = room
 		else:
 			path_end = event.global_position
+			for room: Room in get_tree().get_nodes_in_group("Room"):
+				if room.hovering:
+					# if mouse is inside a room when clicking, that room becomes the starting room
+					print(room)
+					path_end_room = room
 			find_path(path_start, path_end)
+			var path_length = RoomConnections.distance_between(path_start_room, path_end_room)
+			GlobalSignals.path_completed.emit(path_start_room, path_end_room, path_length)
 			path_start = Vector2(0, 0)
 			path_end = Vector2(0, 0)
 
@@ -78,6 +92,7 @@ func spawn_room(room_type: RoomData.RoomType):
 	var new_room_shape = new_room_data["room_shape"]
 	new_room.init_room(new_room_data)
 	new_room.global_position = room_spawn_area.global_position
+
 
 	if room_inside_spawn_area:
 		print("Cannot spawn new room while existing one is inside spawn area!")
@@ -106,10 +121,10 @@ func find_path(from: Vector2, to: Vector2) -> void:
 
 
 func _on_room_spawn_area_area_entered(area: Area2D) -> void:
-	if area.is_in_group("RoomClickableArea"):
+	if area.is_in_group("RoomArea"):
 		room_inside_spawn_area = true
 
 
 func _on_room_spawn_area_area_exited(area: Area2D) -> void:
-	if area.is_in_group("RoomClickableArea"):
+	if area.is_in_group("RoomArea"):
 		room_inside_spawn_area = false

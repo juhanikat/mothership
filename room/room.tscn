@@ -1,12 +1,13 @@
 [gd_scene load_steps=2 format=3 uid="uid://b5dj4e3qdd2f6"]
 
-[ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://scenes/room.gd" id="1_36trf"]
+[ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://room/room.gd" id="1_ppkfq"]
 
-[node name="Room" type="Node2D" node_paths=PackedStringArray("texture_polygon", "nav_region", "nav_agent", "room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
-script = ExtResource("1_36trf")
+[node name="Room" type="Node2D" node_paths=PackedStringArray("texture_polygon", "nav_region", "nav_agent", "connectors_node", "room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
+script = ExtResource("1_ppkfq")
 texture_polygon = NodePath("TexturePolygon")
 nav_region = NodePath("NavigationRegion2D")
 nav_agent = NodePath("Node2D/NavigationAgent2D")
+connectors_node = NodePath("Connectors")
 room_area = NodePath("RoomArea")
 polygon = NodePath("RoomArea/Polygon")
 all_room_shapes = NodePath("AllRoomShapes")
@@ -37,6 +38,8 @@ polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="Node2D"]
+
+[node name="Connectors" type="Node2D" parent="."]
 
 [connection signal="area_entered" from="RoomArea" to="." method="_on_room_area_area_entered"]
 [connection signal="area_exited" from="RoomArea" to="." method="_on_room_area_area_exited"]

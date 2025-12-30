@@ -2,11 +2,13 @@
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://scenes/hud.gd" id="1_ahhtf"]
 
-[node name="HUD" type="CanvasLayer"]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("path_build_mode_label", "path_info_label")]
 script = ExtResource("1_ahhtf")
+path_build_mode_label = NodePath("TopBar/PathBuildModeLabel")
+path_info_label = NodePath("TopBar/PathInfoLabel")
 
 [node name="TopBar" type="HBoxContainer" parent="."]
-offset_right = 40.0
+offset_right = 1152.0
 offset_bottom = 40.0
 
 [node name="CommandRoomButton" type="Button" parent="TopBar"]
@@ -23,6 +25,18 @@ text = "Add Power Plant"
 layout_mode = 2
 focus_mode = 0
 text = "Add Crew Quarters"
+
+[node name="PathBuildModeLabel" type="RichTextLabel" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "path build mode label"
+fit_content = true
+
+[node name="PathInfoLabel" type="RichTextLabel" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "path build mode label"
+fit_content = true
 
 [connection signal="pressed" from="TopBar/CommandRoomButton" to="." method="_on_command_room_button_pressed"]
 [connection signal="pressed" from="TopBar/PowerPlantButton" to="." method="_on_power_plant_button_pressed"]

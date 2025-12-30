@@ -1,12 +1,13 @@
 extends Node2D
 class_name Room
 
-var connector_scene = load("res://scenes/connector.tscn")
+var connector_scene = load("res://room/connector.tscn")
 
 @export var texture_polygon: Polygon2D
 
 @export var nav_region: NavigationRegion2D
 @export var nav_agent: NavigationAgent2D
+@export var connectors_node: Node2D
 
 @export var room_area: Area2D # actual CollisionPolygon of the room
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
@@ -29,6 +30,8 @@ var target_rotation: float = 0
 
 var _shape: RoomData.RoomShape
 var _data: Dictionary[String, Variant]
+
+var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
 
 
 func init_room(i_data: Dictionary[String, Variant]) -> void:
@@ -61,6 +64,8 @@ func _ready() -> void:
 	# creates and shapes the NavigationRegion for the room.
 	create_navigation_region()
 
+	GlobalSignals.room_connected.connect(_on_room_connected)
+
 
 func _input(event: InputEvent) -> void:
 	await get_tree().physics_frame # to make sure area overlap is detected
@@ -75,12 +80,19 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton and hovering and event.is_pressed():
 		if is_picked:
-			check_connector_snap()
+			var connected = await connect_rooms()
+			if connected:
+				return
+
 			if len(overlapping_room_areas) > 0:
 				print("Cannot place room on top of another room.")
 				return
-			else:
-				is_picked = false
+			for connector in get_own_connectors():
+				if len(connector.get_overlapping_room_areas()) > 0 or len(connector.get_overlapping_connectors()) > 0:
+					print("Cannot place room while its connectors are overlapping another room or connector.")
+					return
+			is_picked = false
+
 		elif len(overlapping_room_areas) == 0:
 			is_picked = true
 			var global_mouse_pos = get_global_mouse_position()
@@ -88,11 +100,10 @@ func _input(event: InputEvent) -> void:
 			room_info.global_position = global_position + RoomData.room_info_pos[_shape]
 		return
 
-	if event is InputEventMouseMotion:
-		if is_picked:
-			var global_mouse_pos = get_global_mouse_position()
-			global_position = global_mouse_pos
-			room_info.global_position = global_position + RoomData.room_info_pos[_shape]
+	if event is InputEventMouseMotion and is_picked:
+		var global_mouse_pos = get_global_mouse_position()
+		global_position = global_mouse_pos
+		room_info.global_position = global_position + RoomData.room_info_pos[_shape]
 
 	elif event.is_action_pressed("rotate_tile") and is_picked:
 			target_rotation += 90
@@ -114,10 +125,45 @@ func _process(_delta: float) -> void:
 		rotation_degrees = target_rotation
 
 
+func connect_rooms() -> bool:
+	## Called when a room is placed while it overlaps another room.
+	## Locks the room in place while checking if it can be placed, then either
+	## places it or removes the lock.
+	## If the room is placed, room_connected is emitted so that both participating rooms
+	## can update their adjacent_rooms list and locked status.
+	locked = true
+	var all_connectors: Array[Connector]
+	# weird trick to cast the type correctly
+	all_connectors.assign(get_tree().get_nodes_in_group("Connector"))
+	var connector_pair = RoomConnections.find_connector_pairing(get_own_connectors(), all_connectors, 20)
+	if len(connector_pair) == 0:
+		locked = false
+		return false
+
+	var original_position = global_position
+	var to = connector_pair[1].global_position - connector_pair[0].global_position
+	global_position += to
+	room_info.global_position += to
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
+	for area in overlapping_room_areas:
+		if area.is_in_group("RoomArea"):
+			global_position = original_position
+			print("Tried to snap connectors, but rooms are overlapping.")
+			locked = false
+			return false
+
+	print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector_pair[1])]))
+	GlobalSignals.room_connected.emit(connector_pair[0], connector_pair[1])
+	return true
+
+
 func create_connectors() -> void:
 	for connector_pos in RoomData.room_connectors[_shape]:
 		var new_connector: Area2D = connector_scene.instantiate()
-		add_child(new_connector)
+		connectors_node.add_child(new_connector)
 		new_connector.position = connector_pos
 
 
@@ -135,68 +181,40 @@ func create_texture() -> void:
 	texture_polygon.color = RoomData.room_colors.pick_random()
 
 
-func get_own_connectors() -> Array[Area2D]:
+func get_own_connectors() -> Array[Connector]:
 	## Returns all connectors that are children of this room.
 	var all_connectors = get_tree().get_nodes_in_group("Connector")
-	var own_connectors: Array[Area2D] = []
+	var own_connectors: Array[Connector] = []
 	for connector in all_connectors:
 		# check if connector is a child of this room, and add it to own_connectors
-			if is_ancestor_of(connector):
+			if connectors_node.is_ancestor_of(connector):
 				own_connectors.append(connector)
 	return own_connectors
 
 
-func check_connector_snap() -> void:
-	## loop through all connectors (in the entire game),
-	## and find first two connectors that are in range of each other.
-	## If found, try to snap those connectors.
-	locked = true
-	var all_connectors = get_tree().get_nodes_in_group("Connector")
-	var own_connectors = get_own_connectors()
-	var closest_pair = []
-	var closest_pair_distance = null
-	var was_snapped: bool = false
-	for own_connector: Area2D in own_connectors:
-		for other_connector: Area2D in all_connectors:
-			if other_connector in own_connectors:
+func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
+	## If one of the connectors belongs to this room, lock the room, and add the owner of the
+	## other connector to this rooms adjacent_rooms list.
+	## If the connector belonging to this room is connector2, also delete
+	## the connectors NavigationRegion (this has to be done in one of the connectors).
+	if connector1 in get_own_connectors():
+		locked = true
+		adjacent_rooms.append(connector2.get_parent_room())
+	elif connector2 in get_own_connectors():
+		locked = true
+		adjacent_rooms.append(connector1.get_parent_room())
+		connector2.delete_navigation_region()
+
+		await get_tree().physics_frame
+		for connector in connector2.get_overlapping_connectors():
+			if connector == connector1:
 				continue
-			var distance = own_connector.global_position.distance_to(other_connector.global_position)
-			if distance < MAX_CONNECTOR_DISTANCE and (len(closest_pair) == 0 or distance < closest_pair_distance):
-				## NOTE: Remember that own_connector must be first in the list!
-				closest_pair = [own_connector, other_connector]
-				closest_pair_distance = distance
-	if closest_pair:
-		var other_room = closest_pair[1].get_parent()
-		was_snapped = await try_to_snap_connectors(closest_pair[0], closest_pair[1], other_room)
-	if not was_snapped:
-		locked = false
-	return
-
-
-func try_to_snap_connectors(emitters_connector: Connector, other_connector: Connector, other_room: Room) -> bool:
-	## Called inside check_connector_snap, returns true if connectors were snapped so that
-	## that function can keep the locked status enabled.
-	var to = other_connector.global_position - emitters_connector.global_position
-	global_position += to
-	room_info.global_position += to
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-
-	for area in overlapping_room_areas:
-		if area.is_in_group("RoomArea"):
-			print("Tried to snap connectors, but rooms are overlapping.")
-			return false
-
-	print("Connectors ({0}) and ({1}) snapped together.".format([str(emitters_connector), str(other_connector)]))
-	## NOTE: Also lock the other room, and remove the other connectors navigationregion!
-	other_room.locked = true
-	other_connector.delete_navigation_region()
-	return true
+			connector.queue_free()
 
 
 func _on_room_area_area_entered(area: Area2D) -> void:
 	if area.is_in_group("RoomArea"):
+		print(area)
 		overlapping_room_areas.append(area)
 
 
