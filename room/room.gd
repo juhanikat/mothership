@@ -111,11 +111,14 @@ func _input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	if hovering:
-		## NOTE: room_infos description label is toggled here since room_info itself
+		## NOTE: room_info's description label is toggled here since room_info itself
 		## cannot be easily set to read input without consuming it :(
-		room_info.description_popup_label.show()
+		if GlobalInputFlags.show_tooltips == true:
+			room_info.description_popup_label.show()
+		room_info.adjacent_rooms_popup_label.show()
 	else:
 		room_info.description_popup_label.hide()
+		room_info.adjacent_rooms_popup_label.hide()
 
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
 
@@ -129,8 +132,8 @@ func connect_rooms() -> bool:
 	## Called when a room is placed while it overlaps another room.
 	## Locks the room in place while checking if it can be placed, then either
 	## places it or removes the lock.
-	## If the room is placed, room_connected is emitted so that both participating rooms
-	## can update their adjacent_rooms list and locked status.
+	## If the room is placed, the "room_connected" signal is emitted so that ALL participating rooms
+	## can update their "adjacent_rooms" list and "locked" status.
 	locked = true
 	var all_connectors: Array[Connector]
 	# weird trick to cast the type correctly
@@ -157,6 +160,20 @@ func connect_rooms() -> bool:
 
 	print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector_pair[1])]))
 	GlobalSignals.room_connected.emit(connector_pair[0], connector_pair[1])
+
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	for connector in all_connectors:
+		if connector in connector_pair:
+			continue
+		# if another connector has been connected due the room placement, update the participating room's
+		# "adjacent_rooms" lists accordingly.
+		print(connector.connected_to())
+		if connector.connected_to() == connector_pair[0]:
+			print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector)]))
+			GlobalSignals.room_connected.emit(connector_pair[0], connector)
+
 	return true
 
 
@@ -199,22 +216,28 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 	## the connectors NavigationRegion (this has to be done in one of the connectors).
 	if connector1 in get_own_connectors():
 		locked = true
-		adjacent_rooms.append(connector2.get_parent_room())
+		var other_room = connector2.get_parent_room()
+		adjacent_rooms.append(other_room)
+		# TODO: fix this, looks ugly and uses _data which should be private
+		room_info.add_adjacent_room(other_room, other_room._data["room_name"])
 	elif connector2 in get_own_connectors():
 		locked = true
-		adjacent_rooms.append(connector1.get_parent_room())
+		var other_room = connector1.get_parent_room()
+		adjacent_rooms.append(other_room)
+		room_info.add_adjacent_room(other_room, other_room._data["room_name"])
 		connector2.delete_navigation_region()
 
+		## TODO: ??? Is this necessary, or in the right place?
 		await get_tree().physics_frame
 		for connector in connector2.get_overlapping_connectors():
 			if connector == connector1:
 				continue
+			print("Deleted connector %s" % [str(connector)])
 			connector.queue_free()
 
 
 func _on_room_area_area_entered(area: Area2D) -> void:
 	if area.is_in_group("RoomArea"):
-		print(area)
 		overlapping_room_areas.append(area)
 
 

@@ -36,4 +36,9 @@ size_flags_horizontal = 3
 text = "path build mode label"
 fit_content = true
 
+[node name="ShowTooltipsButton" type="CheckButton" parent="TopBar"]
+layout_mode = 2
+text = "Show tooltips"
+
 [connection signal="pressed" from="TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
+[connection signal="toggled" from="TopBar/ShowTooltipsButton" to="." method="_on_show_tooltips_button_toggled"]

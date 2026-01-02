@@ -18,6 +18,8 @@ func _ready() -> void:
 	for room_data in RoomData.room_data.values():
 		room_list.add_item(room_data["room_name"])
 
+	room_list.select(0)
+
 
 func find_room_data_by_name(room_name: String) -> Dictionary:
 	for room_data in RoomData.room_data.values():
@@ -42,6 +44,12 @@ func _on_path_completed(path_start_room: Room, path_end_room: Room, path_length:
 
 func _on_add_room_button_pressed() -> void:
 	var selected_room = room_list.get_item_text(room_list.get_selected_items()[0])
-	print(selected_room)
 	var selected_room_data = find_room_data_by_name(selected_room)
 	main.spawn_room(selected_room_data)
+
+
+func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		GlobalInputFlags.show_tooltips = true
+	else:
+		GlobalInputFlags.show_tooltips = false

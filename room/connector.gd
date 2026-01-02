@@ -67,9 +67,9 @@ func get_overlapping_room_areas() -> Array[Room]:
 
 
 func connected_to() -> Variant:
-	## Returns the connector that is connected to this one (both connectors must
-	## fully overlap), or null otherwise.
-	## Idk if this is used for anything at the moment.
+	## Returns the connector that is connected to this one (both connectors must fully overlap),
+	## or null otherwise.
+	## Used when a room is connected to see which rooms must have their "adjacent_rooms" lists updated.
 	for connector: Connector in get_tree().get_nodes_in_group("Connector"):
 		if connector == self:
 			continue
