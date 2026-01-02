@@ -3,6 +3,7 @@ extends CanvasLayer
 
 @export var path_build_mode_label: RichTextLabel
 @export var path_info_label: RichTextLabel
+@export var room_list: ItemList
 
 @onready var main: Main = get_parent()
 
@@ -13,6 +14,17 @@ func _ready() -> void:
 	GlobalSignals.path_completed.connect(_on_path_completed)
 	path_build_mode_label.text = "Path build mode: OFF"
 	path_info_label.text = "No path yet"
+
+	for room_data in RoomData.room_data.values():
+		room_list.add_item(room_data["room_name"])
+
+
+func find_room_data_by_name(room_name: String) -> Dictionary:
+	for room_data in RoomData.room_data.values():
+		if room_data["room_name"] == room_name:
+			return room_data
+	push_error("Could not find room by name: %s" % [room_name])
+	return {}
 
 
 func _on_path_build_mode_toggled(new_path_build_mode: bool) -> void:
@@ -28,13 +40,8 @@ func _on_path_completed(path_start_room: Room, path_end_room: Room, path_length:
 	path_info_label.text = "Path starts at room \n%s and ends at room \n%s, with length %s" % [str(path_start_room), str(path_end_room), str(path_length)]
 
 
-func _on_command_room_button_pressed() -> void:
-	main.spawn_room(RoomData.RoomType.COMMAND_ROOM)
-
-
-func _on_power_plant_button_pressed() -> void:
-	main.spawn_room(RoomData.RoomType.POWER_PLANT)
-
-
-func _on_crew_quarters_button_pressed() -> void:
-	main.spawn_room(RoomData.RoomType.CREW_QUARTERS)
+func _on_add_room_button_pressed() -> void:
+	var selected_room = room_list.get_item_text(room_list.get_selected_items()[0])
+	print(selected_room)
+	var selected_room_data = find_room_data_by_name(selected_room)
+	main.spawn_room(selected_room_data)

@@ -7,7 +7,7 @@ class_name RoomData
 ## power_usage: int = How much power the room uses.
 
 enum RoomShape {LShape, SmallSquareShape, BigSquareShape}
-enum RoomType {COMMAND_ROOM, POWER_PLANT, CREW_QUARTERS}
+enum RoomType {COMMAND_ROOM, POWER_PLANT, CREW_QUARTERS, GARDEN}
 
 const room_colors = [Color("ff5a55"), Color("77a6fb"), Color("e2c964")]
 
@@ -34,11 +34,19 @@ const _crew_quarters_data: Dictionary[String, Variant] = {
 	"power_usage": 1
 }
 
+const _garden_data: Dictionary[String, Variant] = {
+	"room_name": "Garden",
+	"room_shape": RoomShape.SmallSquareShape,
+	"room_desc": "Raises your crew quarter limit by 2.",
+	"power_usage": 0
+}
+
 ## Use this dict in tile.gd.
 const room_data = {
 	RoomType.COMMAND_ROOM: _command_room_data,
 	RoomType.POWER_PLANT: _power_plant_data,
-	RoomType.CREW_QUARTERS: _crew_quarters_data
+	RoomType.CREW_QUARTERS: _crew_quarters_data,
+	RoomType.GARDEN: _garden_data
 }
 
 

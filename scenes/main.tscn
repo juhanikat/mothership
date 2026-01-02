@@ -3,8 +3,9 @@
 [ext_resource type="Script" uid="uid://6umoox1qwm3k" path="res://scenes/main.gd" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://d1spf4ifa2e2j" path="res://scenes/hud.tscn" id="2_0wfyh"]
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("nav_actor", "nav_agent", "path_line", "room_spawn_area", "room_spawn_area_polygon", "texture_polygon", "room_nodes", "room_info_nodes")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_actor", "nav_agent", "path_line", "room_spawn_area", "room_spawn_area_polygon", "texture_polygon", "room_nodes", "room_info_nodes")]
 script = ExtResource("1_0wfyh")
+camera = NodePath("Camera2D")
 nav_actor = NodePath("NavActor")
 nav_agent = NodePath("NavActor/NavigationAgent")
 path_line = NodePath("PathLine")
@@ -18,6 +19,7 @@ room_info_nodes = NodePath("RoomInfoNodes")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
+editor_draw_drag_margin = true
 
 [node name="RoomNodes" type="Node2D" parent="."]
 

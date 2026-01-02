@@ -2,7 +2,7 @@ extends Node2D
 class_name Main
 
 
-
+@export var camera: Camera2D
 @export var nav_actor: Node2D
 @export var nav_agent: NavigationAgent2D
 @export var path_line: Line2D
@@ -34,10 +34,13 @@ var path_start_room: Room # the room where the path starts
 var path_end: Vector2
 var path_end_room: Room # the room where the path ends
 
+var camera_dragging: bool = false
+var previous_mouse_pos: Vector2 = Vector2(0, 0)
+
 
 
 func _ready() -> void:
-	spawn_room(RoomData.RoomType.POWER_PLANT)
+	spawn_room(RoomData.room_data[RoomData.RoomType.POWER_PLANT])
 	create_texture()
 
 
@@ -50,6 +53,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("path_build_mode"):
 		GlobalInputFlags.path_build_mode = not GlobalInputFlags.path_build_mode
 
+	if event.is_action_pressed("drag_camera"):
+		camera_dragging = true
+	if event.is_action_released("drag_camera"):
+		camera_dragging = false
+		previous_mouse_pos = Vector2(0, 0)
+
+	if event is InputEventMouseMotion and camera_dragging:
+		if not previous_mouse_pos:
+			previous_mouse_pos = get_global_mouse_position()
+		else:
+			camera.offset -= (get_global_mouse_position() - previous_mouse_pos) * 1.5
+			previous_mouse_pos = get_global_mouse_position()
 
 	if event is InputEventMouseButton and GlobalInputFlags.path_build_mode and event.is_pressed():
 		if not path_start:
@@ -86,13 +101,11 @@ func _physics_process(_delta: float) -> void:
 	nav_actor.global_position = next_path_position
 
 
-func spawn_room(room_type: RoomData.RoomType):
+func spawn_room(new_room_data: Dictionary):
 	var new_room: Room = room_scene.instantiate()
-	var new_room_data = RoomData.room_data[room_type]
 	var new_room_shape = new_room_data["room_shape"]
 	new_room.init_room(new_room_data)
 	new_room.global_position = room_spawn_area.global_position
-
 
 	if room_inside_spawn_area:
 		print("Cannot spawn new room while existing one is inside spawn area!")
@@ -104,7 +117,7 @@ func spawn_room(room_type: RoomData.RoomType):
 
 	# room info is a child of main scene because otherwise it will rotate with the room
 	var new_room_info: RoomInfo = room_info_scene.instantiate()
-	new_room_info.init_room_info(RoomData.room_data[room_type])
+	new_room_info.init_room_info(new_room_data)
 	new_room_info.global_position = new_room.global_position + RoomData.room_info_pos[new_room_shape]
 	# room is responsible for moving info box with the room itself,
 	# so it needs a reference of it
