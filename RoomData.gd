@@ -24,7 +24,8 @@ const _power_plant_data: Dictionary[String, Variant] = {
 	"room_name": "Power Plant",
 	"room_shape": RoomShape.LShape,
 	"room_desc": "Provides power for nearby rooms.",
-	"power_usage": 0
+	"power_usage": 0,
+	"power_supply": {"capacity": 10, "range": 5}
 }
 
 const _crew_quarters_data: Dictionary[String, Variant] = {

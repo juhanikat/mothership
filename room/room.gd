@@ -31,11 +31,17 @@ var target_rotation: float = 0
 var _shape: RoomData.RoomShape
 var _data: Dictionary[String, Variant]
 
+var gameplay: RoomGameplay
+
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
 
+var powered: bool = false
 
+var power_supply = {"capacity": 0, "range": 0}
+var supplies_to: Array[Room] = []
+
+## Call this before the tile is added to the scene tree.
 func init_room(i_data: Dictionary[String, Variant]) -> void:
-	## Call this before the tile is added to the scene tree.
 	_data = i_data
 	_shape = _data["room_shape"]
 
@@ -56,6 +62,7 @@ func _ready() -> void:
 
 	polygon.polygon = room_shapes[_shape]
 
+
 	# shapes the texture (Polygon2D) according to the room's shape,
 	# and colors it randomly.
 	# Replace this when creating actual textures for rooms.
@@ -66,10 +73,18 @@ func _ready() -> void:
 
 	GlobalSignals.room_connected.connect(_on_room_connected)
 
+	# RoomGameplay handles supplying power etc. gameplay things
+	gameplay = RoomGameplay.new()
+	add_child(gameplay)
+	gameplay.init_gameplay_features(_data)
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if locked:
+		if event.is_action_pressed("toggle_power") and hovering:
+			gameplay.toggle_power()
 		return
+
 	if GlobalInputFlags.path_build_mode:
 		return
 
@@ -102,7 +117,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		global_position = global_mouse_pos
 		room_info.global_position = global_position + RoomData.room_info_pos[_shape]
 
-	elif event.is_action_pressed("rotate_tile") and is_picked:
+	if event.is_action_pressed("rotate_tile") and is_picked:
 			target_rotation += 90
 
 
@@ -172,6 +187,7 @@ func create_connectors() -> void:
 		connectors_node.add_child(new_connector)
 		new_connector.position = connector_pos
 
+
 ## Creates a navigation region for this room (connector regions are made in connector.gd).
 func create_navigation_region() -> void:
 	var new_nav_polygon = NavigationPolygon.new()
@@ -184,6 +200,8 @@ func create_navigation_region() -> void:
 func create_texture() -> void:
 	texture_polygon.polygon = polygon.polygon
 	texture_polygon.color = RoomData.room_colors.pick_random()
+	texture_polygon.color.a -= 0.5 # because rooms spawn unpowered
+
 
 ## Returns all connectors that are children of this room.
 func get_own_connectors() -> Array[Connector]:

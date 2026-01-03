@@ -4,41 +4,48 @@
 
 [node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("path_build_mode_label", "path_info_label", "room_list")]
 script = ExtResource("1_ahhtf")
-path_build_mode_label = NodePath("TopBar/PathBuildModeLabel")
-path_info_label = NodePath("TopBar/PathInfoLabel")
-room_list = NodePath("TopBar/RoomList")
+path_build_mode_label = NodePath("PanelContainer/TopBar/PathBuildModeLabel")
+path_info_label = NodePath("PanelContainer/TopBar/PathInfoLabel")
+room_list = NodePath("PanelContainer/TopBar/RoomList")
 
-[node name="TopBar" type="HBoxContainer" parent="."]
-offset_right = 1152.0
-offset_bottom = 40.0
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.195988
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
 
-[node name="RoomList" type="ItemList" parent="TopBar"]
-custom_minimum_size = Vector2(0, 200)
+[node name="TopBar" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="RoomList" type="ItemList" parent="PanelContainer/TopBar"]
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 auto_width = true
 max_columns = 2
 same_column_width = true
 
-[node name="AddRoomButton" type="Button" parent="TopBar"]
+[node name="AddRoomButton" type="Button" parent="PanelContainer/TopBar"]
 layout_mode = 2
 focus_mode = 0
 text = "Add Selected Room"
 
-[node name="PathBuildModeLabel" type="RichTextLabel" parent="TopBar"]
+[node name="PathBuildModeLabel" type="RichTextLabel" parent="PanelContainer/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "path build mode label"
 fit_content = true
 
-[node name="PathInfoLabel" type="RichTextLabel" parent="TopBar"]
+[node name="PathInfoLabel" type="RichTextLabel" parent="PanelContainer/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "path build mode label"
 fit_content = true
 
-[node name="ShowTooltipsButton" type="CheckButton" parent="TopBar"]
+[node name="ShowTooltipsButton" type="CheckButton" parent="PanelContainer/TopBar"]
 layout_mode = 2
 text = "Show tooltips"
 
-[connection signal="pressed" from="TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
-[connection signal="toggled" from="TopBar/ShowTooltipsButton" to="." method="_on_show_tooltips_button_toggled"]
+[connection signal="pressed" from="PanelContainer/TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
+[connection signal="toggled" from="PanelContainer/TopBar/ShowTooltipsButton" to="." method="_on_show_tooltips_button_toggled"]
