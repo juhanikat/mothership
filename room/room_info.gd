@@ -24,8 +24,8 @@ func _process(_delta: float) -> void:
 		description_popup_label.global_position = get_global_mouse_position()
 
 
-func add_adjacent_room(new_room: Room, room_name: String) -> void:
+func update_adjacent_rooms_label(rooms: Array[Room]) -> void:
 	## Called by room.gd to update the adjacent rooms popup.
-	if adjacent_rooms_popup_label.text == "No adjacent rooms.":
-		adjacent_rooms_popup_label.text = "Adjacent rooms:"
-	adjacent_rooms_popup_label.text += "\n %s (%s)" % [str(new_room), room_name]
+	adjacent_rooms_popup_label.text = "Adjacent rooms (%s):\n" % [str(len(rooms))]
+	for room in rooms:
+		adjacent_rooms_popup_label.text += "\n%s (%s)" % [str(room), str(room._data["room_name"])]

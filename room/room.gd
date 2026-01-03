@@ -67,18 +67,15 @@ func _ready() -> void:
 	GlobalSignals.room_connected.connect(_on_room_connected)
 
 
-func _input(event: InputEvent) -> void:
-	await get_tree().physics_frame # to make sure area overlap is detected
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-
+func _unhandled_input(event: InputEvent) -> void:
 	if locked:
 		return
-
 	if GlobalInputFlags.path_build_mode:
 		return
 
-	if event is InputEventMouseButton and hovering and event.is_pressed():
+	await get_tree().physics_frame # to make sure area overlap is detected
+
+	if event.is_action_pressed("move_room") and event.is_pressed():
 		if is_picked:
 			var connected = await connect_rooms()
 			if connected:
@@ -93,7 +90,7 @@ func _input(event: InputEvent) -> void:
 					return
 			is_picked = false
 
-		elif len(overlapping_room_areas) == 0:
+		elif len(overlapping_room_areas) == 0 and hovering:
 			is_picked = true
 			var global_mouse_pos = get_global_mouse_position()
 			global_position = global_mouse_pos
@@ -116,9 +113,11 @@ func _process(_delta: float) -> void:
 		if GlobalInputFlags.show_tooltips == true:
 			room_info.description_popup_label.show()
 		room_info.adjacent_rooms_popup_label.show()
+		room_info.z_index = 1
 	else:
 		room_info.description_popup_label.hide()
 		room_info.adjacent_rooms_popup_label.hide()
+		room_info.z_index = 0
 
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
 
@@ -128,12 +127,12 @@ func _process(_delta: float) -> void:
 		rotation_degrees = target_rotation
 
 
+## Called when a room is placed while it overlaps another room.
+## Locks the room in place while checking if it can be placed, then either
+## places it or removes the lock.
+## If the room is placed, the "room_connected" signal is emitted and the list of own connectors
+## is looped through so that ALL newly adjacent rooms can get connected properly.
 func connect_rooms() -> bool:
-	## Called when a room is placed while it overlaps another room.
-	## Locks the room in place while checking if it can be placed, then either
-	## places it or removes the lock.
-	## If the room is placed, the "room_connected" signal is emitted so that ALL participating rooms
-	## can update their "adjacent_rooms" list and "locked" status.
 	locked = true
 	var all_connectors: Array[Connector]
 	# weird trick to cast the type correctly
@@ -147,10 +146,8 @@ func connect_rooms() -> bool:
 	var to = connector_pair[1].global_position - connector_pair[0].global_position
 	global_position += to
 	room_info.global_position += to
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	await get_tree().physics_frame
 
+	await get_tree().physics_frame
 	for area in overlapping_room_areas:
 		if area.is_in_group("RoomArea"):
 			global_position = original_position
@@ -162,18 +159,10 @@ func connect_rooms() -> bool:
 	GlobalSignals.room_connected.emit(connector_pair[0], connector_pair[1])
 
 	await get_tree().physics_frame
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	for connector in all_connectors:
-		if connector in connector_pair:
-			continue
-		# if another connector has been connected due the room placement, update the participating room's
-		# "adjacent_rooms" lists accordingly.
-		print(connector.connected_to())
-		if connector.connected_to() == connector_pair[0]:
-			print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector)]))
-			GlobalSignals.room_connected.emit(connector_pair[0], connector)
-
+	for connector in get_own_connectors():
+		var connected_to: Connector = connector.connected_to()
+		if connected_to and connected_to.get_parent_room() not in adjacent_rooms:
+			GlobalSignals.room_connected.emit(connector, connected_to)
 	return true
 
 
@@ -183,9 +172,8 @@ func create_connectors() -> void:
 		connectors_node.add_child(new_connector)
 		new_connector.position = connector_pos
 
-
+## Creates a navigation region for this room (connector regions are made in connector.gd).
 func create_navigation_region() -> void:
-	## Creates a navigation region for this room (connector regions are made in connector.gd).
 	var new_nav_polygon = NavigationPolygon.new()
 	new_nav_polygon.agent_radius = 0 # otherwise the shape will be too small to exist!
 	new_nav_polygon.add_outline(room_shapes[_shape])
@@ -197,9 +185,8 @@ func create_texture() -> void:
 	texture_polygon.polygon = polygon.polygon
 	texture_polygon.color = RoomData.room_colors.pick_random()
 
-
+## Returns all connectors that are children of this room.
 func get_own_connectors() -> Array[Connector]:
-	## Returns all connectors that are children of this room.
 	var all_connectors = get_tree().get_nodes_in_group("Connector")
 	var own_connectors: Array[Connector] = []
 	for connector in all_connectors:
@@ -209,22 +196,22 @@ func get_own_connectors() -> Array[Connector]:
 	return own_connectors
 
 
+## If one of the connectors belongs to this room, lock the room, and add the owner of the
+## other connector to this rooms adjacent_rooms list.
+## If the connector belonging to this room is connector2, also delete
+## the connectors NavigationRegion (this has to be done in one of the connectors).
 func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
-	## If one of the connectors belongs to this room, lock the room, and add the owner of the
-	## other connector to this rooms adjacent_rooms list.
-	## If the connector belonging to this room is connector2, also delete
-	## the connectors NavigationRegion (this has to be done in one of the connectors).
 	if connector1 in get_own_connectors():
 		locked = true
 		var other_room = connector2.get_parent_room()
 		adjacent_rooms.append(other_room)
 		# TODO: fix this, looks ugly and uses _data which should be private
-		room_info.add_adjacent_room(other_room, other_room._data["room_name"])
+		room_info.update_adjacent_rooms_label(adjacent_rooms)
 	elif connector2 in get_own_connectors():
 		locked = true
 		var other_room = connector1.get_parent_room()
 		adjacent_rooms.append(other_room)
-		room_info.add_adjacent_room(other_room, other_room._data["room_name"])
+		room_info.update_adjacent_rooms_label(adjacent_rooms)
 		connector2.delete_navigation_region()
 
 		## TODO: ??? Is this necessary, or in the right place?

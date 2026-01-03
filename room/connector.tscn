@@ -15,3 +15,6 @@ polygon = PackedVector2Array(-8, -8, -8, 8, 8, 8, 8, -8)
 
 [node name="TexturePolygon" type="Polygon2D" parent="."]
 color = Color(0.747857, 0.719012, 0.743748, 1)
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

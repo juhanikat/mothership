@@ -1,5 +1,5 @@
 TODO:
-	1. What if a room is connected to 2 or more rooms at the same time, what happens to the adjacency lists etc? Check.
+	1. Fix rooms not connecting properly when clicking while moving mouse too fast!
 
 
 

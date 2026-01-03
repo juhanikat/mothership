@@ -8,6 +8,8 @@ class_name Connector
 @export var texture_polygon: Polygon2D
 var connector_color = Color("bfb7be")
 
+var hovering: bool = false
+
 
 
 func _ready() -> void:
@@ -31,6 +33,7 @@ func create_navigation_polygon() -> void:
 
 func delete_navigation_region() -> void:
 	nav_region.queue_free()
+
 
 func get_parent_room() -> Room:
 	## Returns the room that is the parent of this Connector.
@@ -76,3 +79,11 @@ func connected_to() -> Variant:
 		if connector.global_position == global_position:
 			return connector
 	return null
+
+
+func _on_mouse_entered() -> void:
+	hovering = true
+
+
+func _on_mouse_exited() -> void:
+	hovering = false

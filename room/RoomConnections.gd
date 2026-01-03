@@ -4,21 +4,19 @@ class_name RoomConnections
 
 static func distance_between(start_room: Room, end_room: Room) -> int:
 	## Returns the shortest path between two rooms (using a breadth-first search). If no path is found, returns -1.
-	var queue = []
+	var queue = [] # Contains [room: Room, distance_from_starting_room: int] pairs
 	var explored = []
-	var distance = 0
 
-	queue.append(start_room)
+	queue.append([start_room, 0])
 	explored.append(start_room)
 
 	while len(queue) > 0:
-		var current: Room = queue.pop_front()
-		if current == end_room:
-			return distance
-		distance += 1
-		for adjacent_room in current.adjacent_rooms:
+		var current: Array[Variant] = queue.pop_front()
+		if current[0] == end_room:
+			return current[1]
+		for adjacent_room: Room in current[0].adjacent_rooms:
 			if adjacent_room not in explored:
-				queue.append(adjacent_room)
+				queue.append([adjacent_room, current[1] + 1])
 				explored.append(adjacent_room)
 
 	return -1

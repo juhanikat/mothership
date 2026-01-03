@@ -1,11 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://b2hljfbu67bkx"]
+[gd_scene load_steps=3 format=3 uid="uid://b2hljfbu67bkx"]
 
 [ext_resource type="Script" uid="uid://ckk2sqm7720y" path="res://room/room_info.gd" id="1_xv4oe"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yms3g"]
+bg_color = Color(0, 0, 0, 0.545098)
 
 [node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "adjacent_rooms_popup_label", "description_popup_label")]
 offset_right = 128.0
 offset_bottom = 54.0
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_yms3g")
 script = ExtResource("1_xv4oe")
 room_name_label = NodePath("VBoxContainer/RoomName")
 power_usage_label = NodePath("VBoxContainer/PowerUsage")

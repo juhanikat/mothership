@@ -66,30 +66,40 @@ func _unhandled_input(event: InputEvent) -> void:
 			camera.offset -= (get_global_mouse_position() - previous_mouse_pos) * 1.5
 			previous_mouse_pos = get_global_mouse_position()
 
-	if event is InputEventMouseButton and GlobalInputFlags.path_build_mode and event.is_pressed():
+	if event.is_action_pressed("add_point_to_path") and GlobalInputFlags.path_build_mode:
+		var mouse_pos = get_global_mouse_position()
 		if not path_start:
 			path_line.clear_points() # clear the line from previous navigation
-			path_start = event.global_position
-			for room: Room in get_tree().get_nodes_in_group("Room"):
-				if room.hovering:
-					# if mouse is inside a room when clicking, that room becomes the starting room
-					print(room)
-					path_start_room = room
+			path_start = mouse_pos
+			path_start_room = find_clicked_room()
 		else:
-			path_end = event.global_position
-			for room: Room in get_tree().get_nodes_in_group("Room"):
-				if room.hovering:
-					# if mouse is inside a room when clicking, that room becomes the starting room
-					print(room)
-					path_end_room = room
-			find_path(path_start, path_end)
-			var path_length = RoomConnections.distance_between(path_start_room, path_end_room)
-			GlobalSignals.path_completed.emit(path_start_room, path_end_room, path_length)
+			path_end = mouse_pos
+			path_end_room = find_clicked_room()
+
+			if path_start_room and path_end_room:
+				find_path(path_start, path_end)
+				var path_length = RoomConnections.distance_between(path_start_room, path_end_room)
+				GlobalSignals.path_completed.emit(path_start_room, path_end_room, path_length)
+			else:
+				print("Path does not start and end inside a room or connector!")
 			path_start = Vector2(0, 0)
 			path_end = Vector2(0, 0)
 
 
+func find_clicked_room() -> Variant:
+	## Called from _unhandled_input to return the room that has been clicked when building a path,
+	## or null the mouse is not over any room.
+	for room: Room in get_tree().get_nodes_in_group("Room"):
+		if room.hovering:
+			return room
+	for connector: Connector in get_tree().get_nodes_in_group("Connector"):
+		if connector.hovering:
+			return connector.get_parent_room()
+	return null
+
+
 func _physics_process(_delta: float) -> void:
+	#print(get_global_mouse_position())
 	if NavigationServer2D.map_get_iteration_id(nav_agent.get_navigation_map()) == 0:
 		return
 	if nav_agent.is_navigation_finished() or not nav_agent.is_target_reachable():
@@ -99,6 +109,7 @@ func _physics_process(_delta: float) -> void:
 	path_line.add_point(nav_actor.global_position)
 	path_line.add_point(next_path_position)
 	nav_actor.global_position = next_path_position
+
 
 
 func spawn_room(new_room_data: Dictionary):
