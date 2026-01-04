@@ -24,20 +24,25 @@ func init_gameplay_features(data: Dictionary) -> void:
 	if "power_supply" in _data.keys():
 		power_supply = _data["power_supply"].duplicate(true)
 		parent_room.add_to_group("PowerSupply")
+
+	if _data["power_usage"] == 0:
+		# Rooms that have 0 power usage are always powered.
 		powered = true
 		parent_room.texture_polygon.color.a += 0.5
 
 
 func toggle_power() -> void:
-	if parent_room.is_in_group("PowerSupply"):
-		# Power suppliers are always powered.
+	var power_usage: int = _data["power_usage"]
+	if power_usage == 0:
+		# Rooms that have 0 power usage are always powered.
 		return
+
 
 	var not_in_range = true
 	if powered:
 		for power_supplier: Room in get_tree().get_nodes_in_group("PowerSupply"):
 			if parent_room in power_supplier.gameplay.supplies_to:
-				power_supplier.gameplay.power_supply.capacity += 1
+				power_supplier.gameplay.power_supply.capacity += power_usage
 				power_supplier.gameplay.supplies_to.erase(parent_room)
 				power_supplier.room_info.update_power_supply_label(power_supplier.gameplay.power_supply)
 		powered = false
@@ -48,8 +53,8 @@ func toggle_power() -> void:
 			var power_supplier_reach = RoomConnections.get_nearby_rooms(power_supplier, power_supplier.gameplay.power_supply.range)
 			if parent_room in power_supplier_reach:
 				not_in_range = false
-				if power_supplier.gameplay.power_supply.capacity > 0:
-					power_supplier.gameplay.power_supply.capacity -= 1
+				if power_supplier.gameplay.power_supply.capacity >= power_usage:
+					power_supplier.gameplay.power_supply.capacity -= power_usage
 					power_supplier.gameplay.supplies_to.append(parent_room)
 					power_supplier.room_info.update_power_supply_label(power_supplier.gameplay.power_supply)
 					powered = true

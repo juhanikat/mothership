@@ -1,5 +1,5 @@
 TODO:
-	1. Fix rooms not connecting properly when clicking while moving mouse too fast!
+	1. (Might be fixed now) Fix rooms not connecting properly when clicking while moving mouse too fast!
 
 
 

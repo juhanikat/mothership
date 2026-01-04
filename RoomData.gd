@@ -7,9 +7,19 @@ class_name RoomData
 ## power_usage: int = How much power the room uses.
 
 enum RoomShape {LShape, SmallSquareShape, BigSquareShape}
-enum RoomType {COMMAND_ROOM, POWER_PLANT, CREW_QUARTERS, GARDEN}
+enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CREW_QUARTERS, GARDEN}
 
 const room_colors = [Color("ff5a55"), Color("77a6fb"), Color("e2c964")]
+
+
+## NOTE: Use this dict in other scripts.
+const room_data = {
+	RoomType.COMMAND_ROOM: _command_room_data,
+	RoomType.POWER_PLANT: _power_plant_data,
+	RoomType.ENGINE_ROOM: _engine_room_data,
+	RoomType.CREW_QUARTERS: _crew_quarters_data,
+	RoomType.GARDEN: _garden_data
+}
 
 
 ## TODO: Use classes instead of dicts here to get autocomplete?
@@ -42,13 +52,14 @@ const _garden_data: Dictionary[String, Variant] = {
 	"power_usage": 0
 }
 
-## Use this dict in tile.gd.
-const room_data = {
-	RoomType.COMMAND_ROOM: _command_room_data,
-	RoomType.POWER_PLANT: _power_plant_data,
-	RoomType.CREW_QUARTERS: _crew_quarters_data,
-	RoomType.GARDEN: _garden_data
+const _engine_room_data: Dictionary[String, Variant] = {
+	"room_name": "Engine Room",
+	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "",
+	"power_usage": 3
 }
+
+
 
 
 ## Maps a RoomShape to the rooms to a Vector indicating the room's width and height.

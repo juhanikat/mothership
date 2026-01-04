@@ -6,43 +6,41 @@ var connector_scene = load("res://room/connector.tscn")
 const RoomShape = RoomData.RoomShape
 
 @export var texture_polygon: Polygon2D
-
 @export var nav_region: NavigationRegion2D
 @export var nav_agent: NavigationAgent2D
 @export var connectors_node: Node2D
-
 @export var room_area: Area2D # actual CollisionPolygon of the room
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
+
 @onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
 
 var room_info: RoomInfo # The room's info box, this is a child of the main node
 
-
-
 const MAX_CONNECTOR_DISTANCE = 40
 
-var hovering: bool = false # true when mouse is hovering over this room
-var is_picked: bool = false
-var locked: bool = false # true once room has been placed and can no longer be moved
-
-var overlapping_room_areas: Array[Area2D] = []
-
+var hovering: bool = false # true when mouse is hovering over this room.
+var is_picked: bool = false # true when the room is picked by mouse.
+var locked: bool = false # true once room has been placed and can no longer be moved.
+var connecting_rooms: bool = false # used in _unhandled_input to keep room still while connecting.
 var target_rotation: float = 0
 
 var _shape: RoomData.RoomShape
 var _data: Dictionary[String, Variant]
 
+var overlapping_room_areas: Array[Area2D] = []
+var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
+
 var gameplay: RoomGameplay
 
-var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
+
 
 ## Call this before the room is added to the scene tree.
 func init_room(i_data: Dictionary[String, Variant]) -> void:
 	_data = i_data
 	_shape = _data["room_shape"]
 
-	# creates connectors for the room, depending on it's shape
+	# creates connectors for the room, depending on its shape
 	create_connectors()
 
 
@@ -58,7 +56,6 @@ func _ready() -> void:
 			room_shapes[RoomShape.BigSquareShape] = room_shape.polygon
 
 	polygon.polygon = room_shapes[_shape]
-
 
 	# shapes the texture (Polygon2D) according to the room's shape,
 	# and colors it randomly.
@@ -89,7 +86,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event.is_action_pressed("move_room") and event.is_pressed():
 		if is_picked:
+			connecting_rooms = true
 			var connected = await connect_rooms()
+			connecting_rooms = false
 			if connected:
 				return
 
@@ -109,7 +108,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			room_info.global_position = global_position + RoomData.room_info_pos[_shape]
 		return
 
-	if event is InputEventMouseMotion and is_picked:
+	if event is InputEventMouseMotion and is_picked and not connecting_rooms:
 		var global_mouse_pos = get_global_mouse_position()
 		global_position = global_mouse_pos
 		room_info.global_position = global_position + RoomData.room_info_pos[_shape]
@@ -140,12 +139,9 @@ func _process(_delta: float) -> void:
 
 
 ## Called when a room is placed while it overlaps another room.
-## Locks the room in place while checking if it can be placed, then either
-## places it or removes the lock.
-## If the room is placed, the "room_connected" signal is emitted and the list of own connectors
+## If the room can be placed, the "room_connected" signal is emitted and the list of own connectors
 ## is looped through so that ALL newly adjacent rooms can get connected properly.
 func connect_rooms() -> bool:
-	locked = true
 	var all_connectors: Array[Connector]
 	# weird trick to cast the type correctly
 	all_connectors.assign(get_tree().get_nodes_in_group("Connector"))

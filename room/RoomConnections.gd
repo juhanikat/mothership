@@ -33,7 +33,7 @@ static func get_nearby_rooms(start_room: Room, search_range: int) -> Array[Room]
 
 	while len(queue) > 0:
 		var current: Array[Variant] = queue.pop_front()
-		if current[1] > search_range:
+		if current[1] == search_range:
 			explored.erase(start_room)
 			return explored
 		for adjacent_room: Room in current[0].adjacent_rooms:

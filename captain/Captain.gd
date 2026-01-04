@@ -8,7 +8,7 @@ enum Order {NEUTRAL_ORDER}
 const ROOMS = RoomData.RoomType
 
 const neutral_order = {
-	"description": "The Captain has no orders for you. Choose the room you think would fit our current situation best.",
+	"description": "The Captain has no orders for you. Choose the room you think would best fit our current situation.",
 	"rooms": ROOMS.CREW_QUARTERS}
 
 ## Use this in other scripts.
