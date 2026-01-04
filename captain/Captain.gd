@@ -11,5 +11,5 @@ const neutral_order = {
 	"description": "The Captain has no orders for you. Choose the room you think would fit our current situation best.",
 	"rooms": ROOMS.CREW_QUARTERS}
 
-## Use this is other scripts.
+## Use this in other scripts.
 const orders = {Order.NEUTRAL_ORDER: neutral_order}

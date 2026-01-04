@@ -3,6 +3,8 @@ class_name Room
 
 var connector_scene = load("res://room/connector.tscn")
 
+const RoomShape = RoomData.RoomShape
+
 @export var texture_polygon: Polygon2D
 
 @export var nav_region: NavigationRegion2D
@@ -12,11 +14,11 @@ var connector_scene = load("res://room/connector.tscn")
 @export var room_area: Area2D # actual CollisionPolygon of the room
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
-@onready var room_shapes: Dictionary[RoomData.RoomShape, PackedVector2Array]
+@onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
 
 var room_info: RoomInfo # The room's info box, this is a child of the main node
 
-const RoomShape = RoomData.RoomShape
+
 
 const MAX_CONNECTOR_DISTANCE = 40
 
@@ -35,12 +37,7 @@ var gameplay: RoomGameplay
 
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
 
-var powered: bool = false
-
-var power_supply = {"capacity": 0, "range": 0}
-var supplies_to: Array[Room] = []
-
-## Call this before the tile is added to the scene tree.
+## Call this before the room is added to the scene tree.
 func init_room(i_data: Dictionary[String, Variant]) -> void:
 	_data = i_data
 	_shape = _data["room_shape"]

@@ -37,6 +37,8 @@ var path_end_room: Room # the room where the path ends
 var camera_dragging: bool = false
 var previous_mouse_pos: Vector2 = Vector2(0, 0)
 
+var spawned_room_names = {} # used to give new rooms an ordering number (purely visual atm)
+
 
 
 func _ready() -> void:
@@ -99,7 +101,6 @@ func find_clicked_room() -> Variant:
 
 
 func _physics_process(_delta: float) -> void:
-	#print(get_global_mouse_position())
 	if NavigationServer2D.map_get_iteration_id(nav_agent.get_navigation_map()) == 0:
 		return
 	if nav_agent.is_navigation_finished() or not nav_agent.is_target_reachable():
@@ -109,7 +110,6 @@ func _physics_process(_delta: float) -> void:
 	path_line.add_point(nav_actor.global_position)
 	path_line.add_point(next_path_position)
 	nav_actor.global_position = next_path_position
-
 
 
 func spawn_room(new_room_data: Dictionary):
@@ -122,13 +122,22 @@ func spawn_room(new_room_data: Dictionary):
 		print("Cannot spawn new room while existing one is inside spawn area!")
 		return
 
+	var room_name = new_room_data["room_name"]
+	var overwrite_name = ""
+	if not spawned_room_names.get(room_name):
+		spawned_room_names[room_name] = 1
+	else:
+		spawned_room_names[room_name] += 1
+	if spawned_room_names[room_name] > 1:
+		overwrite_name = "%s (%s)" % [room_name, spawned_room_names[room_name]]
+
 	room_nodes.add_child(new_room)
 	for connector in new_room.get_own_connectors():
 		all_connectors.append(connector)
 
 	# room info is a child of main scene because otherwise it will rotate with the room
 	var new_room_info: RoomInfo = room_info_scene.instantiate()
-	new_room_info.init_room_info(new_room_data)
+	new_room_info.init_room_info(new_room_data, overwrite_name)
 	new_room_info.global_position = new_room.global_position + RoomData.room_info_pos[new_room_shape]
 	# room is responsible for moving info box with the room itself,
 	# so it needs a reference of it

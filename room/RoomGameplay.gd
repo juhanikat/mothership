@@ -13,7 +13,7 @@ var power_supply = {}
 var supplies_to: Array[Room] = []
 
 
-
+## RoomGameplay is created and added as a child to a Room node (in room.gd).
 func _ready() -> void:
 	parent_room = get_parent()
 
@@ -23,14 +23,13 @@ func init_gameplay_features(data: Dictionary) -> void:
 
 	if "power_supply" in _data.keys():
 		power_supply = _data["power_supply"].duplicate(true)
-		print(power_supply)
 		parent_room.add_to_group("PowerSupply")
 		powered = true
 		parent_room.texture_polygon.color.a += 0.5
 
 
 func toggle_power() -> void:
-	if power_supply:
+	if parent_room.is_in_group("PowerSupply"):
 		# Power suppliers are always powered.
 		return
 

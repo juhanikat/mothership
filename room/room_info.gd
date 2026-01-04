@@ -12,8 +12,12 @@ class_name RoomInfo
 
 
 ##  fills information from _data (positioning is done in main.gd).
-func init_room_info(_data: Dictionary[String, Variant]) -> void:
-	room_name_label.text = _data["room_name"]
+func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String = "") -> void:
+	if overwrite_name:
+		room_name_label.text = overwrite_name
+	else:
+		room_name_label.text = _data["room_name"]
+
 	power_usage_label.text = "P" + str(_data["power_usage"])
 	description_popup_label.text = _data.get("room_desc", "No description.")
 	adjacent_rooms_popup_label.text = "No adjacent rooms."
@@ -31,9 +35,9 @@ func _process(_delta: float) -> void:
 
 ## Called by room.gd to update the adjacent rooms popup.
 func update_adjacent_rooms_label(rooms: Array[Room]) -> void:
-	adjacent_rooms_popup_label.text = "Adjacent rooms (%s):\n" % [str(len(rooms))]
+	adjacent_rooms_popup_label.text = "Adjacent rooms (%s):" % [str(len(rooms))]
 	for room in rooms:
-		adjacent_rooms_popup_label.text += "\n%s (%s)" % [str(room), str(room._data["room_name"])]
+		adjacent_rooms_popup_label.text += "\n%s" % [room.room_info.room_name_label.text]
 
 
 ## Called by room.gd to update the power supply label when rooms toggle power.
