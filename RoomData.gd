@@ -7,7 +7,7 @@ class_name RoomData
 ## power_usage: int = How much power the room uses.
 
 enum RoomShape {LShape, SmallSquareShape, BigSquareShape}
-enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CREW_QUARTERS, GARDEN}
+enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS, GARDEN}
 
 const room_colors = [Color("ff5a55"), Color("77a6fb"), Color("e2c964")]
 
@@ -17,6 +17,7 @@ const room_data = {
 	RoomType.COMMAND_ROOM: _command_room_data,
 	RoomType.POWER_PLANT: _power_plant_data,
 	RoomType.ENGINE_ROOM: _engine_room_data,
+	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.CREW_QUARTERS: _crew_quarters_data,
 	RoomType.GARDEN: _garden_data
 }
@@ -33,9 +34,23 @@ const _command_room_data: Dictionary[String, Variant] = {
 const _power_plant_data: Dictionary[String, Variant] = {
 	"room_name": "Power Plant",
 	"room_shape": RoomShape.LShape,
-	"room_desc": "Provides power for nearby rooms.",
+	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to function.",
 	"power_usage": 0,
 	"power_supply": {"capacity": 10, "range": 5}
+}
+
+const _engine_room_data: Dictionary[String, Variant] = {
+	"room_name": "Engine Room",
+	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "",
+	"power_usage": 3
+}
+
+const _fuel_storage_data: Dictionary[String, Variant] = {
+	"room_name": "Fuel Storage",
+	"room_shape": RoomShape.SmallSquareShape,
+	"room_desc": "",
+	"power_usage": 0
 }
 
 const _crew_quarters_data: Dictionary[String, Variant] = {
@@ -52,12 +67,7 @@ const _garden_data: Dictionary[String, Variant] = {
 	"power_usage": 0
 }
 
-const _engine_room_data: Dictionary[String, Variant] = {
-	"room_name": "Engine Room",
-	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "",
-	"power_usage": 3
-}
+
 
 
 

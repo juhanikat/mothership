@@ -47,5 +47,11 @@ fit_content = true
 layout_mode = 2
 text = "Show tooltips"
 
+[node name="NextTurnButton" type="Button" parent="PanelContainer/TopBar"]
+layout_mode = 2
+focus_mode = 0
+text = "Next Turn"
+
 [connection signal="pressed" from="PanelContainer/TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
 [connection signal="toggled" from="PanelContainer/TopBar/ShowTooltipsButton" to="." method="_on_show_tooltips_button_toggled"]
+[connection signal="pressed" from="PanelContainer/TopBar/NextTurnButton" to="." method="_on_next_turn_button_pressed"]

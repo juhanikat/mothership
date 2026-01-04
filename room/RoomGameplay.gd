@@ -35,6 +35,7 @@ func toggle_power() -> void:
 	var power_usage: int = _data["power_usage"]
 	if power_usage == 0:
 		# Rooms that have 0 power usage are always powered.
+		print("Cannot power room: it has power usage of 0.")
 		return
 
 

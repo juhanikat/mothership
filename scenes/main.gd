@@ -12,11 +12,11 @@ class_name Main
 @export var texture_polygon: Polygon2D
 
 # All rooms are children of this node
-## NOTE: This node has to be above RoomInfoNodes in the node tree,
-## otherwise input event propagation won't work correctly!
 @export var room_nodes: Node2D
 # All room info boxes are children of this node
 @export var room_info_nodes: Control
+
+@export var room_selection: RoomSelection
 
 var room_scene = load("res://room/room.tscn")
 var room_info_scene = load("res://room/room_info.tscn")
@@ -25,9 +25,6 @@ const room_data = RoomData.room_data
 var room_inside_spawn_area: bool = false
 
 var spawn_area_color = Color("f3b700")
-
-var all_connectors = []
-
 
 var path_start: Vector2
 var path_start_room: Room # the room where the path starts
@@ -39,11 +36,16 @@ var previous_mouse_pos: Vector2 = Vector2(0, 0)
 
 var spawned_room_names = {} # used to give new rooms an ordering number (purely visual atm)
 
-
+var turn: int = 1
 
 func _ready() -> void:
 	spawn_room(RoomData.room_data[RoomData.RoomType.POWER_PLANT])
 	create_texture()
+
+	var first_order = CaptainFunctions.next_starting_order()
+	var possible_rooms: Array[Dictionary]
+	possible_rooms.assign(first_order.selected_rooms)
+	room_selection.add_room_buttons(possible_rooms)
 
 
 func create_texture() -> void:
@@ -88,18 +90,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			path_end = Vector2(0, 0)
 
 
-func find_clicked_room() -> Variant:
-	## Called from _unhandled_input to return the room that has been clicked when building a path,
-	## or null the mouse is not over any room.
-	for room: Room in get_tree().get_nodes_in_group("Room"):
-		if room.hovering:
-			return room
-	for connector: Connector in get_tree().get_nodes_in_group("Connector"):
-		if connector.hovering:
-			return connector.get_parent_room()
-	return null
-
-
 func _physics_process(_delta: float) -> void:
 	if NavigationServer2D.map_get_iteration_id(nav_agent.get_navigation_map()) == 0:
 		return
@@ -112,6 +102,52 @@ func _physics_process(_delta: float) -> void:
 	nav_actor.global_position = next_path_position
 
 
+func find_clicked_room() -> Variant:
+	## Called from _unhandled_input to return the room that has been clicked when building a path,
+	## or null the mouse is not over any room.
+	for room: Room in get_tree().get_nodes_in_group("Room"):
+		if room.hovering:
+			return room
+	for connector: Connector in get_tree().get_nodes_in_group("Connector"):
+		if connector.hovering:
+			return connector.get_parent_room()
+	return null
+
+
+## Spawns a room at the position of the mouse (with picked = true).
+func spawn_room_at_mouse(new_room_data: Dictionary):
+	for room: Room in get_tree().get_nodes_in_group("Room"):
+		if room.is_picked == true:
+			print("Cannot spawn new room at mouse pos when an existing one is picked!")
+			return
+
+	var new_room: Room = room_scene.instantiate()
+	var new_room_shape = new_room_data["room_shape"]
+	new_room.init_room(new_room_data, true)
+	new_room.global_position = get_global_mouse_position()
+
+	var room_name = new_room_data["room_name"]
+	var overwrite_name = ""
+	if not spawned_room_names.get(room_name):
+		spawned_room_names[room_name] = 1
+	else:
+		spawned_room_names[room_name] += 1
+	if spawned_room_names[room_name] > 1:
+		overwrite_name = "%s (%s)" % [room_name, spawned_room_names[room_name]]
+
+	room_nodes.add_child(new_room)
+
+	# room info is a child of main scene because otherwise it will rotate with the room
+	var new_room_info: RoomInfo = room_info_scene.instantiate()
+	new_room_info.init_room_info(new_room_data, overwrite_name)
+	new_room_info.global_position = new_room.global_position + RoomData.room_info_pos[new_room_shape]
+	# room is responsible for moving info box with the room itself,
+	# so it needs a reference of it
+	new_room.room_info = new_room_info
+	room_info_nodes.add_child(new_room_info)
+
+
+## Spawns a room in the dedicated spawn area (remove later).
 func spawn_room(new_room_data: Dictionary):
 	var new_room: Room = room_scene.instantiate()
 	var new_room_shape = new_room_data["room_shape"]
@@ -132,8 +168,6 @@ func spawn_room(new_room_data: Dictionary):
 		overwrite_name = "%s (%s)" % [room_name, spawned_room_names[room_name]]
 
 	room_nodes.add_child(new_room)
-	for connector in new_room.get_own_connectors():
-		all_connectors.append(connector)
 
 	# room info is a child of main scene because otherwise it will rotate with the room
 	var new_room_info: RoomInfo = room_info_scene.instantiate()
@@ -151,6 +185,17 @@ func find_path(from: Vector2, to: Vector2) -> void:
 	nav_agent.set_target_position(to)
 	if not nav_agent.is_target_reachable():
 		print("Position (%s) is not reachable from position (%s)!" % [str(to), str(from)])
+
+
+## Gets a new order from the captain and shows the corresponding buttons in the HUD.
+##
+func next_turn() -> void:
+	turn += 1
+	var next_order = CaptainFunctions.random_order()
+	var possible_rooms: Array[Dictionary]
+	possible_rooms.assign(next_order.selected_rooms)
+	room_selection.clear_room_buttons()
+	room_selection.add_room_buttons(possible_rooms)
 
 
 func _on_room_spawn_area_area_entered(area: Area2D) -> void:

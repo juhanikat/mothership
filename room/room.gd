@@ -36,9 +36,10 @@ var gameplay: RoomGameplay
 
 
 ## Call this before the room is added to the scene tree.
-func init_room(i_data: Dictionary[String, Variant]) -> void:
+func init_room(i_data: Dictionary[String, Variant], picked: bool = false) -> void:
 	_data = i_data
 	_shape = _data["room_shape"]
+	is_picked = picked
 
 	# creates connectors for the room, depending on its shape
 	create_connectors()
@@ -90,6 +91,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			var connected = await connect_rooms()
 			connecting_rooms = false
 			if connected:
+				is_picked = false
 				return
 
 			if len(overlapping_room_areas) > 0:

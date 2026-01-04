@@ -53,3 +53,7 @@ func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
 		GlobalInputFlags.show_tooltips = true
 	else:
 		GlobalInputFlags.show_tooltips = false
+
+
+func _on_next_turn_button_pressed() -> void:
+	main.next_turn()

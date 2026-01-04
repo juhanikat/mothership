@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://bha52nfpavehy"]
+
+[ext_resource type="Script" uid="uid://dmq65ad0ipcv4" path="res://captain/room_selection.gd" id="1_ayfju"]
+
+[node name="RoomSelection" type="CanvasLayer" node_paths=PackedStringArray("room_container")]
+script = ExtResource("1_ayfju")
+room_container = NodePath("SidePanel/RoomContainer")
+
+[node name="SidePanel" type="PanelContainer" parent="."]
+anchors_preset = -1
+anchor_left = 0.888889
+anchor_top = 0.197531
+anchor_right = 1.0
+anchor_bottom = 1.0
+metadata/_edit_use_anchors_ = true
+
+[node name="RoomContainer" type="VBoxContainer" parent="SidePanel"]
+layout_mode = 2
