@@ -1,17 +1,20 @@
 extends CanvasLayer
 
 
+@export var room_list: ItemList
 @export var path_build_mode_label: RichTextLabel
 @export var path_info_label: RichTextLabel
-@export var room_list: ItemList
+@export var total_crew_amount_label: RichTextLabel
 
 @onready var main: Main = get_parent()
 
-
+var total_crew: int = 0
 
 func _ready() -> void:
 	GlobalSignals.path_build_mode_toggled.connect(_on_path_build_mode_toggled)
 	GlobalSignals.path_completed.connect(_on_path_completed)
+	GlobalSignals.crew_added.connect(_on_crew_added)
+	GlobalSignals.crew_removed.connect(_on_crew_removed)
 	path_build_mode_label.text = "Path build mode: OFF"
 	path_info_label.text = "No path yet"
 
@@ -57,3 +60,13 @@ func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
 
 func _on_next_turn_button_pressed() -> void:
 	main.next_turn()
+
+
+func _on_crew_added(amount: int) -> void:
+	total_crew += amount
+	total_crew_amount_label.text = "Crew amount: %s" % [str(total_crew)]
+
+
+func _on_crew_removed(amount: int) -> void:
+	total_crew -= amount
+	total_crew_amount_label.text = "Crew amount: %s" % [str(total_crew)]

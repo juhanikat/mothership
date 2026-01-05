@@ -1,15 +1,20 @@
 extends Script
 class_name RoomData
 
-## Fields that can be included in a room data dict:
-## room_name: String = Name of the room.
-## room_shape: RoomShape = Shape of the room.
-## power_usage: int = How much power the room uses.
+
 
 enum RoomShape {LShape, SmallSquareShape, BigSquareShape}
-enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS, GARDEN}
+enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS, CANTEEN, GARDEN}
+enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
-const room_colors = [Color("ff5a55"), Color("77a6fb"), Color("e2c964")]
+const room_colors = {
+	RoomCategory.CREW_ROOM: Color(0.212, 0.561, 0.812),
+	RoomCategory.MAINTENANCE_ROOM: Color(0.957, 0.588, 0.098),
+	RoomCategory.RESEARCH_ROOM: Color(0.678, 0.0, 0.68),
+	RoomCategory.COMBAT_ROOM: Color(0.681, 0.257, 0.219),
+	RoomCategory.LUXURY_ROOM: Color(0.394, 0.834, 0.113),
+	RoomCategory.SPECIAL_ROOM: Color(0.904, 0.741, 0.651)
+	}
 
 
 ## NOTE: Use this dict in other scripts.
@@ -19,6 +24,7 @@ const room_data = {
 	RoomType.ENGINE_ROOM: _engine_room_data,
 	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.CREW_QUARTERS: _crew_quarters_data,
+	RoomType.CANTEEN: _canteen_data,
 	RoomType.GARDEN: _garden_data
 }
 
@@ -28,6 +34,7 @@ const _command_room_data: Dictionary[String, Variant] = {
 	"room_name": "Command Room",
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "test",
+	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0
 }
 
@@ -35,6 +42,7 @@ const _power_plant_data: Dictionary[String, Variant] = {
 	"room_name": "Power Plant",
 	"room_shape": RoomShape.LShape,
 	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to function.",
+	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
 	"power_supply": {"capacity": 10, "range": 5}
 }
@@ -43,6 +51,7 @@ const _engine_room_data: Dictionary[String, Variant] = {
 	"room_name": "Engine Room",
 	"room_shape": RoomShape.BigSquareShape,
 	"room_desc": "",
+	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 3
 }
 
@@ -50,13 +59,24 @@ const _fuel_storage_data: Dictionary[String, Variant] = {
 	"room_name": "Fuel Storage",
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "",
+	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0
 }
 
 const _crew_quarters_data: Dictionary[String, Variant] = {
 	"room_name": "Crew Quarters",
 	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "abc",
+	"room_desc": "Has to be connected to a Canteen through Crew rooms to function.",
+	"room_category": RoomCategory.CREW_ROOM,
+	"power_usage": 1,
+	"crew_supply": 4
+}
+
+const _canteen_data: Dictionary[String, Variant] = {
+	"room_name": "Canteen",
+	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "Must be placed adjacent to a Crew room.",
+	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1
 }
 
@@ -64,6 +84,7 @@ const _garden_data: Dictionary[String, Variant] = {
 	"room_name": "Garden",
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "Raises your crew quarter limit by 2.",
+	"room_category": RoomCategory.LUXURY_ROOM,
 	"power_usage": 0
 }
 

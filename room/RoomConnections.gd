@@ -3,8 +3,9 @@ class_name RoomConnections
 
 
 
-## Returns the shortest path between two rooms (using a breadth-first search). If no path is found, returns -1.
-static func distance_between(start_room: Room, end_room: Room) -> int:
+## Returns the length of the shortest path between two rooms (using a breadth-first search). If no path is found, returns -1.
+## If <allowed_rooms> is set, only rooms that are included in the array are considered for the path.
+static func distance_between(start_room: Room, end_room: Room, allowed_rooms: Array[RoomData.RoomCategory] = []) -> int:
 	var queue = [] # Contains [room: Room, distance_from_starting_room: int] pairs
 	var explored = []
 
@@ -17,10 +18,33 @@ static func distance_between(start_room: Room, end_room: Room) -> int:
 			return current[1]
 		for adjacent_room: Room in current[0].adjacent_rooms:
 			if adjacent_room not in explored:
+				if len(allowed_rooms) > 0 and adjacent_room.room_category not in allowed_rooms:
+					continue
 				queue.append([adjacent_room, current[1] + 1])
 				explored.append(adjacent_room)
-
 	return -1
+
+
+## Returns the nearest room of type <end_room_type>, and the path length. If no path is found, returns -1.
+## If <allowed_rooms> is set, only rooms that are included in the array are considered for the path.
+static func find_nearest_room_type(start_room: Room, end_room_type: RoomData.RoomType, allowed_rooms: Array[RoomData.RoomCategory] = []) -> Array:
+	var queue = [] # Contains [room: Room, distance_from_starting_room: int] pairs
+	var explored = []
+
+	queue.append([start_room, 0])
+	explored.append(start_room)
+
+	while len(queue) > 0:
+		var current: Array[Variant] = queue.pop_front()
+		if current[0].room_type == end_room_type:
+			return [current[0], current[1]]
+		for adjacent_room: Room in current[0].adjacent_rooms:
+			if adjacent_room not in explored:
+				if len(allowed_rooms) > 0 and adjacent_room.room_category not in allowed_rooms:
+					continue
+				queue.append([adjacent_room, current[1] + 1])
+				explored.append(adjacent_room)
+	return []
 
 
 ## Returns all rooms within <range> of <start_room>, not including <start_room>.

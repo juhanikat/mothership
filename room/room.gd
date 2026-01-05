@@ -27,6 +27,8 @@ var target_rotation: float = 0
 
 var _shape: RoomData.RoomShape
 var _data: Dictionary[String, Variant]
+var room_type: RoomData.RoomType
+var room_category: RoomData.RoomCategory
 
 var overlapping_room_areas: Array[Area2D] = []
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
@@ -39,6 +41,8 @@ var gameplay: RoomGameplay
 func init_room(i_data: Dictionary[String, Variant], picked: bool = false) -> void:
 	_data = i_data
 	_shape = _data["room_shape"]
+	room_type = RoomData.room_data.find_key(_data)
+	room_category = _data["room_category"]
 	is_picked = picked
 
 	# creates connectors for the room, depending on its shape
@@ -59,7 +63,7 @@ func _ready() -> void:
 	polygon.polygon = room_shapes[_shape]
 
 	# shapes the texture (Polygon2D) according to the room's shape,
-	# and colors it randomly.
+	# and colors it according to its category.
 	# Replace this when creating actual textures for rooms.
 	create_texture()
 
@@ -76,8 +80,11 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if locked:
-		if event.is_action_pressed("toggle_power") and hovering:
-			gameplay.toggle_power()
+		if event.is_action_pressed("activate_room") and hovering:
+			if gameplay.activated:
+				gameplay.deactivate_room()
+			else:
+				gameplay.activate_room()
 		return
 
 	if GlobalInputFlags.path_build_mode:
@@ -194,7 +201,7 @@ func create_navigation_region() -> void:
 
 func create_texture() -> void:
 	texture_polygon.polygon = polygon.polygon
-	texture_polygon.color = RoomData.room_colors.pick_random()
+	texture_polygon.color = RoomData.room_colors[room_category]
 	texture_polygon.color.a -= 0.5 # because rooms spawn unpowered
 
 

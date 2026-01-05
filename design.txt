@@ -8,6 +8,9 @@ ROOMS
 When spawning a new room, call the init_room function and give the correct room data as a parameter
 (these are in the room_data dict inside the RoomData script). That's all!
 
+Rooms always spawn UNACTIVATED, but if they have a power_usage of 0 they spawn powered. Note that
+a lit up room means that the room is ACTIVATED: powered rooms can be dark if they are still UNACTIVATED.
+
 If a room is picked up and then put down near or on top of another room, the connect_rooms()
 method inside room.gd is called to see if the room connectors are close enough to connect. If not,
 the room cannot be put down there.

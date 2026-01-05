@@ -38,6 +38,8 @@ var spawned_room_names = {} # used to give new rooms an ordering number (purely 
 
 var turn: int = 1
 
+var total_crew: int = 0
+
 func _ready() -> void:
 	spawn_room(RoomData.room_data[RoomData.RoomType.POWER_PLANT])
 	create_texture()
@@ -46,6 +48,9 @@ func _ready() -> void:
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
 	room_selection.add_room_buttons(possible_rooms)
+
+	GlobalSignals.crew_added.connect(_on_crew_added)
+	GlobalSignals.crew_removed.connect(_on_crew_removed)
 
 
 func create_texture() -> void:
@@ -196,6 +201,14 @@ func next_turn() -> void:
 	possible_rooms.assign(next_order.selected_rooms)
 	room_selection.clear_room_buttons()
 	room_selection.add_room_buttons(possible_rooms)
+
+
+func _on_crew_added(amount: int) -> void:
+	total_crew += amount
+
+
+func _on_crew_removed(amount: int) -> void:
+	total_crew -= amount
 
 
 func _on_room_spawn_area_area_entered(area: Area2D) -> void:
