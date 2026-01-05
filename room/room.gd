@@ -95,11 +95,19 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("move_room") and event.is_pressed():
 		if is_picked:
 			connecting_rooms = true
-			var connected = await connect_rooms()
-			connecting_rooms = false
-			if connected:
-				is_picked = false
+			var all_connectors: Array[Connector]
+			# weird trick to cast the type correctly
+			all_connectors.assign(get_tree().get_nodes_in_group("Connector"))
+			var connector_pair: Array[Connector] = RoomConnections.find_connector_pairing(get_own_connectors(), all_connectors, 20)
+			if len(connector_pair) == 2:
+				var connected = await connect_rooms(connector_pair)
+				if connected:
+					is_picked = false
+					locked = true
+
+				connecting_rooms = false
 				return
+			connecting_rooms = false
 
 			if len(overlapping_room_areas) > 0:
 				print("Cannot place room on top of another room.")
@@ -141,35 +149,31 @@ func _process(_delta: float) -> void:
 
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
 
-	#room_info.rotation_degrees =
 	#snap rotation to target value once close enough, might prevent some bugs with rounding
 	if abs(rotation_degrees - target_rotation) < 0.05:
 		rotation_degrees = target_rotation
 
 
-## Called when a room is placed while it overlaps another room.
+## Called when a room is placed while near another room.
 ## If the room can be placed, the "room_connected" signal is emitted and the list of own connectors
 ## is looped through so that ALL newly adjacent rooms can get connected properly.
-func connect_rooms() -> bool:
-	var all_connectors: Array[Connector]
-	# weird trick to cast the type correctly
-	all_connectors.assign(get_tree().get_nodes_in_group("Connector"))
-	var connector_pair = RoomConnections.find_connector_pairing(get_own_connectors(), all_connectors, 20)
-	if len(connector_pair) == 0:
-		locked = false
+func connect_rooms(connector_pair: Array[Connector]) -> bool:
+	var rules_passed = RoomConnections.check_placement_rules(self, connector_pair[1].get_parent_room())
+	if not rules_passed:
 		return false
 
+	## Actual connection code
 	var original_position = global_position
 	var to = connector_pair[1].global_position - connector_pair[0].global_position
 	global_position += to
 	room_info.global_position += to
 
+	# check for overlapping rooms AFTER placing connected room
 	await get_tree().physics_frame
 	for area in overlapping_room_areas:
 		if area.is_in_group("RoomArea"):
 			global_position = original_position
 			print("Tried to snap connectors, but rooms are overlapping.")
-			locked = false
 			return false
 
 	print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector_pair[1])]))

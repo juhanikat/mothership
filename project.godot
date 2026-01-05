@@ -33,6 +33,7 @@ RoomArea=""
 PowerSupply=""
 RoomInfo=""
 CrewSupply=""
+CrewQuarters=""
 
 [input]
 

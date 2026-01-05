@@ -41,22 +41,32 @@ func init_gameplay_features(data: Dictionary) -> void:
 		crew_supply = _data["crew_supply"]
 		parent_room.add_to_group("CrewSupply")
 
+	if parent_room_type == RoomType.CREW_QUARTERS:
+		parent_room.add_to_group("CrewQuarters")
+
 	power_usage = _data["power_usage"]
 	if power_usage == 0:
 		# Rooms that have 0 power usage are always powered.
 		powered = true
+		print("Room powered by default when spawning.")
 
 
 ## Called when a deactivated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been activated, and false otherwise.
+## NOTE: Rooms with a power usage of 0 have already been powered before this function!
 func activate_room() -> bool:
-	if power_usage != 0 and not powered:
-		if not _can_be_powered():
-			return false
+	var power_supplier = _find_power_supplier()
+	if power_usage != 0 and not power_supplier:
+		return false
 	activated = _try_to_activate()
 	if activated:
 		parent_room.texture_polygon.color.a += 0.5
-		powered = true
+		if power_supplier:
+			power_supplier.gameplay.power_supply.capacity -= power_usage
+			power_supplier.gameplay.supplies_to.append(parent_room)
+			power_supplier.room_info.update_power_supply_label(power_supplier.gameplay.power_supply)
+			powered = true
+			print("Room powered.")
 		return true
 	return false
 
@@ -76,6 +86,8 @@ func deactivate_room() -> bool:
 	match parent_room_type:
 		RoomType.CREW_QUARTERS:
 			GlobalSignals.crew_removed.emit(crew_supply)
+		RoomType.GARDEN:
+			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
 
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
@@ -87,20 +99,24 @@ func _try_to_activate() -> bool:
 	match parent_room_type:
 		RoomType.CREW_QUARTERS:
 			var canteen_distance = RoomConnections.find_nearest_room_type(parent_room, RoomData.RoomType.CANTEEN, [RoomData.RoomCategory.CREW_ROOM])
-			if len(canteen_distance) != 0 and canteen_distance[0].gameplay.powered == true:
-				# a powered canteen was found
-				GlobalSignals.crew_added.emit(crew_supply)
-				return true
-			else:
+			if len(canteen_distance) == 0 or canteen_distance[0].gameplay.powered == false:
 				print("Cannot activate Crew Quarters: No powered canteen can be reached through Crew Rooms.")
 				return false
-	# If this is reached, room does not have any activation mechanism
+			var all_crew_quarters = get_tree().get_nodes_in_group("CrewQuarters")
+			var activated_crew_quarters = all_crew_quarters.filter(func(crew_quarter): return crew_quarter.gameplay.activated)
+			if len(activated_crew_quarters) >= main.crew_quarters_limit:
+				print("Cannot activate Crew Quarters: Crew Quarters limit has been reached.")
+				return false
+			GlobalSignals.crew_added.emit(crew_supply)
+
+		RoomType.GARDEN:
+			GlobalSignals.crew_quarters_limit_raised.emit(_data["crew_quarters_limit_increase"])
 	return true
 
 
-## Returns true if the room can be succesfully powered (power supplier with sufficient capacity and range was found),
-## and false otherwise.
-func _can_be_powered() -> bool:
+## Returns the nearest power supplier with sufficient capacity and range if one was found,
+## and null otherwise.
+func _find_power_supplier():
 	var not_in_range = true
 	var power_suppliers = get_tree().get_nodes_in_group("PowerSupply")
 	for power_supplier: Room in power_suppliers:
@@ -108,14 +124,9 @@ func _can_be_powered() -> bool:
 		if parent_room in power_supplier_reach:
 			not_in_range = false
 			if power_supplier.gameplay.power_supply.capacity >= power_usage:
-				power_supplier.gameplay.power_supply.capacity -= power_usage
-				power_supplier.gameplay.supplies_to.append(parent_room)
-				power_supplier.room_info.update_power_supply_label(power_supplier.gameplay.power_supply)
-				powered = true
-				print("Room powered.")
-				return true
+				return power_supplier
 	if not_in_range:
 		print("Cannot power room: No suppliers in range.")
 	else:
 		print("Cannot power room: Suppliers in rage do not have enough capacity.")
-	return false
+	return null

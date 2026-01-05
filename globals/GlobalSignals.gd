@@ -10,3 +10,6 @@ signal path_completed(path_start_room: Room, path_end_room: Room, path_length: i
 
 signal crew_added(amount: int)
 signal crew_removed(amount: int)
+
+signal crew_quarters_limit_raised(amount: int)
+signal crew_quarters_limit_lowered(amount: int)

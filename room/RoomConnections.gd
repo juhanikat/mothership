@@ -2,6 +2,21 @@ extends Node
 class_name RoomConnections
 
 
+static var RoomCategory = RoomData.RoomCategory
+static var RoomType = RoomData.RoomType
+
+## Returns true if <placed_room> can be placed adjacent to <connecting_room>, or false otherwise.
+static func check_placement_rules(placed_room: Room, connecting_room: Room) -> bool:
+	# godot doesn't have sets, but this works
+	var room_categories = [placed_room.room_category, connecting_room.room_category]
+	var room_types = [placed_room.room_type, connecting_room.room_type]
+
+	if room_categories.has(RoomCategory.LUXURY_ROOM) and room_categories.has(RoomCategory.MAINTENANCE_ROOM):
+		print("Room placement failed: Cannot place Luxury Room next to a Maintenance Room.")
+		return false
+	return true
+
+
 
 ## Returns the length of the shortest path between two rooms (using a breadth-first search). If no path is found, returns -1.
 ## If <allowed_rooms> is set, only rooms that are included in the array are considered for the path.

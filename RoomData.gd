@@ -85,7 +85,8 @@ const _garden_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "Raises your crew quarter limit by 2.",
 	"room_category": RoomCategory.LUXURY_ROOM,
-	"power_usage": 0
+	"power_usage": 0,
+	"crew_quarters_limit_increase": 2
 }
 
 

@@ -2,12 +2,13 @@
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://scenes/hud.gd" id="1_ahhtf"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("room_list", "path_build_mode_label", "path_info_label", "total_crew_amount_label")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("room_list", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label")]
 script = ExtResource("1_ahhtf")
 room_list = NodePath("PanelContainer/TopBar/RoomList")
 path_build_mode_label = NodePath("PanelContainer/TopBar/PathBuildModeLabel")
 path_info_label = NodePath("PanelContainer/TopBar/PathInfoLabel")
-total_crew_amount_label = NodePath("PanelContainer/TopBar/TotalCrewAmountLabel")
+total_crew_amount_label = NodePath("PanelContainer/TopBar/VBoxContainer/TotalCrewAmountLabel")
+crew_quarters_limit_label = NodePath("PanelContainer/TopBar/VBoxContainer/CrewQuartersLimitLabel")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = -1
@@ -41,6 +42,7 @@ fit_content = true
 [node name="PathInfoLabel" type="RichTextLabel" parent="PanelContainer/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 13
 text = "path build mode label"
 fit_content = true
 
@@ -48,10 +50,20 @@ fit_content = true
 layout_mode = 2
 text = "Show tooltips"
 
-[node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer/TopBar"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer/TopBar/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Crew amount: 0"
+fit_content = true
+
+[node name="CrewQuartersLimitLabel" type="RichTextLabel" parent="PanelContainer/TopBar/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Crew Quarters limit: 0"
 fit_content = true
 
 [node name="NextTurnButton" type="Button" parent="PanelContainer/TopBar"]
