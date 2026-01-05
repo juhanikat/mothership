@@ -5,7 +5,7 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yms3g"]
 bg_color = Color(0, 0, 0, 0.545098)
 
-[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "power_supply_label", "adjacent_rooms_popup_label", "description_popup_label") groups=["RoomInfo"]]
+[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "power_supply_label", "adjacent_rooms_label", "description_label") groups=["RoomInfo"]]
 offset_right = 128.0
 offset_bottom = 54.0
 mouse_filter = 2
@@ -14,8 +14,8 @@ script = ExtResource("1_xv4oe")
 room_name_label = NodePath("VBoxContainer/RoomName")
 power_usage_label = NodePath("VBoxContainer/PowerUsage")
 power_supply_label = NodePath("VBoxContainer/PowerSupply")
-adjacent_rooms_popup_label = NodePath("VBoxContainer/AdjacentRoomsPopupLabel")
-description_popup_label = NodePath("DescriptionPopupLabel")
+adjacent_rooms_label = NodePath("VBoxContainer/AdjacentRoomsLabel")
+description_label = NodePath("VBoxContainer/DescriptionLabel")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 z_index = 1
@@ -29,6 +29,7 @@ metadata/_edit_use_anchors_ = true
 [node name="RoomName" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 20
 text = "room name"
 fit_content = true
 
@@ -43,12 +44,13 @@ layout_mode = 2
 mouse_filter = 2
 fit_content = true
 
-[node name="AdjacentRoomsPopupLabel" type="RichTextLabel" parent="VBoxContainer"]
+[node name="AdjacentRoomsLabel" type="RichTextLabel" parent="VBoxContainer"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 fit_content = true
 
-[node name="DescriptionPopupLabel" type="RichTextLabel" parent="."]
+[node name="DescriptionLabel" type="RichTextLabel" parent="VBoxContainer"]
 visible = false
 layout_mode = 2
 mouse_filter = 2

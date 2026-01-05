@@ -7,11 +7,12 @@ class_name RoomInfo
 @export var power_supply_label: RichTextLabel
 
 
-@export var adjacent_rooms_popup_label: RichTextLabel
-@export var description_popup_label: RichTextLabel
+@export var adjacent_rooms_label: RichTextLabel
+@export var description_label: RichTextLabel
 
 
 ##  fills information from _data (positioning is done in main.gd).
+## NOTE: showing/hiding information that is visible when hovering room is done in room.gd.
 func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String = "") -> void:
 	if overwrite_name:
 		room_name_label.text = overwrite_name
@@ -22,26 +23,21 @@ func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String =
 	if power_usage == 0:
 		power_usage_label.text = "Unpowered."
 	else:
-		power_usage_label.text = "P" + str(_data["power_usage"])
-	description_popup_label.text = _data.get("room_desc", "No description.")
-	adjacent_rooms_popup_label.text = "No adjacent rooms."
+		power_usage_label.text = "Consumes %s power." %  [str(power_usage)]
+
+	description_label.text = _data.get("room_desc", "No description.")
+	adjacent_rooms_label.text = "No adjacent rooms."
 
 	if "power_supply" in _data.keys():
 		power_supply_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
 		[str(_data["power_supply"]["range"]), str(_data["power_supply"]["capacity"])]
 
 
-func _process(_delta: float) -> void:
-	if description_popup_label.visible:
-		## NOTE: Showing/hiding description is done in room.gd.
-		description_popup_label.global_position = get_global_mouse_position()
-
-
 ## Called by room.gd to update the adjacent rooms popup.
 func update_adjacent_rooms_label(rooms: Array[Room]) -> void:
-	adjacent_rooms_popup_label.text = "Adjacent rooms (%s):" % [str(len(rooms))]
+	adjacent_rooms_label.text = "Adjacent rooms (%s):" % [str(len(rooms))]
 	for room in rooms:
-		adjacent_rooms_popup_label.text += "\n%s" % [room.room_info.room_name_label.text]
+		adjacent_rooms_label.text += "\n%s" % [room.room_info.room_name_label.text]
 
 
 ## Called by room.gd to update the power supply label when rooms toggle power.

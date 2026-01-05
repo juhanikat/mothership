@@ -76,7 +76,7 @@ const _crew_quarters_data: Dictionary[String, Variant] = {
 const _canteen_data: Dictionary[String, Variant] = {
 	"room_name": "Canteen",
 	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "Must be placed adjacent to a Crew room.",
+	"room_desc": "Must be placed adjacent to at least one Crew room.",
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1
 }

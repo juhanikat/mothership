@@ -4,15 +4,12 @@
 [ext_resource type="PackedScene" uid="uid://d1spf4ifa2e2j" path="res://scenes/hud.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://captain/room_selection.tscn" id="3_sugp2"]
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_actor", "nav_agent", "path_line", "room_spawn_area", "room_spawn_area_polygon", "texture_polygon", "room_nodes", "room_info_nodes", "room_selection")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "room_selection")]
 script = ExtResource("1_0wfyh")
 camera = NodePath("Camera2D")
 nav_actor = NodePath("NavActor")
 nav_agent = NodePath("NavActor/NavigationAgent")
 path_line = NodePath("PathLine")
-room_spawn_area = NodePath("RoomSpawnArea")
-room_spawn_area_polygon = NodePath("RoomSpawnArea/CollisionPolygon2D")
-texture_polygon = NodePath("RoomSpawnArea/TexturePolygon")
 room_nodes = NodePath("RoomNodes")
 room_info_nodes = NodePath("RoomInfoNodes")
 room_selection = NodePath("RoomSelection")
@@ -22,20 +19,9 @@ room_selection = NodePath("RoomSelection")
 [node name="RoomSelection" parent="." instance=ExtResource("3_sugp2")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
-anchor_mode = 0
 editor_draw_drag_margin = true
 
 [node name="RoomNodes" type="Node2D" parent="."]
-
-[node name="RoomSpawnArea" type="Area2D" parent="."]
-position = Vector2(192, 192)
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="RoomSpawnArea"]
-polygon = PackedVector2Array(-128, -128, -128, 128, 128, 128, 128, -128)
-
-[node name="TexturePolygon" type="Polygon2D" parent="RoomSpawnArea"]
-z_index = -1
-color = Color(0.952941, 0.717647, 0, 1)
 
 [node name="NavActor" type="Node2D" parent="."]
 
@@ -50,6 +36,3 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
-
-[connection signal="area_entered" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_entered"]
-[connection signal="area_exited" from="RoomSpawnArea" to="." method="_on_room_spawn_area_area_exited"]

@@ -14,6 +14,7 @@ const RoomShape = RoomData.RoomShape
 @export var all_room_shapes: Area2D # all possible room types are children of this node
 
 @onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
+@onready var main: Main = get_tree().root.get_node("Main")
 
 var room_info: RoomInfo # The room's info box, this is a child of the main node
 
@@ -27,6 +28,7 @@ var target_rotation: float = 0
 
 var _shape: RoomData.RoomShape
 var _data: Dictionary[String, Variant]
+var room_name: String
 var room_type: RoomData.RoomType
 var room_category: RoomData.RoomCategory
 
@@ -34,6 +36,7 @@ var overlapping_room_areas: Array[Area2D] = []
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
 
 var gameplay: RoomGameplay
+var is_starting_room: bool = false # the first room in the game is the only one that can be palced while not connected.
 
 
 
@@ -41,6 +44,7 @@ var gameplay: RoomGameplay
 func init_room(i_data: Dictionary[String, Variant], picked: bool = false) -> void:
 	_data = i_data
 	_shape = _data["room_shape"]
+	room_name = _data["room_name"]
 	room_type = RoomData.room_data.find_key(_data)
 	room_category = _data["room_category"]
 	is_picked = picked
@@ -92,6 +96,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if GlobalInputFlags.path_build_mode:
 		return
 
+	if event.is_action_pressed("cancel_room") and is_picked and not is_starting_room:
+		room_info.queue_free()
+		main.spawned_room_names[room_name] -= 1
+		self.queue_free()
+		return
+
 	await get_tree().physics_frame # to make sure area overlap is detected
 
 	if event.is_action_pressed("move_room") and event.is_pressed():
@@ -106,26 +116,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				if connected:
 					is_picked = false
 					locked = true
-
 				connecting_rooms = false
 				return
 			connecting_rooms = false
-
-			if len(overlapping_room_areas) > 0:
-				print("Cannot place room on top of another room.")
-				return
-			for connector in get_own_connectors():
-				if len(connector.get_overlapping_room_areas()) > 0 or len(connector.get_overlapping_connectors()) > 0:
-					print("Cannot place room while its connectors are overlapping another room or connector.")
-					return
-			is_picked = false
-
-		elif len(overlapping_room_areas) == 0 and hovering:
-			is_picked = true
-			var global_mouse_pos = get_global_mouse_position()
-			global_position = global_mouse_pos
-			room_info.global_position = global_position + RoomData.room_info_pos[_shape]
-		return
+			if is_starting_room:
+				is_picked = false
 
 	if event is InputEventMouseMotion and is_picked and not connecting_rooms:
 		var global_mouse_pos = get_global_mouse_position()
@@ -140,13 +135,12 @@ func _process(_delta: float) -> void:
 	if hovering:
 		## NOTE: room_info's description label is toggled here since room_info itself
 		## cannot be easily set to read input without consuming it :(
-		if GlobalInputFlags.show_tooltips == true:
-			room_info.description_popup_label.show()
-		room_info.adjacent_rooms_popup_label.show()
+		room_info.description_label.show()
+		room_info.adjacent_rooms_label.show()
 		room_info.z_index = 1
 	else:
-		room_info.description_popup_label.hide()
-		room_info.adjacent_rooms_popup_label.hide()
+		room_info.description_label.hide()
+		room_info.adjacent_rooms_label.hide()
 		room_info.z_index = 0
 
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)

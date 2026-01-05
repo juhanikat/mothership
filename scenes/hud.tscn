@@ -48,7 +48,7 @@ fit_content = true
 
 [node name="ShowTooltipsButton" type="CheckButton" parent="PanelContainer/TopBar"]
 layout_mode = 2
-text = "Show tooltips"
+text = "Show tooltips (not used)"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/TopBar"]
 layout_mode = 2

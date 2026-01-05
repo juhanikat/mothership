@@ -7,10 +7,6 @@ class_name Main
 @export var nav_agent: NavigationAgent2D
 @export var path_line: Line2D
 
-@export var room_spawn_area: Area2D
-@export var room_spawn_area_polygon: CollisionPolygon2D
-@export var texture_polygon: Polygon2D
-
 # All rooms are children of this node
 @export var room_nodes: Node2D
 # All room info boxes are children of this node
@@ -22,9 +18,6 @@ var room_scene = load("res://room/room.tscn")
 var room_info_scene = load("res://room/room_info.tscn")
 
 const room_data = RoomData.room_data
-var room_inside_spawn_area: bool = false
-
-var spawn_area_color = Color("f3b700")
 
 var path_start: Vector2
 var path_start_room: Room # the room where the path starts
@@ -32,7 +25,8 @@ var path_end: Vector2
 var path_end_room: Room # the room where the path ends
 
 var camera_dragging: bool = false
-var previous_mouse_pos: Vector2 = Vector2(0, 0)
+var previous_mouse_pos_dragging: Vector2 = Vector2(0, 0)
+var previous_mouse_pos_zooming: Vector2 = Vector2(0, 0)
 
 var spawned_room_names = {} # used to give new rooms an ordering number (purely visual atm)
 
@@ -44,9 +38,6 @@ var crew_quarters_limit: int = 1
 
 
 func _ready() -> void:
-	spawn_room(RoomData.room_data[RoomData.RoomType.POWER_PLANT])
-	create_texture()
-
 	var first_order = CaptainFunctions.next_starting_order()
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
@@ -57,10 +48,9 @@ func _ready() -> void:
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
 
-
-func create_texture() -> void:
-	texture_polygon.polygon = room_spawn_area_polygon.polygon
-	texture_polygon.color = spawn_area_color
+	# starting room
+	var first_room = spawn_room_at_mouse(room_data[RoomData.RoomType.POWER_PLANT])
+	first_room.is_starting_room = true
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -71,14 +61,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_dragging = true
 	if event.is_action_released("drag_camera"):
 		camera_dragging = false
-		previous_mouse_pos = Vector2(0, 0)
+		previous_mouse_pos_dragging = Vector2(0, 0)
+
+	if event.is_action_pressed("zoom_in") and camera.zoom < Vector2(3, 3):
+		camera.zoom += Vector2(0.2, 0.2)
+		camera.global_position += (get_global_mouse_position() - camera.global_position).normalized() * (75 / (camera.zoom.x * 3))
+	if event.is_action_pressed("zoom_out") and camera.zoom > Vector2(0.5, 0.5):
+		camera.zoom -= Vector2(0.2, 0.2)
 
 	if event is InputEventMouseMotion and camera_dragging:
-		if not previous_mouse_pos:
-			previous_mouse_pos = get_global_mouse_position()
-		else:
-			camera.offset -= (get_global_mouse_position() - previous_mouse_pos) * 1.5
-			previous_mouse_pos = get_global_mouse_position()
+		camera.global_position += event.relative * (3 / (camera.zoom.x * 3)) # this is mouse movement direction from center of screen I think?
 
 	if event.is_action_pressed("add_point_to_path") and GlobalInputFlags.path_build_mode:
 		var mouse_pos = get_global_mouse_position()
@@ -124,8 +116,8 @@ func find_clicked_room() -> Variant:
 	return null
 
 
-## Spawns a room at the position of the mouse (with picked = true).
-func spawn_room_at_mouse(new_room_data: Dictionary):
+## Spawns a room at the position of the mouse (with picked = true), and returns the Room.
+func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 	for room: Room in get_tree().get_nodes_in_group("Room"):
 		if room.is_picked == true:
 			print("Cannot spawn new room at mouse pos when an existing one is picked!")
@@ -156,37 +148,7 @@ func spawn_room_at_mouse(new_room_data: Dictionary):
 	new_room.room_info = new_room_info
 	room_info_nodes.add_child(new_room_info)
 
-
-## Spawns a room in the dedicated spawn area (remove later).
-func spawn_room(new_room_data: Dictionary):
-	var new_room: Room = room_scene.instantiate()
-	var new_room_shape = new_room_data["room_shape"]
-	new_room.init_room(new_room_data)
-	new_room.global_position = room_spawn_area.global_position
-
-	if room_inside_spawn_area:
-		print("Cannot spawn new room while existing one is inside spawn area!")
-		return
-
-	var room_name = new_room_data["room_name"]
-	var overwrite_name = ""
-	if not spawned_room_names.get(room_name):
-		spawned_room_names[room_name] = 1
-	else:
-		spawned_room_names[room_name] += 1
-	if spawned_room_names[room_name] > 1:
-		overwrite_name = "%s (%s)" % [room_name, spawned_room_names[room_name]]
-
-	room_nodes.add_child(new_room)
-
-	# room info is a child of main scene because otherwise it will rotate with the room
-	var new_room_info: RoomInfo = room_info_scene.instantiate()
-	new_room_info.init_room_info(new_room_data, overwrite_name)
-	new_room_info.global_position = new_room.global_position + RoomData.room_info_pos[new_room_shape]
-	# room is responsible for moving info box with the room itself,
-	# so it needs a reference of it
-	new_room.room_info = new_room_info
-	room_info_nodes.add_child(new_room_info)
+	return new_room
 
 
 func find_path(from: Vector2, to: Vector2) -> void:
@@ -222,13 +184,3 @@ func _on_crew_quarters_limit_raised(amount: int) -> void:
 
 func _on_crew_quarters_limit_lowered(amount: int) -> void:
 	crew_quarters_limit -= amount
-
-
-func _on_room_spawn_area_area_entered(area: Area2D) -> void:
-	if area.is_in_group("RoomArea"):
-		room_inside_spawn_area = true
-
-
-func _on_room_spawn_area_area_exited(area: Area2D) -> void:
-	if area.is_in_group("RoomArea"):
-		room_inside_spawn_area = false

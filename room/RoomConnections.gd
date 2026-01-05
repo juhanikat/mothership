@@ -17,11 +17,11 @@ static func check_placement_rules(placed_room: Room, connecting_room: Room) -> b
 
 	if placed_room.room_type == RoomType.CANTEEN:
 		if connecting_room.room_category != RoomCategory.CREW_ROOM:
-			print("Room placement failed: Canteens must be adjacent to Crew Rooms.")
+			print("Room placement failed: Canteens must be adjacent to at least one Crew Room.")
 			return false
 	elif connecting_room.room_type == RoomType.CANTEEN:
 		if placed_room.room_category != RoomCategory.CREW_ROOM:
-			print("Room placement failed: Canteens must be adjacent to Crew Rooms.")
+			print("Room placement failed: Canteens must be adjacent to at least one Crew Room.")
 			return false
 
 	return true
