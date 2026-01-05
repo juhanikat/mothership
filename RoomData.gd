@@ -41,7 +41,7 @@ const _command_room_data: Dictionary[String, Variant] = {
 const _power_plant_data: Dictionary[String, Variant] = {
 	"room_name": "Power Plant",
 	"room_shape": RoomShape.LShape,
-	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to function.",
+	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to activate.",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
 	"power_supply": {"capacity": 10, "range": 5}
@@ -60,13 +60,14 @@ const _fuel_storage_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
-	"power_usage": 0
+	"power_usage": 0,
+	"always_activated": true
 }
 
 const _crew_quarters_data: Dictionary[String, Variant] = {
 	"room_name": "Crew Quarters",
 	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "Has to be connected to a Canteen through Crew rooms to function.",
+	"room_desc": "Has to be connected to a Canteen through Crew rooms to activate.",
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1,
 	"crew_supply": 4
@@ -92,8 +93,6 @@ const _garden_data: Dictionary[String, Variant] = {
 
 
 
-
-
 ## Maps a RoomShape to the rooms to a Vector indicating the room's width and height.
 ## NOTE: Remember to update these if you change the room shapes!
 const room_shape_dimensions = {
@@ -115,5 +114,5 @@ const room_info_pos = {
 const room_connectors = {
 	RoomShape.LShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
 	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
-	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
+	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
 }

@@ -18,7 +18,11 @@ func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String =
 	else:
 		room_name_label.text = _data["room_name"]
 
-	power_usage_label.text = "P" + str(_data["power_usage"])
+	var power_usage = _data["power_usage"]
+	if power_usage == 0:
+		power_usage_label.text = "Unpowered."
+	else:
+		power_usage_label.text = "P" + str(_data["power_usage"])
 	description_popup_label.text = _data.get("room_desc", "No description.")
 	adjacent_rooms_popup_label.text = "No adjacent rooms."
 

@@ -1,5 +1,5 @@
 TODO:
-	1. (Might be fixed now) Fix rooms not connecting properly when clicking while moving mouse too fast!
+	1. Should "powered" and "activated" be the same state?
 
 
 
@@ -8,8 +8,11 @@ ROOMS
 When spawning a new room, call the init_room function and give the correct room data as a parameter
 (these are in the room_data dict inside the RoomData script). That's all!
 
-Rooms always spawn UNACTIVATED, but if they have a power_usage of 0 they spawn powered. Note that
-a lit up room means that the room is ACTIVATED: powered rooms can be dark if they are still UNACTIVATED.
+Rooms always spawn UNACTIVATED. Note that a lit up room means that the room is ACTIVATED:
+powered rooms can be dark if they are still UNACTIVATED (although this might not ever happen?).
+
+Rooms can be set to be always activated. These rooms are activated automatically once they are connected, and cannot be deactivated.
+Rooms with a power usage of 0 can never be powered, but they can be activated as usual.
 
 If a room is picked up and then put down near or on top of another room, the connect_rooms()
 method inside room.gd is called to see if the room connectors are close enough to connect. If not,

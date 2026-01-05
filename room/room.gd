@@ -79,12 +79,14 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("activate_room") and hovering:
+		if gameplay.activated:
+			gameplay.deactivate_room()
+		else:
+			gameplay.activate_room()
+		return
+
 	if locked:
-		if event.is_action_pressed("activate_room") and hovering:
-			if gameplay.activated:
-				gameplay.deactivate_room()
-			else:
-				gameplay.activate_room()
 		return
 
 	if GlobalInputFlags.path_build_mode:

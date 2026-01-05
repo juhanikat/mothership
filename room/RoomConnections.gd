@@ -7,13 +7,23 @@ static var RoomType = RoomData.RoomType
 
 ## Returns true if <placed_room> can be placed adjacent to <connecting_room>, or false otherwise.
 static func check_placement_rules(placed_room: Room, connecting_room: Room) -> bool:
-	# godot doesn't have sets, but this works
+	# these two exist to make checking easier when e.g. comparing only the categories with has()
 	var room_categories = [placed_room.room_category, connecting_room.room_category]
 	var room_types = [placed_room.room_type, connecting_room.room_type]
 
 	if room_categories.has(RoomCategory.LUXURY_ROOM) and room_categories.has(RoomCategory.MAINTENANCE_ROOM):
 		print("Room placement failed: Cannot place Luxury Room next to a Maintenance Room.")
 		return false
+
+	if placed_room.room_type == RoomType.CANTEEN:
+		if connecting_room.room_category != RoomCategory.CREW_ROOM:
+			print("Room placement failed: Canteens must be adjacent to Crew Rooms.")
+			return false
+	elif connecting_room.room_type == RoomType.CANTEEN:
+		if placed_room.room_category != RoomCategory.CREW_ROOM:
+			print("Room placement failed: Canteens must be adjacent to Crew Rooms.")
+			return false
+
 	return true
 
 
@@ -40,7 +50,7 @@ static func distance_between(start_room: Room, end_room: Room, allowed_rooms: Ar
 	return -1
 
 
-## Returns the nearest room of type <end_room_type>, and the path length. If no path is found, returns -1.
+## Returns the nearest room of type <end_room_type>, and the path length. If no path is found, returns an empty Array.
 ## If <allowed_rooms> is set, only rooms that are included in the array are considered for the path.
 static func find_nearest_room_type(start_room: Room, end_room_type: RoomData.RoomType, allowed_rooms: Array[RoomData.RoomCategory] = []) -> Array:
 	var queue = [] # Contains [room: Room, distance_from_starting_room: int] pairs
