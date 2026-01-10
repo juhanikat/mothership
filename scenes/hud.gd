@@ -1,7 +1,13 @@
 extends CanvasLayer
 
 
-@export var room_list: ItemList
+@export var crew_room_list: ItemList
+@export var maintenance_room_list: ItemList
+@export var luxury_room_list: ItemList
+@export var special_room_list: ItemList
+@export var combat_room_list: ItemList
+@export var research_room_list: ItemList
+
 @export var path_build_mode_label: RichTextLabel
 @export var path_info_label: RichTextLabel
 @export var total_crew_amount_label: RichTextLabel
@@ -11,6 +17,15 @@ extends CanvasLayer
 
 var total_crew: int = 0
 var crew_quarters_limit: int
+
+@onready var room_category_to_item_list = {
+	RoomData.RoomCategory.CREW_ROOM: crew_room_list,
+	RoomData.RoomCategory.MAINTENANCE_ROOM: maintenance_room_list,
+	RoomData.RoomCategory.LUXURY_ROOM: luxury_room_list,
+	RoomData.RoomCategory.SPECIAL_ROOM: special_room_list,
+	RoomData.RoomCategory.COMBAT_ROOM: combat_room_list,
+	RoomData.RoomCategory.RESEARCH_ROOM: research_room_list,
+}
 
 
 func _ready() -> void:
@@ -24,9 +39,12 @@ func _ready() -> void:
 	path_info_label.text = "No path yet"
 
 	for room_data in RoomData.room_data.values():
-		room_list.add_item(room_data["room_name"])
+		room_category_to_item_list[room_data["room_category"]].add_item(room_data["room_name"])
 
-	room_list.select(0)
+	for item_list: ItemList in room_category_to_item_list.values():
+		item_list.item_selected.connect(_on_room_list_item_selected.bind(item_list))
+
+	crew_room_list.select(0)
 
 	crew_quarters_limit = main.crew_quarters_limit
 	crew_quarters_limit_label.text = "Crew Quarters limit: %s" % [str(crew_quarters_limit)]
@@ -54,9 +72,11 @@ func _on_path_completed(path_start_room: Room, path_end_room: Room, path_length:
 
 
 func _on_add_room_button_pressed() -> void:
-	var selected_room = room_list.get_item_text(room_list.get_selected_items()[0])
-	var selected_room_data = find_room_data_by_name(selected_room)
-	main.spawn_room_at_mouse(selected_room_data)
+	for item_list: ItemList in room_category_to_item_list.values():
+		if len(item_list.get_selected_items()) > 0:
+			var selected_room = item_list.get_item_text(item_list.get_selected_items()[0])
+			var selected_room_data = find_room_data_by_name(selected_room)
+			main.spawn_room_at_mouse(selected_room_data)
 
 
 func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
@@ -88,3 +108,9 @@ func _on_crew_quarters_limit_raised(amount: int) -> void:
 func _on_crew_quarters_limit_lowered(amount: int) -> void:
 	crew_quarters_limit -= amount
 	crew_quarters_limit_label.text = "Crew Quarters limit: %s" % [str(crew_quarters_limit)]
+
+
+func _on_room_list_item_selected(_index: int, current_item_list: ItemList) -> void:
+	for item_list: ItemList in room_category_to_item_list.values():
+		if item_list != current_item_list:
+			item_list.deselect_all()

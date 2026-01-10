@@ -2,9 +2,14 @@
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://scenes/hud.gd" id="1_ahhtf"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("room_list", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "combat_room_list", "research_room_list", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label")]
 script = ExtResource("1_ahhtf")
-room_list = NodePath("PanelContainer/TopBar/RoomList")
+crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
+maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
+luxury_room_list = NodePath("PanelContainer/TopBar/LuxuryRoomList")
+special_room_list = NodePath("PanelContainer/TopBar/SpecialRoomList")
+combat_room_list = NodePath("PanelContainer/TopBar/CombatRoomList")
+research_room_list = NodePath("PanelContainer/TopBar/ResearchRoomList")
 path_build_mode_label = NodePath("PanelContainer/TopBar/PathBuildModeLabel")
 path_info_label = NodePath("PanelContainer/TopBar/PathInfoLabel")
 total_crew_amount_label = NodePath("PanelContainer/TopBar/VBoxContainer/TotalCrewAmountLabel")
@@ -13,7 +18,7 @@ crew_quarters_limit_label = NodePath("PanelContainer/TopBar/VBoxContainer/CrewQu
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = -1
 anchor_right = 1.0
-anchor_bottom = 0.195988
+anchor_bottom = 0.197531
 grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
@@ -21,11 +26,52 @@ metadata/_edit_use_anchors_ = true
 [node name="TopBar" type="HBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 
-[node name="RoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="CrewRoomList" type="ItemList" parent="PanelContainer/TopBar"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
+size_flags_horizontal = 0
+allow_search = false
 auto_width = true
-max_columns = 2
+same_column_width = true
+
+[node name="MaintenanceRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+allow_search = false
+auto_width = true
+same_column_width = true
+
+[node name="LuxuryRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+allow_search = false
+auto_width = true
+same_column_width = true
+
+[node name="SpecialRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+allow_search = false
+auto_width = true
+same_column_width = true
+
+[node name="CombatRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+allow_search = false
+auto_width = true
+same_column_width = true
+
+[node name="ResearchRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+allow_search = false
+auto_width = true
 same_column_width = true
 
 [node name="AddRoomButton" type="Button" parent="PanelContainer/TopBar"]
@@ -46,10 +92,6 @@ theme_override_font_sizes/normal_font_size = 13
 text = "path build mode label"
 fit_content = true
 
-[node name="ShowTooltipsButton" type="CheckButton" parent="PanelContainer/TopBar"]
-layout_mode = 2
-text = "Show tooltips (not used)"
-
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -57,12 +99,14 @@ size_flags_horizontal = 3
 [node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer/TopBar/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 14
 text = "Crew amount: 0"
 fit_content = true
 
 [node name="CrewQuartersLimitLabel" type="RichTextLabel" parent="PanelContainer/TopBar/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 14
 text = "Crew Quarters limit: 0"
 fit_content = true
 
@@ -72,5 +116,4 @@ focus_mode = 0
 text = "Next Turn"
 
 [connection signal="pressed" from="PanelContainer/TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
-[connection signal="toggled" from="PanelContainer/TopBar/ShowTooltipsButton" to="." method="_on_show_tooltips_button_toggled"]
 [connection signal="pressed" from="PanelContainer/TopBar/NextTurnButton" to="." method="_on_next_turn_button_pressed"]

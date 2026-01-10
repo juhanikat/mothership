@@ -31,7 +31,11 @@ visible = false
 polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 
 [node name="BigSquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+visible = false
 polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
+
+[node name="LongHallwayShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+polygon = PackedVector2Array(-192, -16, -192, 16, 192, 16, 192, -16)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 

@@ -3,8 +3,8 @@ class_name RoomData
 
 
 
-enum RoomShape {LShape, SmallSquareShape, BigSquareShape}
-enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS, CANTEEN, GARDEN}
+enum RoomShape {LShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
+enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS, CANTEEN, GARDEN, ROBOTICS, CABLE_DUCT}
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
 const room_colors = {
@@ -25,9 +25,10 @@ const room_data = {
 	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.CREW_QUARTERS: _crew_quarters_data,
 	RoomType.CANTEEN: _canteen_data,
-	RoomType.GARDEN: _garden_data
+	RoomType.GARDEN: _garden_data,
+	RoomType.ROBOTICS: _robotics_data,
+	RoomType.CABLE_DUCT: _cable_duct_data,
 }
-
 
 ## TODO: Use classes instead of dicts here to get autocomplete?
 const _command_room_data: Dictionary[String, Variant] = {
@@ -53,6 +54,14 @@ const _engine_room_data: Dictionary[String, Variant] = {
 	"room_desc": "",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 3
+}
+
+const _cable_duct_data: Dictionary[String, Variant] = {
+	"room_name": "Cable Duct",
+	"room_shape": RoomShape.LongHallwayShape,
+	"room_desc": "",
+	"room_category": RoomCategory.MAINTENANCE_ROOM,
+	"power_usage": 0
 }
 
 const _fuel_storage_data: Dictionary[String, Variant] = {
@@ -90,15 +99,12 @@ const _garden_data: Dictionary[String, Variant] = {
 	"crew_quarters_limit_increase": 2
 }
 
-
-
-
-## Maps a RoomShape to the rooms to a Vector indicating the room's width and height.
-## NOTE: Remember to update these if you change the room shapes!
-const room_shape_dimensions = {
-	RoomShape.LShape: Vector2(128, 128),
-	RoomShape.SmallSquareShape: Vector2(64, 64),
-	RoomShape.BigSquareShape: Vector2(128, 128)
+const _robotics_data: Dictionary[String, Variant] = {
+	"room_name": "Robotics",
+	"room_shape": RoomShape.LShape,
+	"room_desc": "",
+	"room_category": RoomCategory.RESEARCH_ROOM,
+	"power_usage": 1
 }
 
 ## Maps the shape of a room to the top left corner of the room the info should be.
@@ -106,6 +112,7 @@ const room_info_pos = {
 	RoomShape.LShape: Vector2(-64, -64),
 	RoomShape.SmallSquareShape: Vector2(-32, -32),
 	RoomShape.BigSquareShape: Vector2(-64, -64),
+	RoomShape.LongHallwayShape: Vector2(-192, -32)
 }
 
 ## Maps a RoomShape to an Array containing the locations of its connectors.
@@ -115,4 +122,5 @@ const room_connectors = {
 	RoomShape.LShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
 	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
 	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
+	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)]
 }

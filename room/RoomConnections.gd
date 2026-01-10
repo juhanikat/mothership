@@ -9,7 +9,7 @@ static var RoomType = RoomData.RoomType
 static func check_placement_rules(placed_room: Room, connecting_room: Room) -> bool:
 	# these two exist to make checking easier when e.g. comparing only the categories with has()
 	var room_categories = [placed_room.room_category, connecting_room.room_category]
-	var room_types = [placed_room.room_type, connecting_room.room_type]
+	var _room_types = [placed_room.room_type, connecting_room.room_type]
 
 	if room_categories.has(RoomCategory.LUXURY_ROOM) and room_categories.has(RoomCategory.MAINTENANCE_ROOM):
 		print("Room placement failed: Cannot place Luxury Room next to a Maintenance Room.")

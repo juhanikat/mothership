@@ -43,7 +43,7 @@ CREATING A NEW ROOM TYPE:
 	(If the new room has a new, non-existing shape as well, add the shape to the RoomShape enum)
 	2. Create a data dict for the room, e.g. _my_room_data = {}
 	3. Add RoomType.MY_ROOM: _my_room_data to the room_data dict.
-	4. If you created a new shape, update room_shape_dimensions, room_info_pos and
+	4. If you created a new shape, update room_info_pos and
 	room_connectors appropriately.
 	5. Finally, if you created a new shape, add a polygon representing it to the "AllRoomShapes"
 	node inside the Room scene, and update the (_ready(), create_clickable_area()) function in room.gd accordingly.

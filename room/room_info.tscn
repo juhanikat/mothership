@@ -1,13 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://b2hljfbu67bkx"]
+[gd_scene load_steps=4 format=3 uid="uid://b2hljfbu67bkx"]
 
 [ext_resource type="Script" uid="uid://ckk2sqm7720y" path="res://room/room_info.gd" id="1_xv4oe"]
+[ext_resource type="FontFile" uid="uid://c63xjyk31oise" path="res://fonts/Xolonium-Regular.otf" id="2_jskd8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yms3g"]
 bg_color = Color(0, 0, 0, 0.545098)
 
 [node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "power_supply_label", "adjacent_rooms_label", "description_label") groups=["RoomInfo"]]
-offset_right = 128.0
-offset_bottom = 54.0
+anchors_preset = -1
+anchor_right = 0.111111
+anchor_bottom = 0.0833333
+offset_bottom = -6.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_yms3g")
 script = ExtResource("1_xv4oe")
@@ -29,31 +32,40 @@ metadata/_edit_use_anchors_ = true
 [node name="RoomName" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_font_sizes/normal_font_size = 20
+theme_override_fonts/normal_font = ExtResource("2_jskd8")
+theme_override_font_sizes/normal_font_size = 16
 text = "room name"
 fit_content = true
 
 [node name="PowerUsage" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_fonts/normal_font = ExtResource("2_jskd8")
+theme_override_font_sizes/normal_font_size = 12
 text = "power usage"
 fit_content = true
 
 [node name="PowerSupply" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_fonts/normal_font = ExtResource("2_jskd8")
+theme_override_font_sizes/normal_font_size = 12
 fit_content = true
 
 [node name="AdjacentRoomsLabel" type="RichTextLabel" parent="VBoxContainer"]
 visible = false
 layout_mode = 2
 mouse_filter = 2
+theme_override_fonts/normal_font = ExtResource("2_jskd8")
+theme_override_font_sizes/normal_font_size = 12
 fit_content = true
 
 [node name="DescriptionLabel" type="RichTextLabel" parent="VBoxContainer"]
 visible = false
 layout_mode = 2
 mouse_filter = 2
+theme_override_fonts/normal_font = ExtResource("2_jskd8")
+theme_override_font_sizes/normal_font_size = 12
 text = "test popup
 fsfsffe
 fefefefFEWFEWF

@@ -6,7 +6,6 @@ class_name RoomInfo
 @export var power_usage_label: RichTextLabel
 @export var power_supply_label: RichTextLabel
 
-
 @export var adjacent_rooms_label: RichTextLabel
 @export var description_label: RichTextLabel
 
@@ -31,6 +30,10 @@ func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String =
 	if "power_supply" in _data.keys():
 		power_supply_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
 		[str(_data["power_supply"]["range"]), str(_data["power_supply"]["capacity"])]
+
+
+func shrink_panel_container() -> void:
+	size = get_minimum_size()
 
 
 ## Called by room.gd to update the adjacent rooms popup.

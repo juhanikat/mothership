@@ -160,7 +160,6 @@ func find_path(from: Vector2, to: Vector2) -> void:
 
 
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
-##
 func next_turn() -> void:
 	turn += 1
 	var next_order = CaptainFunctions.random_order()

@@ -63,6 +63,8 @@ func _ready() -> void:
 			room_shapes[RoomShape.SmallSquareShape] = room_shape.polygon
 		if room_shape.name == "BigSquareShapePolygon":
 			room_shapes[RoomShape.BigSquareShape] = room_shape.polygon
+		if room_shape.name == "LongHallwayShapePolygon":
+			room_shapes[RoomShape.LongHallwayShape] = room_shape.polygon
 
 	polygon.polygon = room_shapes[_shape]
 
@@ -83,7 +85,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("activate_room") and hovering:
+	if event.is_action_pressed("activate_room") and hovering and not is_picked:
 		if gameplay.activated:
 			gameplay.deactivate_room()
 		else:
@@ -132,17 +134,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
-	if hovering:
-		## NOTE: room_info's description label is toggled here since room_info itself
-		## cannot be easily set to read input without consuming it :(
-		room_info.description_label.show()
-		room_info.adjacent_rooms_label.show()
-		room_info.z_index = 1
-	else:
-		room_info.description_label.hide()
-		room_info.adjacent_rooms_label.hide()
-		room_info.z_index = 0
-
 	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
 
 	#snap rotation to target value once close enough, might prevent some bugs with rounding
@@ -255,7 +246,16 @@ func _on_room_area_area_exited(area: Area2D) -> void:
 
 func _on_room_area_mouse_entered() -> void:
 	hovering = true
+	## NOTE: room_info's description label is toggled here since room_info itself
+	## cannot be easily set to read input without consuming it :(
+	room_info.description_label.show()
+	room_info.adjacent_rooms_label.show()
+	room_info.z_index = 1
 
 
 func _on_room_area_mouse_exited() -> void:
 	hovering = false
+	room_info.description_label.hide()
+	room_info.adjacent_rooms_label.hide()
+	room_info.shrink_panel_container()
+	room_info.z_index = 0
