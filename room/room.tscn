@@ -1,8 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://b5dj4e3qdd2f6"]
+[gd_scene load_steps=3 format=3 uid="uid://b5dj4e3qdd2f6"]
 
 [ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://room/room.gd" id="1_ppkfq"]
 
-[node name="Room" type="Node2D" node_paths=PackedStringArray("texture_polygon", "nav_region", "nav_agent", "connectors_node", "room_area", "polygon", "all_room_shapes") groups=["Room", "RoomArea"]]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ppkfq"]
+size = Vector2(16, 16)
+
+[node name="Room" type="Node2D" node_paths=PackedStringArray("texture_polygon", "nav_region", "nav_agent", "connectors_node", "room_area", "polygon", "all_room_shapes", "facing_area") groups=["Room", "RoomArea"]]
 script = ExtResource("1_ppkfq")
 texture_polygon = NodePath("TexturePolygon")
 nav_region = NodePath("NavigationRegion2D")
@@ -11,6 +14,7 @@ connectors_node = NodePath("Connectors")
 room_area = NodePath("RoomArea")
 polygon = NodePath("RoomArea/Polygon")
 all_room_shapes = NodePath("AllRoomShapes")
+facing_area = NodePath("FacingArea")
 
 [node name="TexturePolygon" type="Polygon2D" parent="."]
 color = Color(0.884932, 0.78636, 0.391851, 1)
@@ -35,6 +39,7 @@ visible = false
 polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
 
 [node name="LongHallwayShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+visible = false
 polygon = PackedVector2Array(-192, -16, -192, 16, 192, 16, 192, -16)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
@@ -44,6 +49,12 @@ polygon = PackedVector2Array(-192, -16, -192, 16, 192, 16, 192, -16)
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="Node2D"]
 
 [node name="Connectors" type="Node2D" parent="."]
+
+[node name="FacingArea" type="Area2D" parent="."]
+visible = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FacingArea"]
+shape = SubResource("RectangleShape2D_ppkfq")
 
 [connection signal="area_entered" from="RoomArea" to="." method="_on_room_area_area_entered"]
 [connection signal="area_exited" from="RoomArea" to="." method="_on_room_area_area_exited"]

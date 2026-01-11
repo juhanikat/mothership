@@ -13,6 +13,8 @@ const RoomShape = RoomData.RoomShape
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
 
+@export var facing_area: Area2D # if room data has a facing property, this area marks the side the room is facing.
+
 @onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
 @onready var main: Main = get_tree().root.get_node("Main")
 
@@ -75,6 +77,21 @@ func _ready() -> void:
 
 	# creates and shapes the NavigationRegion for the room.
 	create_navigation_region()
+
+	if "facing" in _data:
+		facing_area.show()
+		match _data.facing:
+			"up":
+				facing_area.position = RoomData.room_facing_boxes[_shape][0]
+			"right":
+				facing_area.position = RoomData.room_facing_boxes[_shape][1]
+			"down":
+				facing_area.position = RoomData.room_facing_boxes[_shape][2]
+			"left":
+				facing_area.position = RoomData.room_facing_boxes[_shape][3]
+
+
+
 
 	GlobalSignals.room_connected.connect(_on_room_connected)
 
@@ -218,12 +235,14 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		adjacent_rooms.append(other_room)
 		# TODO: fix this, looks ugly and uses _data which should be private
 		room_info.update_adjacent_rooms_label(adjacent_rooms)
+		main.cut_room_shape_from_nav_region(self, get_own_connectors())
 	elif connector2 in get_own_connectors():
 		locked = true
 		var other_room = connector1.get_parent_room()
 		adjacent_rooms.append(other_room)
 		room_info.update_adjacent_rooms_label(adjacent_rooms)
 		connector2.delete_navigation_region()
+		main.cut_room_shape_from_nav_region(self, get_own_connectors())
 
 		## TODO: ??? Is this necessary, or in the right place?
 		await get_tree().physics_frame

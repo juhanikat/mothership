@@ -2,10 +2,13 @@ extends Script
 class_name RoomData
 
 
-
 enum RoomShape {LShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
-enum RoomType {COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS, CANTEEN, GARDEN, ROBOTICS, CABLE_DUCT}
+enum RoomType {
+	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS,
+	CANTEEN, GARDEN, ROBOTICS, WEAPONS_RESEARCH, STINGRAY, CABLE_DUCT
+}
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
+
 
 const room_colors = {
 	RoomCategory.CREW_ROOM: Color(0.212, 0.561, 0.812),
@@ -14,6 +17,34 @@ const room_colors = {
 	RoomCategory.COMBAT_ROOM: Color(0.681, 0.257, 0.219),
 	RoomCategory.LUXURY_ROOM: Color(0.394, 0.834, 0.113),
 	RoomCategory.SPECIAL_ROOM: Color(0.904, 0.741, 0.651)
+	}
+
+
+## Maps the shape of a room to the top left corner of the room the info should be.
+const room_info_pos = {
+	RoomShape.LShape: Vector2(-64, -64),
+	RoomShape.SmallSquareShape: Vector2(-32, -32),
+	RoomShape.BigSquareShape: Vector2(-64, -64),
+	RoomShape.LongHallwayShape: Vector2(-192, -32)
+}
+
+
+## Maps a RoomShape to an Array containing the locations of its connectors.
+## NOTE: Add some offset to these so the rooms are not adjacent when snapped,
+## otherwise room area detection does not work!
+const room_connectors = {
+	RoomShape.LShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
+	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
+	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
+	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)]
+}
+
+# Contains the positions of Area2Ds which are used as the direction a room faces.
+# These are in clockwise order: (up, right, down left).
+# For example, a turret might have its facing value set to "up", in which case
+# the first vector value is used.
+const room_facing_boxes = {
+	RoomShape.SmallSquareShape: [Vector2(0, -24),Vector2(24, 0), Vector2(0, 24), Vector2(-24, 0)]
 	}
 
 
@@ -27,8 +58,11 @@ const room_data = {
 	RoomType.CANTEEN: _canteen_data,
 	RoomType.GARDEN: _garden_data,
 	RoomType.ROBOTICS: _robotics_data,
+	RoomType.WEAPONS_RESEARCH: _weapons_research_data,
 	RoomType.CABLE_DUCT: _cable_duct_data,
+	RoomType.STINGRAY: _stingray_data
 }
+
 
 ## TODO: Use classes instead of dicts here to get autocomplete?
 const _command_room_data: Dictionary[String, Variant] = {
@@ -96,7 +130,8 @@ const _garden_data: Dictionary[String, Variant] = {
 	"room_desc": "Raises your crew quarter limit by 2.",
 	"room_category": RoomCategory.LUXURY_ROOM,
 	"power_usage": 0,
-	"crew_quarters_limit_increase": 2
+	"crew_quarters_limit_increase": 2,
+	"always_activated": true
 }
 
 const _robotics_data: Dictionary[String, Variant] = {
@@ -107,20 +142,19 @@ const _robotics_data: Dictionary[String, Variant] = {
 	"power_usage": 1
 }
 
-## Maps the shape of a room to the top left corner of the room the info should be.
-const room_info_pos = {
-	RoomShape.LShape: Vector2(-64, -64),
-	RoomShape.SmallSquareShape: Vector2(-32, -32),
-	RoomShape.BigSquareShape: Vector2(-64, -64),
-	RoomShape.LongHallwayShape: Vector2(-192, -32)
+const _weapons_research_data: Dictionary[String, Variant] = {
+	"room_name": "Weapons Research",
+	"room_shape": RoomShape.LShape,
+	"room_desc": "Unlocks new combat rooms.",
+	"room_category": RoomCategory.RESEARCH_ROOM,
+	"power_usage": 1
 }
 
-## Maps a RoomShape to an Array containing the locations of its connectors.
-## NOTE: Add some offset to these so the rooms are not adjacent when snapped,
-## otherwise room area detection does not work!
-const room_connectors = {
-	RoomShape.LShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
-	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
-	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
-	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)]
+const _stingray_data: Dictionary[String, Variant] = {
+	"room_name": "Stingray",
+	"room_shape": RoomShape.SmallSquareShape,
+	"room_desc": "Weapon. Shoots 1 column in front.",
+	"room_category": RoomCategory.COMBAT_ROOM,
+	"power_usage": 1,
+	"facing": "up"
 }

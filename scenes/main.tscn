@@ -1,13 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://ony8uad06hvx"]
+[gd_scene load_steps=6 format=3 uid="uid://ony8uad06hvx"]
 
 [ext_resource type="Script" uid="uid://6umoox1qwm3k" path="res://scenes/main.gd" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://d1spf4ifa2e2j" path="res://scenes/hud.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://captain/room_selection.tscn" id="3_sugp2"]
 [ext_resource type="Texture2D" uid="uid://cnhvdsmq3pdln" path="res://inkscape files/background.png" id="4_jyhfs"]
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "room_selection")]
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_jyhfs"]
+vertices = PackedVector2Array(1462, 1078, -374, 1078, -374, -310, 1462, -310)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-384, -320, -384, 1088, 1472, 1088, 1472, -320)])
+agent_radius = 5.0
+
+[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "room_selection")]
 script = ExtResource("1_0wfyh")
 camera = NodePath("Camera2D")
+nav_region = NodePath("NavigationRegion2D")
 nav_actor = NodePath("NavActor")
 nav_agent = NodePath("NavActor/NavigationAgent")
 path_line = NodePath("PathLine")
@@ -46,3 +53,6 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_jyhfs")

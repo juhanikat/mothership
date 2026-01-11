@@ -3,6 +3,9 @@ class_name Main
 
 
 @export var camera: Camera2D
+
+@export var nav_region: NavigationRegion2D
+
 @export var nav_actor: Node2D
 @export var nav_agent: NavigationAgent2D
 @export var path_line: Line2D
@@ -167,6 +170,34 @@ func next_turn() -> void:
 	possible_rooms.assign(next_order.selected_rooms)
 	room_selection.clear_room_buttons()
 	room_selection.add_room_buttons(possible_rooms)
+
+
+func cut_room_shape_from_nav_region(room: Room, connectors: Array[Connector]) -> void:
+	var room_polygon = room.polygon.polygon
+	var global_room_polygon = []
+	var nav_obstacle
+	for point in room_polygon:
+		global_room_polygon.append(point + room.global_position)
+
+	nav_obstacle = NavigationObstacle2D.new()
+	nav_obstacle.vertices = global_room_polygon
+	nav_obstacle.affect_navigation_mesh = true
+	nav_region.add_child(nav_obstacle)
+
+	for connector in connectors:
+		var connector_polygon = connector.collision_polygon.polygon
+		var global_connector_polygon = []
+		for point in connector_polygon:
+			global_connector_polygon.append(point + connector.global_position)
+
+		nav_obstacle = NavigationObstacle2D.new()
+		nav_obstacle.vertices = global_connector_polygon
+		nav_obstacle.affect_navigation_mesh = true
+		nav_region.add_child(nav_obstacle)
+
+	if nav_region.is_baking():
+		await nav_region.bake_finished
+	nav_region.bake_navigation_polygon()
 
 
 func _on_crew_added(amount: int) -> void:

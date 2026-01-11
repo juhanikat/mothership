@@ -10,16 +10,21 @@ class_name CaptainData
 enum StartingOrder {POWER_PLANT_ORDER, ENGINE_ROOM_ORDER, FUEL_STORAGE_ORDER, COMMAND_ROOM_ORDER}
 
 # The normal orders.
-enum Order {NEUTRAL_ORDER, CREW_ORDER}
+enum Order {NEUTRAL_ORDER, COMBAT_ORDER, CREW_ORDER}
 
 const ROOMS = RoomData.RoomType
+# If an order has a "room_category" array, then any room that is in those categories can appear.
+# Some rooms have a special key (in RoomData) that excludes them from this?
+const ROOM_CATEGORIES = RoomData.RoomCategory
 
 
 
 ## Use these in other scripts.
 const starting_orders = [_power_plant_order, _engine_room_order, _fuel_storage_order, _command_room_order]
 
-const orders = {Order.NEUTRAL_ORDER: _neutral_order}
+const orders = {Order.NEUTRAL_ORDER: _neutral_order,
+				Order.COMBAT_ORDER: _neutral_order
+				}
 
 
 
@@ -46,6 +51,20 @@ const _command_room_order = {
 
 const _neutral_order = {
 	"description": "The Captain has no orders for you. Choose the room you think would best fit our current situation.",
-	"rooms": [ROOMS.CREW_QUARTERS],
+	"room_categories": [
+		ROOM_CATEGORIES.CREW_ROOM,
+		ROOM_CATEGORIES.MAINTENANCE_ROOM,
+		ROOM_CATEGORIES.COMBAT_ROOM,
+		ROOM_CATEGORIES.RESEARCH_ROOM,
+		ROOM_CATEGORIES.LUXURY_ROOM
+	],
+	"choose_from": 3
+	}
+
+const _combat_order = {
+	"description": "The Captain has no orders for you. Choose the room you think would best fit our current situation.",
+	"rooms": [
+		ROOMS.CREW_QUARTERS,
+	],
 	"choose_from": 3
 	}

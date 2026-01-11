@@ -36,14 +36,22 @@ static func random_order() -> Dictionary:
 	var new_order: Dictionary = orders[shuffled_keys[0]].duplicate(true)
 
 	var room_data_array = []
-	for room_enum in new_order.rooms:
-		room_data_array.append(RoomData.room_data[room_enum])
+
+	if "room_categories" in new_order:
+		# if order has categories instead of specific rooms
+		for room_data_dict in RoomData.room_data.values():
+			if room_data_dict["room_category"] in new_order.room_categories:
+				room_data_array.append(room_data_dict)
+	else:
+		for room_enum in new_order.rooms:
+			room_data_array.append(RoomData.room_data[room_enum])
 
 	if "choose_from" in new_order:
 		room_data_array.shuffle()
 		room_data_array = room_data_array.slice(0, new_order["choose_from"])
 
 	new_order.erase("rooms")
+	new_order.erase("room_categories")
 	new_order["selected_rooms"] = room_data_array
 	starting_order_history.append(new_order)
 	return new_order
