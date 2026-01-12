@@ -55,4 +55,5 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+visible = false
 navigation_polygon = SubResource("NavigationPolygon_jyhfs")

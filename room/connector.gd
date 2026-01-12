@@ -57,14 +57,14 @@ func get_overlapping_connectors() -> Array[Connector]:
 	return overlapping_connectors
 
 
-func get_overlapping_room_areas() -> Array[Room]:
-	## Returns all Rooms whose RoomAreas are overlapping this connector (partially or fully).
+func get_overlapping_rooms() -> Array[Room]:
+	## Returns all Rooms that are overlapping this connector (partially or fully).
 	var overlapping_areas = get_overlapping_areas()
 	var overlapping_rooms: Array[Room] = []
 	for room: Room in get_tree().get_nodes_in_group("Room"):
 		if get_parent_room() == room:
 			continue
-		if room.room_area in overlapping_areas:
+		if room in overlapping_areas:
 			overlapping_rooms.append(room)
 	return overlapping_rooms
 

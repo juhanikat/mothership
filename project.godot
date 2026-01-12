@@ -28,8 +28,6 @@ gdscript/warnings/unused_signal=0
 
 Connector=""
 Room=""
-RoomClickableArea=""
-RoomArea=""
 PowerSupply=""
 RoomInfo=""
 CrewSupply=""

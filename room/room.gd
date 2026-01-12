@@ -1,4 +1,4 @@
-extends Node2D
+extends Area2D
 class_name Room
 
 var connector_scene = load("res://room/connector.tscn")
@@ -9,11 +9,11 @@ const RoomShape = RoomData.RoomShape
 @export var nav_region: NavigationRegion2D
 @export var nav_agent: NavigationAgent2D
 @export var connectors_node: Node2D
-@export var room_area: Area2D # actual CollisionPolygon of the room
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
 
-@export var facing_area: Area2D # if room data has a facing property, this area marks the side the room is facing.
+@export var raycast: RayCast2D # if room data has a facing property, this raycast will be cast toward that side.
+# used to check if any other rooms are in front of this room, if needed.
 
 @onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
 @onready var main: Main = get_tree().root.get_node("Main")
@@ -34,7 +34,7 @@ var room_name: String
 var room_type: RoomData.RoomType
 var room_category: RoomData.RoomCategory
 
-var overlapping_room_areas: Array[Area2D] = []
+var overlapping_rooms: Array[Room] = []
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
 
 var gameplay: RoomGameplay
@@ -78,18 +78,21 @@ func _ready() -> void:
 	# creates and shapes the NavigationRegion for the room.
 	create_navigation_region()
 
+	raycast.add_exception(self)
+	for own_connector in get_own_connectors():
+		raycast.add_exception(own_connector)
 	if "facing" in _data:
-		facing_area.show()
 		match _data.facing:
 			"up":
-				facing_area.position = RoomData.room_facing_boxes[_shape][0]
+				raycast.target_position = Vector2(0, -50000)
 			"right":
-				facing_area.position = RoomData.room_facing_boxes[_shape][1]
+				raycast.target_position = Vector2(50000, 0)
 			"down":
-				facing_area.position = RoomData.room_facing_boxes[_shape][2]
+				raycast.target_position = Vector2(0, 50000)
 			"left":
-				facing_area.position = RoomData.room_facing_boxes[_shape][3]
-
+				raycast.target_position = Vector2(-50000, 0)
+	else:
+		raycast.enabled = false
 
 
 
@@ -174,10 +177,21 @@ func connect_rooms(connector_pair: Array[Connector]) -> bool:
 
 	# check for overlapping rooms AFTER placing connected room
 	await get_tree().physics_frame
-	for area in overlapping_room_areas:
-		if area.is_in_group("RoomArea"):
-			global_position = original_position
-			print("Tried to snap connectors, but rooms are overlapping.")
+	if len(overlapping_rooms) > 0:
+		global_position = original_position
+		print("Tried to snap connectors, but rooms are overlapping.")
+		return false
+
+	await get_tree().physics_frame
+	var collider = get_raycast_collider()
+	if collider:
+		print("Cannot place room, another room or connector is overlapping the raycast.")
+		return false
+
+	for other_room: Room in get_tree().get_nodes_in_group("Room"):
+		var other_room_collider = other_room.get_raycast_collider()
+		if other_room_collider:
+			print("Cannot place room, this room is overlapping another room's raycast.")
 			return false
 
 	print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector_pair[1])]))
@@ -253,17 +267,31 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 			connector.queue_free()
 
 
-func _on_room_area_area_entered(area: Area2D) -> void:
-	if area.is_in_group("RoomArea"):
-		overlapping_room_areas.append(area)
+## Returns the first room or connector that hits this room's raycast, if any.
+## NOTE: this will have issues if new children are added to Room, since subchildren of this room
+## (other than connectors) are not excluded from the collider check.
+func get_raycast_collider():
+	if not raycast.enabled:
+		return null
+
+	var collider = raycast.get_collider()
+	if collider is not Room and collider is not Connector:
+		return null
+
+	return collider
 
 
-func _on_room_area_area_exited(area: Area2D) -> void:
-	if area.is_in_group("RoomArea"):
-		overlapping_room_areas.erase(area)
+func _on_area_entered(area: Area2D) -> void:
+	if area.is_in_group("Room"):
+		overlapping_rooms.append(area)
 
 
-func _on_room_area_mouse_entered() -> void:
+func _on_area_exited(area: Area2D) -> void:
+	if area.is_in_group("Room"):
+		overlapping_rooms.erase(area)
+
+
+func _on_mouse_entered() -> void:
 	hovering = true
 	## NOTE: room_info's description label is toggled here since room_info itself
 	## cannot be easily set to read input without consuming it :(
@@ -272,7 +300,7 @@ func _on_room_area_mouse_entered() -> void:
 	room_info.z_index = 1
 
 
-func _on_room_area_mouse_exited() -> void:
+func _on_mouse_exited() -> void:
 	hovering = false
 	room_info.description_label.hide()
 	room_info.adjacent_rooms_label.hide()

@@ -1,30 +1,26 @@
-[gd_scene load_steps=3 format=3 uid="uid://b5dj4e3qdd2f6"]
+[gd_scene load_steps=2 format=3 uid="uid://b5dj4e3qdd2f6"]
 
 [ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://room/room.gd" id="1_ppkfq"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ppkfq"]
-size = Vector2(16, 16)
-
-[node name="Room" type="Node2D" node_paths=PackedStringArray("texture_polygon", "nav_region", "nav_agent", "connectors_node", "room_area", "polygon", "all_room_shapes", "facing_area") groups=["Room", "RoomArea"]]
+[node name="Room" type="Area2D" node_paths=PackedStringArray("texture_polygon", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "raycast") groups=["Room"]]
 script = ExtResource("1_ppkfq")
 texture_polygon = NodePath("TexturePolygon")
 nav_region = NodePath("NavigationRegion2D")
 nav_agent = NodePath("Node2D/NavigationAgent2D")
 connectors_node = NodePath("Connectors")
-room_area = NodePath("RoomArea")
-polygon = NodePath("RoomArea/Polygon")
+polygon = NodePath("Polygon")
 all_room_shapes = NodePath("AllRoomShapes")
-facing_area = NodePath("FacingArea")
+raycast = NodePath("RayCast2D")
+
+[node name="Polygon" type="CollisionPolygon2D" parent="."]
 
 [node name="TexturePolygon" type="Polygon2D" parent="."]
 color = Color(0.884932, 0.78636, 0.391851, 1)
 uv = PackedVector2Array(-472, -25, -221, -28, -235, 58)
 
-[node name="RoomArea" type="Area2D" parent="." groups=["RoomArea"]]
-
-[node name="Polygon" type="CollisionPolygon2D" parent="RoomArea"]
-
 [node name="AllRoomShapes" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
 
 [node name="LShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
 visible = false
@@ -50,13 +46,10 @@ polygon = PackedVector2Array(-192, -16, -192, 16, 192, 16, 192, -16)
 
 [node name="Connectors" type="Node2D" parent="."]
 
-[node name="FacingArea" type="Area2D" parent="."]
-visible = false
+[node name="RayCast2D" type="RayCast2D" parent="."]
+collide_with_areas = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FacingArea"]
-shape = SubResource("RectangleShape2D_ppkfq")
-
-[connection signal="area_entered" from="RoomArea" to="." method="_on_room_area_area_entered"]
-[connection signal="area_exited" from="RoomArea" to="." method="_on_room_area_area_exited"]
-[connection signal="mouse_entered" from="RoomArea" to="." method="_on_room_area_mouse_entered"]
-[connection signal="mouse_exited" from="RoomArea" to="." method="_on_room_area_mouse_exited"]
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

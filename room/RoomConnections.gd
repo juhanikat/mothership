@@ -112,10 +112,3 @@ static func find_connector_pairing(current_room_connectors: Array[Connector], al
 	if closest_pair:
 		return closest_pair
 	return []
-
-
-## Tries to find a path from a connector (the connector the room is facing towards) to a position outside the ship,
-## Without passing through any rooms or connectors.
-## If a path cannot be found, returns false.
-static func facing_outside(connector: Connector, destination: Vector2) -> bool:
-	return false

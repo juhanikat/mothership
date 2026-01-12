@@ -34,7 +34,6 @@ var previous_mouse_pos_zooming: Vector2 = Vector2(0, 0)
 var spawned_room_names = {} # used to give new rooms an ordering number (purely visual atm)
 
 var turn: int = 1
-
 var total_crew: int = 0
 var crew_quarters_limit: int = 1
 
