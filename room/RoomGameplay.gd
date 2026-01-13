@@ -198,6 +198,7 @@ func _on_next_turn() -> void:
 			deactivate_room()
 		else:
 			fuel_storage.gameplay.fuel_remaining -= 1
+			fuel_storage.room_info.update_fuel_remaining_label(fuel_storage.gameplay.fuel_remaining)
 
 	if delivery_in_progress:
 		turns_until_delivery -= 1

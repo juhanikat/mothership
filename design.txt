@@ -1,5 +1,5 @@
 TODO:
-	1. Should "powered" and "activated" be the same state?
+	1. Notification system
 
 
 

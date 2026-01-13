@@ -6,7 +6,7 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yms3g"]
 bg_color = Color(0, 0, 0, 0.545098)
 
-[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "traits_label", "power_supply_label", "adjacent_rooms_label", "description_label") groups=["RoomInfo"]]
+[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "traits_label", "resource_label", "adjacent_rooms_label", "description_label") groups=["RoomInfo"]]
 anchors_preset = -1
 anchor_right = 0.111111
 anchor_bottom = 0.0833333
@@ -17,7 +17,7 @@ script = ExtResource("1_xv4oe")
 room_name_label = NodePath("VBoxContainer/RoomName")
 power_usage_label = NodePath("VBoxContainer/PowerUsage")
 traits_label = NodePath("VBoxContainer/TraitsLabel")
-power_supply_label = NodePath("VBoxContainer/PowerSupply")
+resource_label = NodePath("VBoxContainer/ResourceLabel")
 adjacent_rooms_label = NodePath("VBoxContainer/AdjacentRoomsLabel")
 description_label = NodePath("VBoxContainer/DescriptionLabel")
 
@@ -53,7 +53,7 @@ theme_override_fonts/normal_font = ExtResource("2_jskd8")
 theme_override_font_sizes/normal_font_size = 16
 fit_content = true
 
-[node name="PowerSupply" type="RichTextLabel" parent="VBoxContainer"]
+[node name="ResourceLabel" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_jskd8")

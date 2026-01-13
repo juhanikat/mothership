@@ -5,7 +5,7 @@ class_name RoomInfo
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
 @export var traits_label: RichTextLabel
-@export var power_supply_label: RichTextLabel
+@export var resource_label: RichTextLabel
 
 @export var adjacent_rooms_label: RichTextLabel
 @export var description_label: RichTextLabel
@@ -33,8 +33,12 @@ func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String =
 	adjacent_rooms_label.text = "No adjacent rooms."
 
 	if "power_supply" in _data.keys():
-		power_supply_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
+		resource_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
 		[str(_data["power_supply"]["range"]), str(_data["power_supply"]["capacity"])]
+
+	if "fuel_amount" in _data:
+		resource_label.text = "%s fuel remaining." % [str(_data["fuel_amount"])]
+
 
 
 func shrink_panel_container() -> void:
@@ -48,7 +52,10 @@ func update_adjacent_rooms_label(rooms: Array[Room]) -> void:
 		adjacent_rooms_label.text += "\n%s" % [room.room_info.room_name_label.text]
 
 
-## Called by room.gd to update the power supply label when rooms toggle power.
 func update_power_supply_label(current_power_supply: Dictionary) -> void:
-	power_supply_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
+	resource_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
 		[str(current_power_supply["range"]), str(current_power_supply["capacity"])]
+
+
+func update_fuel_remaining_label(current_fuel_remaining: int) -> void:
+	resource_label.text = "%s fuel remaining." % [str(current_fuel_remaining)]

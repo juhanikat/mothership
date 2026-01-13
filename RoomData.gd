@@ -107,7 +107,8 @@ const _fuel_storage_data: Dictionary[String, Variant] = {
 	"room_desc": "",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
-	"always_activated": true
+	"always_activated": true,
+	"fuel_amount": 3
 }
 
 const _crew_quarters_data: Dictionary[String, Variant] = {
