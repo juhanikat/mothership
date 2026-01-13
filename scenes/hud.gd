@@ -1,5 +1,5 @@
 extends CanvasLayer
-
+class_name Hud
 
 @export var crew_room_list: ItemList
 @export var maintenance_room_list: ItemList
@@ -8,10 +8,14 @@ extends CanvasLayer
 @export var combat_room_list: ItemList
 @export var research_room_list: ItemList
 
+@export var cargo_popup: PopupPanel
+@export var cargo_options_box: HBoxContainer
+
 @export var path_build_mode_label: RichTextLabel
 @export var path_info_label: RichTextLabel
 @export var total_crew_amount_label: RichTextLabel
 @export var crew_quarters_limit_label: RichTextLabel
+
 
 @onready var main: Main = get_parent()
 
@@ -86,8 +90,13 @@ func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
 		GlobalInputFlags.show_tooltips = false
 
 
+func show_cargo_popup(cargo_bay: Room) -> void:
+	for button: Button in cargo_options_box.get_children():
+		button.pressed.connect(_on_cargo_options_button_pressed.bind(button.text, cargo_bay))
+	cargo_popup.popup()
+
 func _on_next_turn_button_pressed() -> void:
-	main.next_turn()
+	GlobalSignals.turn_advanced.emit()
 
 
 func _on_crew_added(amount: int) -> void:
@@ -114,3 +123,8 @@ func _on_room_list_item_selected(_index: int, current_item_list: ItemList) -> vo
 	for item_list: ItemList in room_category_to_item_list.values():
 		if item_list != current_item_list:
 			item_list.deselect_all()
+
+
+func _on_cargo_options_button_pressed(cargo_type: String, cargo_bay: Room) -> void:
+	main.order_cargo(cargo_type, cargo_bay)
+	cargo_popup.hide()

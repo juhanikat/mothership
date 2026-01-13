@@ -17,6 +17,8 @@ class_name Main
 
 @export var room_selection: RoomSelection
 
+@onready var hud = get_node("HUD")
+
 var room_scene = load("res://room/room.tscn")
 var room_info_scene = load("res://room/room_info.tscn")
 
@@ -49,6 +51,7 @@ func _ready() -> void:
 	GlobalSignals.crew_removed.connect(_on_crew_removed)
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
+	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
 	# starting room
 	var first_room = spawn_room_at_mouse(room_data[RoomData.RoomType.POWER_PLANT])
@@ -162,7 +165,7 @@ func find_path(from: Vector2, to: Vector2) -> void:
 
 
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
-func next_turn() -> void:
+func _on_next_turn() -> void:
 	turn += 1
 	var next_order = CaptainFunctions.random_order()
 	var possible_rooms: Array[Dictionary]
@@ -197,6 +200,20 @@ func cut_room_shape_from_nav_region(room: Room, connectors: Array[Connector]) ->
 	if nav_region.is_baking():
 		await nav_region.bake_finished
 	nav_region.bake_navigation_polygon()
+
+
+func new_cargo_order(cargo_bay: Room) -> void:
+	hud.show_cargo_popup(cargo_bay)
+
+
+func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
+	if order_type == "Fuel":
+		print("fuel order!")
+		GlobalSignals.cargo_bay_order_made.emit(order_type, ordering_cargo_bay)
+		return true
+
+	push_error("Undefined order type in new_cargo_order()!")
+	return false
 
 
 func _on_crew_added(amount: int) -> void:

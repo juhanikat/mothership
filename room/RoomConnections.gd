@@ -72,6 +72,27 @@ static func find_nearest_room_type(start_room: Room, end_room_type: RoomData.Roo
 	return []
 
 
+## Like find_nearest_room_type(), but returns all rooms of type <end_room_type>, and lengths to these rooms.
+static func find_all_room_types(start_room: Room, end_room_type: RoomData.RoomType, allowed_rooms: Array[RoomData.RoomCategory] = []) -> Array[Dictionary]:
+	var queue = [] # Contains [room: Room, distance_from_starting_room: int] pairs
+	var explored = []
+	var found: Array[Dictionary] = []
+
+	queue.append([start_room, 0])
+	explored.append(start_room)
+
+	while len(queue) > 0:
+		var current: Array[Variant] = queue.pop_front()
+		if current[0].room_type == end_room_type:
+			found.append({"room": current[0], "distance": current[1]})
+		for adjacent_room: Room in current[0].adjacent_rooms:
+			if adjacent_room not in explored:
+				if len(allowed_rooms) > 0 and adjacent_room.room_category not in allowed_rooms:
+					continue
+				queue.append([adjacent_room, current[1] + 1])
+				explored.append(adjacent_room)
+	return found
+
 ## Returns all rooms within <range> of <start_room>, not including <start_room>.
 static func get_nearby_rooms(start_room: Room, search_range: int) -> Array[Room]:
 	var queue = [] # Contains [room: Room, distance_from_starting_room: int] pairs

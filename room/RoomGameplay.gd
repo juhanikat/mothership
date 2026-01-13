@@ -4,16 +4,25 @@ class_name RoomGameplay
 
 var _data: Dictionary[String, Variant]
 @onready var parent_room: Room
-@onready var main: Main
+@onready var main: Main = get_tree().root.get_node("Main")
+@onready var hud: Hud = main.get_node("HUD")
 
 var RoomType = RoomData.RoomType
 var parent_room_type: RoomData.RoomType
 
-var powered: bool = false
 var activated: bool = false
 var always_activated: bool = false
+var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay
 var power_usage: int
 
+# FOR CARGO BAY
+var order_in_progress: bool = false
+var delivery_in_progress: bool = false
+var turns_until_delivery: int = -1
+var delivery_type: String # Fuel, other resources?
+
+# FOR FUEL STORAGE
+var fuel_remaining: int = 0
 
 # FOR POWER SUPPLIERS
 var power_supply = {}
@@ -44,16 +53,20 @@ func init_gameplay_features(data: Dictionary) -> void:
 
 	if parent_room_type == RoomType.CREW_QUARTERS:
 		parent_room.add_to_group("CrewQuarters")
+	elif parent_room_type == RoomType.FUEL_STORAGE:
+		fuel_remaining = 3
 
 	power_usage = _data["power_usage"]
 
 	always_activated = _data.get("always_activated", false)
 	GlobalSignals.room_connected.connect(_on_room_connected)
+	GlobalSignals.cargo_bay_order_made.connect(_on_cargo_bay_order_made)
+	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
 
 ## Called when a deactivated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been activated, and false otherwise.
-## NOTE: Rooms with a power usage of 0 have already been powered before this function!
+## NOTE: Rooms with "always_activated" set to true have already been activated before this function!
 func activate_room() -> bool:
 	var sufficient_power_supplier
 	if power_usage != 0:
@@ -68,7 +81,6 @@ func activate_room() -> bool:
 			sufficient_power_supplier.gameplay.power_supply.capacity -= power_usage
 			sufficient_power_supplier.gameplay.supplies_to.append(parent_room)
 			sufficient_power_supplier.room_info.update_power_supply_label(sufficient_power_supplier.gameplay.power_supply)
-			powered = true
 			print("Room powered.")
 		return true
 	return false
@@ -77,28 +89,52 @@ func activate_room() -> bool:
 ## Called when an activated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been deactivated, and false otherwise.
 func deactivate_room() -> bool:
+	if not activated:
+		push_error("Tried to deactviate room that was not active, this should never happen!")
+		return false
+
 	if always_activated:
 		print("Cannot deactivate room: It is set to be always active.")
 		return false
+	if cannot_be_deactivated:
+		print("Cannot deactivate room: 'cannot_be_deactivated' is set to true.")
+		return false
 
-	if power_usage != 0 and powered:
+	if power_usage != 0:
 		for power_supplier: Room in get_tree().get_nodes_in_group("PowerSupply"):
 			if parent_room in power_supplier.gameplay.supplies_to:
 				power_supplier.gameplay.power_supply.capacity += power_usage
 				power_supplier.gameplay.supplies_to.erase(parent_room)
 				power_supplier.room_info.update_power_supply_label(power_supplier.gameplay.power_supply)
-		powered = false
 		print("Power removed.")
 
 	match parent_room_type:
+		RoomType.POWER_PLANT:
+			if len(supplies_to) > 0:
+				print("Cannot deactivate Power Plant: It is supplying power to one or more rooms.")
+				return false
 		RoomType.CREW_QUARTERS:
 			GlobalSignals.crew_removed.emit(crew_supply)
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
+		RoomType.CARGO_BAY:
+			if delivery_in_progress:
+				print("Cannot deactivate Cargo Bay: A delivery is in progress.")
+				return false
 
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
 	return true
+
+
+## Find any Fuel Storage (nearest first) that has fuel remaining and is in range (3 rooms) of this room.
+func find_sufficient_fuel_storage():
+	var all_fuel_storage_data = RoomConnections.find_all_room_types(parent_room, RoomData.RoomType.FUEL_STORAGE)
+	for fuel_storage_data in all_fuel_storage_data:
+		if fuel_storage_data.distance > 3 or fuel_storage_data.room.gameplay.fuel_remaining == 0:
+			continue
+		return fuel_storage_data.room
+	return null
 
 
 ## Returns true if the room has been activated, or false otherwise.
@@ -106,8 +142,8 @@ func _try_to_activate() -> bool:
 	match parent_room_type:
 		RoomType.CREW_QUARTERS:
 			var nearest_canteen_data = RoomConnections.find_nearest_room_type(parent_room, RoomData.RoomType.CANTEEN, [RoomData.RoomCategory.CREW_ROOM])
-			if len(nearest_canteen_data) == 0 or nearest_canteen_data[0].gameplay.powered == false:
-				print("Cannot activate Crew Quarters: No powered canteen can be reached through Crew Rooms.")
+			if len(nearest_canteen_data) == 0 or nearest_canteen_data[0].gameplay.activated == false:
+				print("Cannot activate Crew Quarters: No activated canteen can be reached through Crew Rooms.")
 				return false
 			var all_crew_quarters = get_tree().get_nodes_in_group("CrewQuarters")
 			var activated_crew_quarters = all_crew_quarters.filter(func(crew_quarter): return crew_quarter.gameplay.activated)
@@ -116,12 +152,18 @@ func _try_to_activate() -> bool:
 				return false
 			GlobalSignals.crew_added.emit(crew_supply)
 		RoomType.POWER_PLANT:
-			var nearest_fuel_storage_data = RoomConnections.find_nearest_room_type(parent_room, RoomData.RoomType.FUEL_STORAGE)
-			if len(nearest_fuel_storage_data) == 0 or nearest_fuel_storage_data[1] > 3:
-				print("Cannot activate Power Plant: No Fuel Storage nearby.")
+			var fuel_storage = find_sufficient_fuel_storage()
+			if not fuel_storage:
+				print("Cannot activate Power Plant: No Fuel Storages with fuel remaining are in range.")
 				return false
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_raised.emit(_data["crew_quarters_limit_increase"])
+		RoomType.CARGO_BAY:
+			if not order_in_progress and not delivery_in_progress:
+				order_in_progress = true
+				main.new_cargo_order(parent_room)
+				# cargo bay will be activated again once order is made
+				return false
 
 	return true
 
@@ -132,7 +174,6 @@ func _find_power_supplier():
 	var not_in_range = true
 	var power_suppliers = get_tree().get_nodes_in_group("PowerSupply")
 	power_suppliers = power_suppliers.filter(func(supplier): return supplier.gameplay.activated)
-
 	for power_supplier: Room in power_suppliers:
 		var power_supplier_reach = RoomConnections.get_nearby_rooms(power_supplier, power_supplier.gameplay.power_supply.range)
 		if parent_room in power_supplier_reach:
@@ -142,8 +183,33 @@ func _find_power_supplier():
 	if not_in_range:
 		print("Cannot power room: No activated suppliers in range.")
 	else:
-		print("Cannot power room: Activated suppliers in rage do not have enough capacity.")
+		print("Cannot power room: Activated suppliers in range do not have enough capacity.")
 	return null
+
+
+func _on_next_turn() -> void:
+	if parent_room_type == RoomType.POWER_PLANT and activated:
+		var fuel_storage = find_sufficient_fuel_storage()
+		if not fuel_storage:
+			print("Power Plant does not have any accessible fuel!")
+			for room in supplies_to:
+				room.gameplay.deactivate_room()
+			supplies_to.clear()
+			deactivate_room()
+		else:
+			fuel_storage.gameplay.fuel_remaining -= 1
+
+	if delivery_in_progress:
+		turns_until_delivery -= 1
+		if turns_until_delivery == 0:
+			delivery_in_progress = false
+			cannot_be_deactivated = false
+			if delivery_type == "Fuel":
+				print("Fuel delivered.")
+				deactivate_room()
+				return
+
+			push_error("Invalid delivery type!!")
 
 
 ## Things that need to be done as soon as the room is connected are here.
@@ -152,3 +218,13 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		if always_activated:
 			activate_room()
 			print("Room activated automatically!")
+
+
+func _on_cargo_bay_order_made(type: String, cargo_bay: Room) -> void:
+	if parent_room == cargo_bay:
+		cannot_be_deactivated = true
+		order_in_progress = false
+		delivery_in_progress = true
+		delivery_type = type
+		turns_until_delivery = 3
+		activate_room()

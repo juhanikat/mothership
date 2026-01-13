@@ -4,6 +4,7 @@ class_name RoomInfo
 
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
+@export var traits_label: RichTextLabel
 @export var power_supply_label: RichTextLabel
 
 @export var adjacent_rooms_label: RichTextLabel
@@ -20,9 +21,13 @@ func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String =
 
 	var power_usage = _data["power_usage"]
 	if power_usage == 0:
-		power_usage_label.text = "Unpowered."
+		power_usage_label.text = ""
+		traits_label.text += "Does not consume power. \n"
 	else:
 		power_usage_label.text = "Consumes %s power." %  [str(power_usage)]
+
+	if "always_activated" in _data:
+		traits_label.text += "Always active. \n"
 
 	description_label.text = _data.get("room_desc", "No description.")
 	adjacent_rooms_label.text = "No adjacent rooms."

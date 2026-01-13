@@ -61,6 +61,8 @@ func _ready() -> void:
 	for room_shape in all_room_shapes.get_children():
 		if room_shape.name == "LShapePolygon":
 			room_shapes[RoomShape.LShape] = room_shape.polygon
+		if room_shape.name == "TShapePolygon":
+			room_shapes[RoomShape.TShape] = room_shape.polygon
 		if room_shape.name == "SquareShapePolygon":
 			room_shapes[RoomShape.SmallSquareShape] = room_shape.polygon
 		if room_shape.name == "BigSquareShapePolygon":

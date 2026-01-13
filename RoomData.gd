@@ -2,9 +2,9 @@ extends Script
 class_name RoomData
 
 
-enum RoomShape {LShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
+enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
 enum RoomType {
-	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, FUEL_STORAGE, CREW_QUARTERS,
+	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, FUEL_STORAGE, CREW_QUARTERS,
 	CANTEEN, GARDEN, ROBOTICS, WEAPONS_RESEARCH, STINGRAY, CABLE_DUCT
 }
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
@@ -23,6 +23,7 @@ const room_colors = {
 ## Maps the shape of a room to the top left corner of the room the info should be.
 const room_info_pos = {
 	RoomShape.LShape: Vector2(-64, -64),
+	RoomShape.TShape: Vector2(-64, -64),
 	RoomShape.SmallSquareShape: Vector2(-32, -32),
 	RoomShape.BigSquareShape: Vector2(-64, -64),
 	RoomShape.LongHallwayShape: Vector2(-192, -32)
@@ -34,18 +35,11 @@ const room_info_pos = {
 ## otherwise room area detection does not work!
 const room_connectors = {
 	RoomShape.LShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
+	RoomShape.TShape: [Vector2(0, -72), Vector2(104, 32), Vector2(-104, 32)],
 	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
 	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
 	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)]
 }
-
-# Contains the positions of Area2Ds which are used as the direction a room faces.
-# These are in clockwise order: (up, right, down left).
-# For example, a turret might have its facing value set to "up", in which case
-# the first vector value is used.
-const room_facing_boxes = {
-	RoomShape.SmallSquareShape: [Vector2(0, -24),Vector2(24, 0), Vector2(0, 24), Vector2(-24, 0)]
-	}
 
 
 ## NOTE: Use this dict in other scripts.
@@ -53,6 +47,7 @@ const room_data = {
 	RoomType.COMMAND_ROOM: _command_room_data,
 	RoomType.POWER_PLANT: _power_plant_data,
 	RoomType.ENGINE_ROOM: _engine_room_data,
+	RoomType.CARGO_BAY: _cargo_bay_data,
 	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.CREW_QUARTERS: _crew_quarters_data,
 	RoomType.CANTEEN: _canteen_data,
@@ -88,6 +83,14 @@ const _engine_room_data: Dictionary[String, Variant] = {
 	"room_desc": "",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 3
+}
+
+const _cargo_bay_data: Dictionary[String, Variant] = {
+	"room_name": "Cargo Bay",
+	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "Allows importing resources such as fuel. Each delivery takes 3 turns to complete, and the room is locked in a powered state during that time.",
+	"room_category": RoomCategory.SPECIAL_ROOM,
+	"power_usage": 1
 }
 
 const _cable_duct_data: Dictionary[String, Variant] = {
@@ -144,7 +147,7 @@ const _robotics_data: Dictionary[String, Variant] = {
 
 const _weapons_research_data: Dictionary[String, Variant] = {
 	"room_name": "Weapons Research",
-	"room_shape": RoomShape.LShape,
+	"room_shape": RoomShape.TShape,
 	"room_desc": "Unlocks new combat rooms.",
 	"room_category": RoomCategory.RESEARCH_ROOM,
 	"power_usage": 1
