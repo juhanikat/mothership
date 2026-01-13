@@ -1,7 +1,7 @@
 TODO:
-	1. Notification system
-	2. Life support room
-	3. Airlock room (must have one of these that is not leading to a courtyard at all times)
+	1. Life support room (at some point, makes testing harder)
+	2. Airlock room (must have one of these that is not leading to a courtyard at all times)
+	3. Empty/isolation room or hallway (does nothing, some other rooms must be isolated from the rest of the ship using this)
 
 
 

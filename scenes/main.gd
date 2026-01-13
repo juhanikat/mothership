@@ -45,7 +45,7 @@ func _ready() -> void:
 	var first_order = CaptainFunctions.next_starting_order()
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
-	room_selection.add_room_buttons(possible_rooms)
+	room_selection.show_order(first_order.description, possible_rooms)
 
 	GlobalSignals.crew_added.connect(_on_crew_added)
 	GlobalSignals.crew_removed.connect(_on_crew_removed)
@@ -171,7 +171,7 @@ func _on_next_turn() -> void:
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(next_order.selected_rooms)
 	room_selection.clear_room_buttons()
-	room_selection.add_room_buttons(possible_rooms)
+	room_selection.show_order(next_order.description, possible_rooms)
 
 
 func cut_room_shape_from_nav_region(room: Room, connectors: Array[Connector]) -> void:

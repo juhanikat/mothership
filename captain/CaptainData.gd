@@ -10,7 +10,7 @@ class_name CaptainData
 enum StartingOrder {POWER_PLANT_ORDER, ENGINE_ROOM_ORDER, FUEL_STORAGE_ORDER, COMMAND_ROOM_ORDER}
 
 # The normal orders.
-enum Order {NEUTRAL_ORDER, COMBAT_ORDER, CREW_ORDER}
+enum Order {NEUTRAL_ORDER, COMBAT_WARNING_ORDER, COMBAT_CRITICAL_ORDER, CREW_ORDER}
 
 const ROOMS = RoomData.RoomType
 # If an order has a "room_category" array, then any room that is in those categories can appear.
@@ -23,7 +23,8 @@ const ROOM_CATEGORIES = RoomData.RoomCategory
 const starting_orders = [_power_plant_order, _engine_room_order, _fuel_storage_order, _command_room_order]
 
 const orders = {Order.NEUTRAL_ORDER: _neutral_order,
-				Order.COMBAT_ORDER: _neutral_order
+				Order.COMBAT_WARNING_ORDER: _combat_warning_order,
+				Order.COMBAT_CRITICAL_ORDER: _combat_critical_order
 				}
 
 
@@ -61,10 +62,18 @@ const _neutral_order = {
 	"choose_from": 3
 	}
 
-const _combat_order = {
-	"description": "The Captain has no orders for you. Choose the room you think would best fit our current situation.",
-	"rooms": [
-		ROOMS.CREW_QUARTERS,
+const _combat_warning_order = {
+	"description": "We've picked up some potentially hostile activity nearby.",
+	"room_categories": [
+		ROOM_CATEGORIES.COMBAT_ROOM,
+	],
+	"choose_from": 3
+	}
+
+const _combat_critical_order = {
+	"description": "Hostile activity imminent!",
+	"room_categories": [
+		ROOM_CATEGORIES.COMBAT_ROOM,
 	],
 	"choose_from": 3
 	}

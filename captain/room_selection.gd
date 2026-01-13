@@ -1,6 +1,8 @@
 extends CanvasLayer
 class_name RoomSelection
 
+
+@export var order_description_label: RichTextLabel
 @export var room_container: VBoxContainer
 @onready var main: Node2D = get_tree().root.get_node("Main")
 
@@ -12,7 +14,9 @@ func clear_room_buttons() -> void:
 
 
 ## Adds one or more room buttons to the side panel (change this to have pictures of the rooms later).
-func add_room_buttons(room_data_array: Array[Dictionary]) -> void:
+## Also show the description of the order.
+func show_order(description: String, room_data_array: Array[Dictionary]) -> void:
+	order_description_label.text = "\"%s\"" % [description]
 	for room_data in room_data_array:
 		var new_room_button = Button.new()
 		new_room_button.text = room_data["room_name"]
