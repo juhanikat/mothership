@@ -7,6 +7,7 @@ var _data: Dictionary[String, Variant]
 @onready var main: Main = get_tree().root.get_node("Main")
 @onready var hud: Hud = main.get_node("HUD")
 
+
 var RoomType = RoomData.RoomType
 var parent_room_type: RoomData.RoomType
 
@@ -81,7 +82,7 @@ func activate_room() -> bool:
 			sufficient_power_supplier.gameplay.power_supply.capacity -= power_usage
 			sufficient_power_supplier.gameplay.supplies_to.append(parent_room)
 			sufficient_power_supplier.room_info.update_power_supply_label(sufficient_power_supplier.gameplay.power_supply)
-			print("Room powered.")
+		GlobalNotice.display("Room activated.")
 		return true
 	return false
 
@@ -90,14 +91,14 @@ func activate_room() -> bool:
 ## Returns true if the room has been deactivated, and false otherwise.
 func deactivate_room() -> bool:
 	if not activated:
-		push_error("Tried to deactviate room that was not active, this should never happen!")
+		push_error("Tried to deactivate room that was not active, this should never happen!")
 		return false
 
 	if always_activated:
-		print("Cannot deactivate room: It is set to be always active.")
+		GlobalNotice.display("Cannot deactivate room: It is set to be always active.", "warning")
 		return false
 	if cannot_be_deactivated:
-		print("Cannot deactivate room: 'cannot_be_deactivated' is set to true.")
+		GlobalNotice.display("Cannot deactivate room: 'cannot_be_deactivated' is set to true.", "warning")
 		return false
 
 	if power_usage != 0:
@@ -106,12 +107,11 @@ func deactivate_room() -> bool:
 				power_supplier.gameplay.power_supply.capacity += power_usage
 				power_supplier.gameplay.supplies_to.erase(parent_room)
 				power_supplier.room_info.update_power_supply_label(power_supplier.gameplay.power_supply)
-		print("Power removed.")
 
 	match parent_room_type:
 		RoomType.POWER_PLANT:
 			if len(supplies_to) > 0:
-				print("Cannot deactivate Power Plant: It is supplying power to one or more rooms.")
+				GlobalNotice.display("Cannot deactivate Power Plant: It is supplying power to one or more rooms.", "warning")
 				return false
 		RoomType.CREW_QUARTERS:
 			GlobalSignals.crew_removed.emit(crew_supply)
@@ -119,11 +119,12 @@ func deactivate_room() -> bool:
 			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
 		RoomType.CARGO_BAY:
 			if delivery_in_progress:
-				print("Cannot deactivate Cargo Bay: A delivery is in progress.")
+				GlobalNotice.display("Cannot deactivate Cargo Bay: A delivery is in progress.", "warning")
 				return false
 
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
+	GlobalNotice.display("Room deactivated.")
 	return true
 
 
@@ -143,18 +144,18 @@ func _try_to_activate() -> bool:
 		RoomType.CREW_QUARTERS:
 			var nearest_canteen_data = RoomConnections.find_nearest_room_type(parent_room, RoomData.RoomType.CANTEEN, [RoomData.RoomCategory.CREW_ROOM])
 			if len(nearest_canteen_data) == 0 or nearest_canteen_data[0].gameplay.activated == false:
-				print("Cannot activate Crew Quarters: No activated canteen can be reached through Crew Rooms.")
+				GlobalNotice.display("Cannot activate Crew Quarters: No activated canteen can be reached through Crew Rooms.", "warning")
 				return false
 			var all_crew_quarters = get_tree().get_nodes_in_group("CrewQuarters")
 			var activated_crew_quarters = all_crew_quarters.filter(func(crew_quarter): return crew_quarter.gameplay.activated)
 			if len(activated_crew_quarters) >= main.crew_quarters_limit:
-				print("Cannot activate Crew Quarters: Crew Quarters limit has been reached.")
+				GlobalNotice.display("Cannot activate Crew Quarters: Crew Quarters limit has been reached.", "warning")
 				return false
 			GlobalSignals.crew_added.emit(crew_supply)
 		RoomType.POWER_PLANT:
 			var fuel_storage = find_sufficient_fuel_storage()
 			if not fuel_storage:
-				print("Cannot activate Power Plant: No Fuel Storages with fuel remaining are in range.")
+				GlobalNotice.display("Cannot activate Power Plant: No Fuel Storages with fuel remaining are in range.", "warning")
 				return false
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_raised.emit(_data["crew_quarters_limit_increase"])
@@ -181,9 +182,9 @@ func _find_power_supplier():
 			if power_supplier.gameplay.power_supply.capacity >= power_usage:
 				return power_supplier
 	if not_in_range:
-		print("Cannot power room: No activated suppliers in range.")
+		GlobalNotice.display("Cannot power room: No activated suppliers in range.", "warning")
 	else:
-		print("Cannot power room: Activated suppliers in range do not have enough capacity.")
+		GlobalNotice.display("Cannot power room: Activated suppliers in range do not have enough capacity.", "warning")
 	return null
 
 
@@ -191,7 +192,7 @@ func _on_next_turn() -> void:
 	if parent_room_type == RoomType.POWER_PLANT and activated:
 		var fuel_storage = find_sufficient_fuel_storage()
 		if not fuel_storage:
-			print("Power Plant does not have any accessible fuel!")
+			GlobalNotice.display("Power Plant does not have any accessible fuel!", "warning")
 			for room in supplies_to:
 				room.gameplay.deactivate_room()
 			supplies_to.clear()
@@ -206,7 +207,7 @@ func _on_next_turn() -> void:
 			delivery_in_progress = false
 			cannot_be_deactivated = false
 			if delivery_type == "Fuel":
-				print("Fuel delivered.")
+				GlobalNotice.display("Fuel delivered.")
 				deactivate_room()
 				return
 
@@ -218,7 +219,7 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 	if connector1.get_parent_room() == parent_room or connector2.get_parent_room() == parent_room:
 		if always_activated:
 			activate_room()
-			print("Room activated automatically!")
+			GlobalNotice.display("Room activated automatically!")
 
 
 func _on_cargo_bay_order_made(type: String, cargo_bay: Room) -> void:

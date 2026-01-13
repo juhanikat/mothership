@@ -1,5 +1,7 @@
 TODO:
 	1. Notification system
+	2. Life support room
+	3. Airlock room (must have one of these that is not leading to a courtyard at all times)
 
 
 

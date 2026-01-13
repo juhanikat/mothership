@@ -12,16 +12,16 @@ static func check_placement_rules(placed_room: Room, connecting_room: Room) -> b
 	var _room_types = [placed_room.room_type, connecting_room.room_type]
 
 	if room_categories.has(RoomCategory.LUXURY_ROOM) and room_categories.has(RoomCategory.MAINTENANCE_ROOM):
-		print("Room placement failed: Cannot place Luxury Room next to a Maintenance Room.")
+		GlobalNotice.display("Room placement failed: Cannot place Luxury Room next to a Maintenance Room.", "warning")
 		return false
 
 	if placed_room.room_type == RoomType.CANTEEN:
 		if connecting_room.room_category != RoomCategory.CREW_ROOM:
-			print("Room placement failed: Canteens must be adjacent to at least one Crew Room.")
+			GlobalNotice.display("Room placement failed: Canteens must be adjacent to at least one Crew Room.", "warning")
 			return false
 	elif connecting_room.room_type == RoomType.CANTEEN:
 		if placed_room.room_category != RoomCategory.CREW_ROOM:
-			print("Room placement failed: Canteens must be adjacent to at least one Crew Room.")
+			GlobalNotice.display("Room placement failed: Canteens must be adjacent to at least one Crew Room.", "warning")
 			return false
 
 	return true
