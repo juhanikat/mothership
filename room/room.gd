@@ -181,6 +181,10 @@ func connect_rooms(connector_pair: Array[Connector]) -> bool:
 	await get_tree().physics_frame
 	if len(overlapping_rooms) > 0:
 		if RoomConnections.is_replacing_placeholder_room(self, overlapping_rooms):
+			for adjacent_room in overlapping_rooms[0].adjacent_rooms:
+				rules_passed = RoomConnections.check_placement_rules(self, adjacent_room)
+				if not rules_passed:
+					return false
 			# replaces a placeholder room, all things that are normally done when the room_connected signal is emitted
 			# must be done here
 			overlapping_rooms[0].replace_placeholder(self)

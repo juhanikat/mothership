@@ -28,6 +28,8 @@ func init_room_info(_data: Dictionary[String, Variant], overwrite_name: String =
 
 	if "always_activated" in _data:
 		traits_label.text += "Always active. \n"
+	if "always_deactivated" in _data:
+		traits_label.text += "Cannot be activated. \n"
 
 	description_label.text = _data.get("room_desc", "No description.")
 	adjacent_rooms_label.text = "No adjacent rooms."
