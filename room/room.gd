@@ -123,7 +123,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel_room") and is_picked and not is_starting_room:
 		room_info.queue_free()
 		main.spawned_room_names[room_name] -= 1
-		self.queue_free()
+		queue_free()
 		return
 
 	await get_tree().physics_frame # to make sure area overlap is detected
@@ -180,20 +180,30 @@ func connect_rooms(connector_pair: Array[Connector]) -> bool:
 	# check for overlapping rooms AFTER placing connected room
 	await get_tree().physics_frame
 	if len(overlapping_rooms) > 0:
-		global_position = original_position
-		print("Tried to snap connectors, but rooms are overlapping.")
-		return false
+		if RoomConnections.is_replacing_placeholder_room(self, overlapping_rooms):
+			# replaces a placeholder room, all things that are normally done when the room_connected signal is emitted
+			# must be done here
+			overlapping_rooms[0].replace_placeholder(self)
+			GlobalNotice.display("Replaced a placeholder room.")
+			if gameplay.always_activated:
+				gameplay.activate_room()
+				GlobalNotice.display("Room activated automatically!")
+			return true
+		else:
+			global_position = original_position
+			GlobalNotice.display("Tried to snap connectors, but rooms are overlapping.", "warning")
+			return false
 
 	await get_tree().physics_frame
 	var collider = get_raycast_collider()
 	if collider:
-		print("Cannot place room, another room or connector is overlapping the raycast.")
+		GlobalNotice.display("Cannot place room, another room or connector is overlapping the raycast.", "warning")
 		return false
 
 	for other_room: Room in get_tree().get_nodes_in_group("Room"):
 		var other_room_collider = other_room.get_raycast_collider()
 		if other_room_collider:
-			print("Cannot place room, this room is overlapping another room's raycast.")
+			GlobalNotice.display("Cannot place room, this room is overlapping another room's raycast.", "warning")
 			return false
 
 	print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector_pair[1])]))
@@ -249,7 +259,6 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		locked = true
 		var other_room = connector2.get_parent_room()
 		adjacent_rooms.append(other_room)
-		# TODO: fix this, looks ugly and uses _data which should be private
 		room_info.update_adjacent_rooms_label(adjacent_rooms)
 		main.cut_room_shape_from_nav_region(self, get_own_connectors())
 	elif connector2 in get_own_connectors():
@@ -281,6 +290,23 @@ func get_raycast_collider():
 		return null
 
 	return collider
+
+
+## NOTE: Only call this if the room is a Placeholder room.
+## Replaces this room with <replacer>, giving it this room's adjacent_rooms list.
+## Also updates the adjacent_rooms lists of every adjacent room.
+## The replacer room should already be at the same coordinates as this room before calling this function.
+func replace_placeholder(replacer: Room) -> void:
+	replacer.adjacent_rooms = adjacent_rooms
+	replacer.room_info.update_adjacent_rooms_label(replacer.adjacent_rooms)
+	for room: Room in replacer.adjacent_rooms:
+		room.adjacent_rooms.append(replacer)
+		room.adjacent_rooms.erase(self)
+		room.room_info.update_adjacent_rooms_label(room.adjacent_rooms)
+
+	room_info.queue_free()
+	main.spawned_room_names[room_name] -= 1
+	queue_free()
 
 
 func _on_area_entered(area: Area2D) -> void:

@@ -27,6 +27,16 @@ static func check_placement_rules(placed_room: Room, connecting_room: Room) -> b
 	return true
 
 
+## Returns true if <room> is at the same exact position of a similarly shaped Placeholder room (and thus replaces it).
+## This can only happen if <overlapping_rooms> has a length of 1.
+static func is_replacing_placeholder_room(room: Room, overlapping_rooms: Array[Room]) -> bool:
+	if (len(overlapping_rooms) == 1
+		and overlapping_rooms[0].global_position == room.global_position
+		and overlapping_rooms[0].room_type == RoomData.RoomType.PLACEHOLDER_ROOM
+		and overlapping_rooms[0]._shape == room._shape):
+			return true
+	return false
+
 
 ## Returns the length of the shortest path between two rooms (using a breadth-first search). If no path is found, returns -1.
 ## If <allowed_rooms> is set, only rooms that are included in the array are considered for the path.

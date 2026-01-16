@@ -5,7 +5,7 @@ class_name RoomData
 enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
 enum RoomType {
 	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, FUEL_STORAGE, CREW_QUARTERS,
-	CANTEEN, GARDEN, ROBOTICS, WEAPONS_RESEARCH, STINGRAY, CABLE_DUCT
+	CANTEEN, GARDEN, ROBOTICS, WEAPONS_RESEARCH, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
 }
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
@@ -55,7 +55,8 @@ const room_data = {
 	RoomType.ROBOTICS: _robotics_data,
 	RoomType.WEAPONS_RESEARCH: _weapons_research_data,
 	RoomType.CABLE_DUCT: _cable_duct_data,
-	RoomType.STINGRAY: _stingray_data
+	RoomType.STINGRAY: _stingray_data,
+	RoomType.PLACEHOLDER_ROOM: _placeholder_room_data
 }
 
 
@@ -161,4 +162,13 @@ const _stingray_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.COMBAT_ROOM,
 	"power_usage": 1,
 	"facing": "up"
+}
+
+const _placeholder_room_data: Dictionary[String, Variant] = {
+	"room_name": "Placeholder Room",
+	"room_shape": RoomShape.SmallSquareShape,
+	"room_desc": "A placeholder room can be replaced by another room of the same size.",
+	"room_category": RoomCategory.SPECIAL_ROOM,
+	"power_usage": 0,
+	"always_deactivated": true
 }

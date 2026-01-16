@@ -13,6 +13,7 @@ var parent_room_type: RoomData.RoomType
 
 var activated: bool = false
 var always_activated: bool = false
+var always_deactivated: bool = false
 var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay
 var power_usage: int
 
@@ -60,6 +61,7 @@ func init_gameplay_features(data: Dictionary) -> void:
 	power_usage = _data["power_usage"]
 
 	always_activated = _data.get("always_activated", false)
+	always_deactivated = _data.get("always_deactivated", false)
 	GlobalSignals.room_connected.connect(_on_room_connected)
 	GlobalSignals.cargo_bay_order_made.connect(_on_cargo_bay_order_made)
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
@@ -69,6 +71,10 @@ func init_gameplay_features(data: Dictionary) -> void:
 ## Returns true if the room has been activated, and false otherwise.
 ## NOTE: Rooms with "always_activated" set to true have already been activated before this function!
 func activate_room() -> bool:
+	if always_deactivated:
+		GlobalNotice.display("Cannot activate room: It is set to be always deactivated.", "warning")
+		return false
+
 	var sufficient_power_supplier
 	if power_usage != 0:
 		sufficient_power_supplier = _find_power_supplier()
