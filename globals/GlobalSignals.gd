@@ -11,11 +11,12 @@ signal path_completed(path_start_room: Room, path_end_room: Room, path_length: i
 # Emitted when "Next Turn" is pressed
 signal turn_advanced
 
+# For cargo bay and HUD interactions
+signal delivery_status_changed(new_status: Dictionary)
+signal cargo_bay_order_made(delivery: Dictionary)
+
 signal crew_added(amount: int)
 signal crew_removed(amount: int)
 
 signal crew_quarters_limit_raised(amount: int)
 signal crew_quarters_limit_lowered(amount: int)
-
-# For cargo bay
-signal cargo_bay_order_made(order_type: String, cargo_bay: Room)

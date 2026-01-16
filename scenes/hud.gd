@@ -16,6 +16,8 @@ class_name Hud
 @export var total_crew_amount_label: RichTextLabel
 @export var crew_quarters_limit_label: RichTextLabel
 
+@export var delivery_info_label: RichTextLabel
+
 
 @onready var main: Main = get_parent()
 
@@ -39,6 +41,10 @@ func _ready() -> void:
 	GlobalSignals.crew_removed.connect(_on_crew_removed)
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
+
+	GlobalSignals.cargo_bay_order_made.connect(_on_delivery_status_changed)
+	GlobalSignals.delivery_status_changed.connect(_on_delivery_status_changed)
+
 	path_build_mode_label.text = "Path build mode: OFF"
 	path_info_label.text = "No path yet"
 
@@ -52,6 +58,8 @@ func _ready() -> void:
 
 	crew_quarters_limit = main.crew_quarters_limit
 	crew_quarters_limit_label.text = "Crew Quarters limit: %s" % [str(crew_quarters_limit)]
+
+	delivery_info_label.text = ""
 
 
 func find_room_data_by_name(room_name: String) -> Dictionary:
@@ -128,3 +136,7 @@ func _on_room_list_item_selected(_index: int, current_item_list: ItemList) -> vo
 func _on_cargo_options_button_pressed(cargo_type: String, cargo_bay: Room) -> void:
 	main.order_cargo(cargo_type, cargo_bay)
 	cargo_popup.hide()
+
+
+func _on_delivery_status_changed(new_status: Dictionary) -> void:
+	delivery_info_label.text = "Delivering %s, turns left: %s" % [new_status.type, str(new_status.turns_left)]

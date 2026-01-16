@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://scenes/hud.gd" id="1_ahhtf"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "combat_room_list", "research_room_list", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "combat_room_list", "research_room_list", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -14,8 +14,9 @@ cargo_popup = NodePath("CargoPopup")
 cargo_options_box = NodePath("CargoPopup/CargoOptionsHBox")
 path_build_mode_label = NodePath("PanelContainer/TopBar/PathBuildModeLabel")
 path_info_label = NodePath("PanelContainer/TopBar/PathInfoLabel")
-total_crew_amount_label = NodePath("PanelContainer2/StatisticsVbox/TotalCrewAmountLabel")
-crew_quarters_limit_label = NodePath("PanelContainer2/StatisticsVbox/CrewQuartersLimitLabel")
+total_crew_amount_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVbox/TotalCrewAmountLabel")
+crew_quarters_limit_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVbox/CrewQuartersLimitLabel")
+delivery_info_label = NodePath("PanelContainer2/HBoxContainer/DeliveryInfoLabel")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = -1
@@ -110,8 +111,8 @@ text = "Next Turn"
 
 [node name="PanelContainer2" type="PanelContainer" parent="."]
 anchors_preset = -1
-anchor_top = -0.0123457
-anchor_right = 0.166667
+anchor_top = -0.0308642
+anchor_right = 0.277778
 anchor_bottom = 0.197531
 offset_top = 520.0
 offset_bottom = 520.0
@@ -119,21 +120,32 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="StatisticsVbox" type="VBoxContainer" parent="PanelContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2"]
 layout_mode = 2
 
-[node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer2/StatisticsVbox"]
+[node name="StatisticsVbox" type="VBoxContainer" parent="PanelContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/normal_font_size = 14
 text = "Crew amount: 0"
 fit_content = true
 
-[node name="CrewQuartersLimitLabel" type="RichTextLabel" parent="PanelContainer2/StatisticsVbox"]
+[node name="CrewQuartersLimitLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/normal_font_size = 14
 text = "Crew Quarters limit: 0"
+fit_content = true
+
+[node name="DeliveryInfoLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.63
+text = "delivery info here"
 fit_content = true
 
 [node name="CargoPopup" type="PopupPanel" parent="."]

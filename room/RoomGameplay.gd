@@ -21,7 +21,7 @@ var power_usage: int
 var order_in_progress: bool = false
 var delivery_in_progress: bool = false
 var turns_until_delivery: int = -1
-var delivery_type: String # Fuel, other resources?
+var current_delivery: Dictionary # Contains type, turns_left, and made_by: Room
 
 # FOR FUEL STORAGE
 var fuel_remaining: int = 0
@@ -208,11 +208,12 @@ func _on_next_turn() -> void:
 			fuel_storage.room_info.update_fuel_remaining_label(fuel_storage.gameplay.fuel_remaining)
 
 	if delivery_in_progress:
-		turns_until_delivery -= 1
-		if turns_until_delivery == 0:
+		current_delivery.turns_left -= 1
+		GlobalSignals.delivery_status_changed.emit(current_delivery)
+		if current_delivery.turns_left == 0:
 			delivery_in_progress = false
 			cannot_be_deactivated = false
-			if delivery_type == "Fuel":
+			if current_delivery.type == "Fuel":
 				GlobalNotice.display("Fuel delivered.")
 				deactivate_room()
 				return
@@ -228,11 +229,10 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 			GlobalNotice.display("Room activated automatically!")
 
 
-func _on_cargo_bay_order_made(type: String, cargo_bay: Room) -> void:
-	if parent_room == cargo_bay:
+func _on_cargo_bay_order_made(delivery: Dictionary) -> void:
+	if delivery.made_by == parent_room:
 		cannot_be_deactivated = true
 		order_in_progress = false
 		delivery_in_progress = true
-		delivery_type = type
-		turns_until_delivery = 3
+		current_delivery = delivery
 		activate_room()

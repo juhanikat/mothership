@@ -208,8 +208,9 @@ func new_cargo_order(cargo_bay: Room) -> void:
 
 func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
 	if order_type == "Fuel":
-		print("fuel order!")
-		GlobalSignals.cargo_bay_order_made.emit(order_type, ordering_cargo_bay)
+		print("fuel order made!")
+		var delivery = {"type": order_type, "turns_left": 3, "made_by": ordering_cargo_bay}
+		GlobalSignals.cargo_bay_order_made.emit(delivery)
 		return true
 
 	push_error("Undefined order type in new_cargo_order()!")
