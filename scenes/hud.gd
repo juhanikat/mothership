@@ -8,6 +8,7 @@ class_name Hud
 @export var combat_room_list: ItemList
 @export var research_room_list: ItemList
 
+@export var help_popup: PopupPanel
 @export var cargo_popup: PopupPanel
 @export var cargo_options_box: HBoxContainer
 
@@ -17,6 +18,8 @@ class_name Hud
 @export var crew_quarters_limit_label: RichTextLabel
 
 @export var delivery_info_label: RichTextLabel
+
+
 
 
 @onready var main: Main = get_parent()
@@ -140,3 +143,7 @@ func _on_cargo_options_button_pressed(cargo_type: String, cargo_bay: Room) -> vo
 
 func _on_delivery_status_changed(new_status: Dictionary) -> void:
 	delivery_info_label.text = "Delivering %s, turns left: %s" % [new_status.type, str(new_status.turns_left)]
+
+
+func _on_help_button_pressed() -> void:
+	help_popup.show()

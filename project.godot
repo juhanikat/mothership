@@ -33,6 +33,8 @@ PowerSupply=""
 RoomInfo=""
 CrewSupply=""
 CrewQuarters=""
+Lavatory=""
+WPP=""
 
 [gui]
 

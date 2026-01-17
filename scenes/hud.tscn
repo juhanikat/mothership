@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://scenes/hud.gd" id="1_ahhtf"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "combat_room_list", "research_room_list", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "combat_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -10,6 +10,7 @@ luxury_room_list = NodePath("PanelContainer/TopBar/LuxuryRoomList")
 special_room_list = NodePath("PanelContainer/TopBar/SpecialRoomList")
 combat_room_list = NodePath("PanelContainer/TopBar/CombatRoomList")
 research_room_list = NodePath("PanelContainer/TopBar/ResearchRoomList")
+help_popup = NodePath("HelpPopup")
 cargo_popup = NodePath("CargoPopup")
 cargo_options_box = NodePath("CargoPopup/CargoOptionsHBox")
 path_build_mode_label = NodePath("PanelContainer/TopBar/PathBuildModeLabel")
@@ -104,6 +105,11 @@ theme_override_font_sizes/normal_font_size = 13
 text = "path build mode label"
 fit_content = true
 
+[node name="HelpButton" type="Button" parent="PanelContainer/TopBar"]
+layout_mode = 2
+focus_mode = 0
+text = "Help"
+
 [node name="NextTurnButton" type="Button" parent="PanelContainer/TopBar"]
 layout_mode = 2
 focus_mode = 0
@@ -163,6 +169,43 @@ offset_bottom = 96.0
 layout_mode = 2
 text = "Fuel"
 
+[node name="HelpPopup" type="PopupPanel" parent="."]
+initial_position = 1
+size = Vector2i(1000, 537)
+visible = true
+borderless = false
+
+[node name="HelpTextLabel" type="RichTextLabel" parent="HelpPopup"]
+anchors_preset = -1
+anchor_left = 0.004
+anchor_top = 0.008
+anchor_right = 0.996
+anchor_bottom = 0.992
+offset_top = -0.296
+offset_bottom = 0.296021
+size_flags_horizontal = 4
+size_flags_vertical = 4
+bbcode_enabled = true
+text = "Your goal is to survive as long as you can!
+
+When a room is picked up, place it down so that one of its connectors is near another connector to connect it. Connected rooms cannot be moved again. While holding a room, press right click if you want to cancel placing it and pick another.
+
+There are six different room categories: 
+- Crew Rooms contain facilities such as Crew Quarters, Canteens and Lavatories to increase the size of your crew and keep them happy.
+- Maintenance Rooms are the backbone of the station and are needed for other rooms to function. They can also help you design the layout of the station and make it run more effectively, especially later in the game.
+- Combat Rooms are needed to defend the station against attackers. The Commander will notify you of threats when they appear. 
+- Research Rooms unlock new room types.
+- Luxury Rooms improve the quality of life on the station. (maybe remove this category later?)
+- Special Rooms such as Power Plants and the [color=orange]Command Room[/color] are rare and can only be built when The Commander orders you to. They have important gameplay mechanics assigned to them.
+
+Pressing the \"Next turn\" button in the top right corner of the screen advances the game. You can choose 1 new room to add to the station each turn. The options are presented in the panel at the right. Advancing the turn also has other effects, such as depleting one fuel resource to power each of your Power Plants, and depleting one food resource per crew member to feed them.
+
+You lose the game if the [color=orange]Command Room[/color] runs out of power or there is not enough crew to man it.
+"
+fit_content = true
+metadata/_edit_use_anchors_ = true
+
 [connection signal="pressed" from="PanelContainer/TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
+[connection signal="pressed" from="PanelContainer/TopBar/HelpButton" to="." method="_on_help_button_pressed"]
 [connection signal="pressed" from="PanelContainer/TopBar/NextTurnButton" to="." method="_on_next_turn_button_pressed"]
 [connection signal="pressed" from="CargoPopup/CargoOptionsHBox/FuelButton" to="." method="_on_fuel_button_pressed"]

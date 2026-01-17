@@ -12,9 +12,9 @@ var RoomType = RoomData.RoomType
 var parent_room_type: RoomData.RoomType
 
 var activated: bool = false
-var always_activated: bool = false
+var always_activated: bool = false # Room is activated automatically once connected, and cannot be deactivated
 var always_deactivated: bool = false
-var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay
+var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay and Crew Quarters
 var power_usage: int
 
 # FOR CARGO BAY
@@ -57,11 +57,17 @@ func init_gameplay_features(data: Dictionary) -> void:
 		parent_room.add_to_group("CrewQuarters")
 	elif parent_room_type == RoomType.FUEL_STORAGE:
 		fuel_remaining = 3
+	elif parent_room_type == RoomType.LAVATORY:
+		parent_room.add_to_group("Lavatory")
+	elif parent_room_type == RoomType.WPP:
+		parent_room.add_to_group("WPP")
 
 	power_usage = _data["power_usage"]
 
 	always_activated = _data.get("always_activated", false)
 	always_deactivated = _data.get("always_deactivated", false)
+	cannot_be_deactivated = _data.get("cannot_be_deactivated", false)
+
 	GlobalSignals.room_connected.connect(_on_room_connected)
 	GlobalSignals.cargo_bay_order_made.connect(_on_cargo_bay_order_made)
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
@@ -121,6 +127,17 @@ func deactivate_room() -> bool:
 				return false
 		RoomType.CREW_QUARTERS:
 			GlobalSignals.crew_removed.emit(crew_supply)
+		RoomType.WPP:
+			var activated_wpps = []
+			for wpp: Room in get_tree().get_nodes_in_group("WPP"):
+				if wpp.gameplay.activated:
+					activated_wpps.append(wpp)
+			if len(activated_wpps) == 1:
+				# if this is the only activated WPP, it cannot be deactivated if any Lavatory is currently activated
+				for lavatory: Room in get_tree().get_nodes_in_group("Lavatory"):
+					if lavatory.gameplay.activated:
+						GlobalNotice.display("Cannot deactivate Waste Processing Plant: There are activated Lavatories that depend on it.", "warning")
+						return false
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
 		RoomType.CARGO_BAY:
@@ -158,6 +175,11 @@ func _try_to_activate() -> bool:
 				GlobalNotice.display("Cannot activate Crew Quarters: Crew Quarters limit has been reached.", "warning")
 				return false
 			GlobalSignals.crew_added.emit(crew_supply)
+		RoomType.LAVATORY:
+			var nearest_wpp_data = RoomConnections.find_nearest_room_type(parent_room, RoomData.RoomType.WPP)
+			if len(nearest_wpp_data) == 0 or nearest_wpp_data[0].gameplay.activated == false:
+				GlobalNotice.display("Cannot activate Lavatory: No activated Waste Processing Plant on the station.", "warning")
+				return false
 		RoomType.POWER_PLANT:
 			var fuel_storage = find_sufficient_fuel_storage()
 			if not fuel_storage:
@@ -225,7 +247,9 @@ func _on_next_turn() -> void:
 func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 	if connector1.get_parent_room() == parent_room or connector2.get_parent_room() == parent_room:
 		if always_activated:
-			activate_room()
+			var can_be_activated = activate_room()
+			if not can_be_activated:
+				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")
 			GlobalNotice.display("Room activated automatically!")
 
 

@@ -4,8 +4,8 @@ class_name RoomData
 
 enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
 enum RoomType {
-	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, FUEL_STORAGE, CREW_QUARTERS,
-	CANTEEN, GARDEN, ROBOTICS, WEAPONS_RESEARCH, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
+	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, CREW_QUARTERS,
+	CANTEEN, LAVATORY, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
 }
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
@@ -48,9 +48,11 @@ const room_data = {
 	RoomType.POWER_PLANT: _power_plant_data,
 	RoomType.ENGINE_ROOM: _engine_room_data,
 	RoomType.CARGO_BAY: _cargo_bay_data,
-	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.CREW_QUARTERS: _crew_quarters_data,
 	RoomType.CANTEEN: _canteen_data,
+	RoomType.LAVATORY: _lavatory_data,
+	RoomType.WPP: _wpp_data,
+	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.GARDEN: _garden_data,
 	RoomType.ROBOTICS: _robotics_data,
 	RoomType.WEAPONS_RESEARCH: _weapons_research_data,
@@ -61,6 +63,10 @@ const room_data = {
 
 
 ## TODO: Use classes instead of dicts here to get autocomplete?
+
+## SPECIAL ROOMS
+
+
 const _command_room_data: Dictionary[String, Variant] = {
 	"room_name": "Command Room",
 	"room_shape": RoomShape.SmallSquareShape,
@@ -94,6 +100,49 @@ const _cargo_bay_data: Dictionary[String, Variant] = {
 	"power_usage": 1
 }
 
+
+## CREW ROOMS
+
+
+const _crew_quarters_data: Dictionary[String, Variant] = {
+	"room_name": "Crew Quarters",
+	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "Must be connected to a Canteen through Crew Rooms to activate.",
+	"room_category": RoomCategory.CREW_ROOM,
+	"power_usage": 1,
+	"crew_supply": 4,
+	"cannot_be_deactivated": true
+}
+
+const _canteen_data: Dictionary[String, Variant] = {
+	"room_name": "Canteen",
+	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "Must be placed adjacent to a Crew Room.",
+	"room_category": RoomCategory.CREW_ROOM,
+	"power_usage": 1
+}
+
+const _lavatory_data: Dictionary[String, Variant] = {
+	"room_name": "Lavatory",
+	"room_shape": RoomShape.TShape,
+	"room_desc": "Must be placed adjacent to a Crew Room. There must be a Waste Processing Plant on the station to activate.",
+	"room_category": RoomCategory.CREW_ROOM,
+	"power_usage": 1
+}
+
+
+## MAINTENANCE ROOMS
+
+const _wpp_data: Dictionary[String, Variant] = {
+	"room_name": "Waste Processing Plant",
+	"room_shape": RoomShape.BigSquareShape,
+	"room_desc": "Must be on the station to activate Lavatories.
+					Adds one fuel to the nearest Fuel Storage for every two lavatories
+					that are activated at the end of the turn.",
+	"room_category": RoomCategory.MAINTENANCE_ROOM,
+	"power_usage": 2
+}
+
 const _cable_duct_data: Dictionary[String, Variant] = {
 	"room_name": "Cable Duct",
 	"room_shape": RoomShape.LongHallwayShape,
@@ -112,22 +161,18 @@ const _fuel_storage_data: Dictionary[String, Variant] = {
 	"fuel_amount": 3
 }
 
-const _crew_quarters_data: Dictionary[String, Variant] = {
-	"room_name": "Crew Quarters",
-	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "Has to be connected to a Canteen through Crew rooms to activate.",
-	"room_category": RoomCategory.CREW_ROOM,
-	"power_usage": 1,
-	"crew_supply": 4
+const _placeholder_room_data: Dictionary[String, Variant] = {
+	"room_name": "Placeholder Room",
+	"room_shape": RoomShape.SmallSquareShape,
+	"room_desc": "A placeholder room can be replaced by another room of the same size.",
+	"room_category": RoomCategory.MAINTENANCE_ROOM,
+	"power_usage": 0,
+	"always_deactivated": true
 }
 
-const _canteen_data: Dictionary[String, Variant] = {
-	"room_name": "Canteen",
-	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "Must be placed adjacent to at least one Crew room.",
-	"room_category": RoomCategory.CREW_ROOM,
-	"power_usage": 1
-}
+
+## LUXURY ROOMS
+
 
 const _garden_data: Dictionary[String, Variant] = {
 	"room_name": "Garden",
@@ -138,6 +183,10 @@ const _garden_data: Dictionary[String, Variant] = {
 	"crew_quarters_limit_increase": 2,
 	"always_activated": true
 }
+
+
+## RESEARCH ROOMS
+
 
 const _robotics_data: Dictionary[String, Variant] = {
 	"room_name": "Robotics",
@@ -155,6 +204,10 @@ const _weapons_research_data: Dictionary[String, Variant] = {
 	"power_usage": 1
 }
 
+
+## COMBAT ROOMS
+
+
 const _stingray_data: Dictionary[String, Variant] = {
 	"room_name": "Stingray",
 	"room_shape": RoomShape.SmallSquareShape,
@@ -162,13 +215,4 @@ const _stingray_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.COMBAT_ROOM,
 	"power_usage": 1,
 	"facing": "up"
-}
-
-const _placeholder_room_data: Dictionary[String, Variant] = {
-	"room_name": "Placeholder Room",
-	"room_shape": RoomShape.SmallSquareShape,
-	"room_desc": "A placeholder room can be replaced by another room of the same size.",
-	"room_category": RoomCategory.SPECIAL_ROOM,
-	"power_usage": 0,
-	"always_deactivated": true
 }

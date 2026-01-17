@@ -24,6 +24,16 @@ static func check_placement_rules(placed_room: Room, connecting_room: Room) -> b
 			GlobalNotice.display("Room placement failed: Canteens must be adjacent to at least one Crew Room.", "warning")
 			return false
 
+	if placed_room.room_type == RoomType.LAVATORY:
+		if connecting_room.room_category != RoomCategory.CREW_ROOM:
+			GlobalNotice.display("Room placement failed: Lavatories must be adjacent to at least one Crew Room.", "warning")
+			return false
+	elif connecting_room.room_type == RoomType.LAVATORY:
+		if placed_room.room_category != RoomCategory.CREW_ROOM:
+			GlobalNotice.display("Room placement failed: Lavatories must be adjacent to at least one Crew Room.", "warning")
+			return false
+
+
 	return true
 
 
