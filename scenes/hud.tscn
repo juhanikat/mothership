@@ -157,17 +157,22 @@ fit_content = true
 [node name="CargoPopup" type="PopupPanel" parent="."]
 title = "Cargo"
 initial_position = 1
+size = Vector2i(119, 100)
 visible = true
 
 [node name="CargoOptionsHBox" type="HBoxContainer" parent="CargoPopup"]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 96.0
+offset_right = 115.0
 offset_bottom = 96.0
 
 [node name="FuelButton" type="Button" parent="CargoPopup/CargoOptionsHBox"]
 layout_mode = 2
 text = "Fuel"
+
+[node name="RationsButton" type="Button" parent="CargoPopup/CargoOptionsHBox"]
+layout_mode = 2
+text = "Rations"
 
 [node name="HelpPopup" type="PopupPanel" parent="."]
 initial_position = 1
@@ -208,4 +213,3 @@ metadata/_edit_use_anchors_ = true
 [connection signal="pressed" from="PanelContainer/TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
 [connection signal="pressed" from="PanelContainer/TopBar/HelpButton" to="." method="_on_help_button_pressed"]
 [connection signal="pressed" from="PanelContainer/TopBar/NextTurnButton" to="." method="_on_next_turn_button_pressed"]
-[connection signal="pressed" from="CargoPopup/CargoOptionsHBox/FuelButton" to="." method="_on_fuel_button_pressed"]

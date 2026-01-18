@@ -50,6 +50,7 @@ func _ready() -> void:
 
 	path_build_mode_label.text = "Path build mode: OFF"
 	path_info_label.text = "No path yet"
+	delivery_info_label.text = "No deliveries in progress."
 
 	for room_data in RoomData.room_data.values():
 		room_category_to_item_list[room_data["room_category"]].add_item(room_data["room_name"])
@@ -61,8 +62,6 @@ func _ready() -> void:
 
 	crew_quarters_limit = main.crew_quarters_limit
 	crew_quarters_limit_label.text = "Crew Quarters limit: %s" % [str(crew_quarters_limit)]
-
-	delivery_info_label.text = ""
 
 
 func find_room_data_by_name(room_name: String) -> Dictionary:
@@ -103,6 +102,8 @@ func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
 
 func show_cargo_popup(cargo_bay: Room) -> void:
 	for button: Button in cargo_options_box.get_children():
+		if len(button.pressed.get_connections()) > 0:
+			button.pressed.disconnect(_on_cargo_options_button_pressed)
 		button.pressed.connect(_on_cargo_options_button_pressed.bind(button.text, cargo_bay))
 	cargo_popup.popup()
 
@@ -137,12 +138,16 @@ func _on_room_list_item_selected(_index: int, current_item_list: ItemList) -> vo
 
 
 func _on_cargo_options_button_pressed(cargo_type: String, cargo_bay: Room) -> void:
+	# sets cargo type depending on the text of the Button pressed
 	main.order_cargo(cargo_type, cargo_bay)
 	cargo_popup.hide()
 
 
 func _on_delivery_status_changed(new_status: Dictionary) -> void:
-	delivery_info_label.text = "Delivering %s, turns left: %s" % [new_status.type, str(new_status.turns_left)]
+	if new_status.turns_left == 0:
+		delivery_info_label.text = "No deliveries in progress."
+	else:
+		delivery_info_label.text = "Delivering %s, turns left: %s" % [new_status.type, str(new_status.turns_left)]
 
 
 func _on_help_button_pressed() -> void:

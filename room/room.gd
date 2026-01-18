@@ -84,6 +84,7 @@ func _ready() -> void:
 	for own_connector in get_own_connectors():
 		raycast.add_exception(own_connector)
 	if "facing" in _data:
+		raycast.show()
 		match _data.facing:
 			"up":
 				raycast.target_position = Vector2(0, -50000)

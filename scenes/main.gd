@@ -42,7 +42,7 @@ var crew_quarters_limit: int = 1
 
 
 func _ready() -> void:
-	var first_order = CaptainFunctions.next_starting_order()
+	var first_order = CaptainFunctions.get_starting_order()
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
 	room_selection.show_order(first_order.description, possible_rooms)
@@ -167,7 +167,13 @@ func find_path(from: Vector2, to: Vector2) -> void:
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
 func _on_next_turn() -> void:
 	turn += 1
-	var next_order = CaptainFunctions.random_order()
+
+	var next_order: Dictionary
+	if turn == 3:
+		next_order = CaptainFunctions.get_specific_order(CaptainData.Order.CARGO_BAY_ORDER)
+	else:
+		next_order = CaptainFunctions.get_random_order()
+
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(next_order.selected_rooms)
 	room_selection.clear_room_buttons()
@@ -207,14 +213,9 @@ func new_cargo_order(cargo_bay: Room) -> void:
 
 
 func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
-	if order_type == "Fuel":
-		print("fuel order made!")
 		var delivery = {"type": order_type, "turns_left": 3, "made_by": ordering_cargo_bay}
 		GlobalSignals.cargo_bay_order_made.emit(delivery)
 		return true
-
-	push_error("Undefined order type in new_cargo_order()!")
-	return false
 
 
 func _on_crew_added(amount: int) -> void:

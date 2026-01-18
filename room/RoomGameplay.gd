@@ -56,11 +56,13 @@ func init_gameplay_features(data: Dictionary) -> void:
 	if parent_room_type == RoomType.CREW_QUARTERS:
 		parent_room.add_to_group("CrewQuarters")
 	elif parent_room_type == RoomType.FUEL_STORAGE:
-		fuel_remaining = 3
+		fuel_remaining = _data["fuel_amount"]
+		parent_room.add_to_group("FuelStorage")
 	elif parent_room_type == RoomType.LAVATORY:
 		parent_room.add_to_group("Lavatory")
 	elif parent_room_type == RoomType.WPP:
 		parent_room.add_to_group("WPP")
+
 
 	power_usage = _data["power_usage"]
 
@@ -236,11 +238,23 @@ func _on_next_turn() -> void:
 			delivery_in_progress = false
 			cannot_be_deactivated = false
 			if current_delivery.type == "Fuel":
-				GlobalNotice.display("Fuel delivered.")
-				deactivate_room()
-				return
+				var all_fuel_storages = get_tree().get_nodes_in_group("FuelStorage")
+				if not all_fuel_storages:
+					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
+					return
+				else:
+					var random_fuel_storage = all_fuel_storages.pick_random()
+					random_fuel_storage.gameplay.fuel_remaining += 5
+					random_fuel_storage.room_info.update_fuel_remaining_label(random_fuel_storage.gameplay.fuel_remaining)
+					GlobalNotice.display("Fuel delivered.")
+			elif current_delivery.type == "Rations":
+				GlobalNotice.display("Rations delivered.")
+			else:
+				push_error("Invalid delivery type!!")
+			deactivate_room()
+			return
 
-			push_error("Invalid delivery type!!")
+
 
 
 ## Things that need to be done as soon as the room is connected are here.
