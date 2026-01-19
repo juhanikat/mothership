@@ -5,7 +5,7 @@ class_name RoomData
 enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
 enum RoomType {
 	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, CREW_QUARTERS,
-	CANTEEN, LAVATORY, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
+	CANTEEN, LAVATORY, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
 }
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
@@ -56,6 +56,7 @@ const room_data = {
 	RoomType.GARDEN: _garden_data,
 	RoomType.ROBOTICS: _robotics_data,
 	RoomType.WEAPONS_RESEARCH: _weapons_research_data,
+	RoomType.DATA_ANALYSIS: _data_analysis_data,
 	RoomType.CABLE_DUCT: _cable_duct_data,
 	RoomType.STINGRAY: _stingray_data,
 	RoomType.PLACEHOLDER_ROOM: _placeholder_room_data
@@ -200,6 +201,14 @@ const _weapons_research_data: Dictionary[String, Variant] = {
 	"room_name": "Weapons Research",
 	"room_shape": RoomShape.TShape,
 	"room_desc": "Unlocks new combat rooms.",
+	"room_category": RoomCategory.RESEARCH_ROOM,
+	"power_usage": 1
+}
+
+const _data_analysis_data: Dictionary[String, Variant] = {
+	"room_name": " Data Analysis",
+	"room_shape": RoomShape.LShape,
+	"room_desc": "If activated at the start of a turn, adds an extra room option to choose from.",
 	"room_category": RoomCategory.RESEARCH_ROOM,
 	"power_usage": 1
 }

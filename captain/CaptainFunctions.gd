@@ -27,8 +27,8 @@ static func get_starting_order() -> Dictionary:
 
 
 ## Returns a random order from the orders dict, converting the "rooms" value from enums to room_data dicts.
-## If the order contains a "choose_from" field with value n, n random rooms are selected from the list.
-static func get_random_order() -> Dictionary:
+## If the order contains a "choose_from" field with value n, n + <extra_options> random rooms are selected from the list.
+static func get_random_order(extra_options: int = 0) -> Dictionary:
 	var shuffled_keys = orders.keys().duplicate(true)
 	shuffled_keys.shuffle()
 	var new_order: Dictionary = orders[shuffled_keys[0]].duplicate(true)
@@ -47,7 +47,7 @@ static func get_random_order() -> Dictionary:
 
 	if "choose_from" in new_order:
 		room_data_array.shuffle()
-		room_data_array = room_data_array.slice(0, new_order["choose_from"])
+		room_data_array = room_data_array.slice(0, new_order["choose_from"] + extra_options)
 
 	new_order.erase("rooms")
 	new_order.erase("room_categories")

@@ -9,6 +9,8 @@ signal path_build_mode_toggled(new_path_build_mode: bool)
 signal path_completed(path_start_room: Room, path_end_room: Room, path_length: int)
 
 # Emitted when "Next Turn" is pressed
+# NOTE: Main will listen to this and it handles the "next_turn()" function
+# inside RoomGameplay (and possibly elsewhere), since things have to be done in order
 signal turn_advanced
 
 # For cargo bay and HUD interactions

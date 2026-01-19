@@ -37,6 +37,7 @@ var crew_supply: int = 0
 
 ## RoomGameplay is created and added as a child to a Room node (in room.gd).
 func _ready() -> void:
+	add_to_group("RoomGameplay")
 	parent_room = get_parent()
 	parent_room_type = parent_room.room_type
 	main = get_tree().root.get_node("Main")
@@ -62,6 +63,8 @@ func init_gameplay_features(data: Dictionary) -> void:
 		parent_room.add_to_group("Lavatory")
 	elif parent_room_type == RoomType.WPP:
 		parent_room.add_to_group("WPP")
+	elif parent_room_type == RoomType.DATA_ANALYSIS:
+		parent_room.add_to_group("DataAnalysis")
 
 
 	power_usage = _data["power_usage"]
@@ -72,7 +75,6 @@ func init_gameplay_features(data: Dictionary) -> void:
 
 	GlobalSignals.room_connected.connect(_on_room_connected)
 	GlobalSignals.cargo_bay_order_made.connect(_on_cargo_bay_order_made)
-	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
 
 ## Called when a deactivated room is middle-clicked. Calls lots of other functions depending on room type.
@@ -164,6 +166,7 @@ func find_sufficient_fuel_storage():
 
 
 ## Returns true if the room has been activated, or false otherwise.
+## Checks all rules other than the availability of power, which is done before this in activate_room().
 func _try_to_activate() -> bool:
 	match parent_room_type:
 		RoomType.CREW_QUARTERS:
@@ -217,8 +220,9 @@ func _find_power_supplier():
 		GlobalNotice.display("Cannot power room: Activated suppliers in range do not have enough capacity.", "warning")
 	return null
 
-
-func _on_next_turn() -> void:
+## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
+## which might be hard when multiple nodes listen to the same signal.
+func next_turn() -> void:
 	if parent_room_type == RoomType.POWER_PLANT and activated:
 		var fuel_storage = find_sufficient_fuel_storage()
 		if not fuel_storage:

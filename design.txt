@@ -1,7 +1,11 @@
 TODO:
-	1. Life support room (at some point, makes testing harder)
-	2. Airlock room (must have one of these that is not leading to a courtyard at all times)
-	3. Empty/isolation room or hallway (does nothing, some other rooms must be isolated from the rest of the ship using this)
+	1. Room that gives you more options to choose from if activated at the end of the turn
+	2. An in-depth crew system, every crew member are their own entity (each one is assigned to a spesific Crew Quarters, but can be moved to another one if needed?)
+	Crew members can become impostors (aliens)??
+	3. Room that can be used to buy any room you want + a resource system for this?
+	4. Life support room (at some point, makes testing harder)
+	5. Airlock room (must have one of these that is not leading to a courtyard at all times)
+	6. Empty/isolation room or hallway (does nothing, some other rooms must be isolated from the rest of the ship using this)
 
 
 

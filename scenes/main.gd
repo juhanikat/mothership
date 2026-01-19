@@ -165,14 +165,18 @@ func find_path(from: Vector2, to: Vector2) -> void:
 
 
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
+## Also calls next_turn() inside each RoomGameplay.
 func _on_next_turn() -> void:
 	turn += 1
+	for gameplay: RoomGameplay in get_tree().get_nodes_in_group("RoomGameplay"):
+		gameplay.next_turn()
 
 	var next_order: Dictionary
 	if turn == 3:
 		next_order = CaptainFunctions.get_specific_order(CaptainData.Order.CARGO_BAY_ORDER)
 	else:
-		next_order = CaptainFunctions.get_random_order()
+		var active_data_analysis_rooms = get_tree().get_nodes_in_group("DataAnalysis").filter(func(room: Room): return room.gameplay.activated)
+		next_order = CaptainFunctions.get_random_order(len(active_data_analysis_rooms))
 
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(next_order.selected_rooms)
