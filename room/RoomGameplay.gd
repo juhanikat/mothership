@@ -128,6 +128,9 @@ func deactivate_room() -> bool:
 		RoomType.POWER_PLANT:
 			if len(supplies_to) > 0:
 				GlobalNotice.display("Cannot deactivate Power Plant: It is supplying power to one or more rooms.", "warning")
+				for room in supplies_to:
+					print(room)
+					room.highlight()
 				return false
 		RoomType.CREW_QUARTERS:
 			GlobalSignals.crew_removed.emit(crew_supply)
@@ -141,6 +144,7 @@ func deactivate_room() -> bool:
 				for lavatory: Room in get_tree().get_nodes_in_group("Lavatory"):
 					if lavatory.gameplay.activated:
 						GlobalNotice.display("Cannot deactivate Waste Processing Plant: There are activated Lavatories that depend on it.", "warning")
+						lavatory.highlight()
 						return false
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])

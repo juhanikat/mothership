@@ -6,16 +6,23 @@ var connector_scene = load("res://room/connector.tscn")
 const RoomShape = RoomData.RoomShape
 
 @export var texture_polygon: Polygon2D
+
+@export var highlight_line: Line2D
+@export var highlight_line_timer: Timer
+@export var highlight_anim_player: AnimationPlayer
+
 @export var nav_region: NavigationRegion2D
 @export var nav_agent: NavigationAgent2D
 @export var connectors_node: Node2D
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
+@export var all_room_highlights: Node2D # all highlights corresponding to above room types are children of this node
 
 @export var raycast: RayCast2D # if room data has a facing property, this raycast will be cast toward that side.
 # used to check if any other rooms are in front of this room, if needed.
 
 @onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
+@onready var room_highlight_lines: Dictionary[RoomShape, PackedVector2Array]
 @onready var main: Main = get_tree().root.get_node("Main")
 
 var room_info: RoomInfo # The room's info box, this is a child of the main node
@@ -70,7 +77,22 @@ func _ready() -> void:
 		if room_shape.name == "LongHallwayShapePolygon":
 			room_shapes[RoomShape.LongHallwayShape] = room_shape.polygon
 
+	for room_highlight_line: Line2D in all_room_highlights.get_children():
+		if room_highlight_line.name == "LShapeLine":
+			room_highlight_lines[RoomShape.LShape] = room_highlight_line.points
+		if room_highlight_line.name == "TShapeLine":
+			room_highlight_lines[RoomShape.TShape] = room_highlight_line.points
+		if room_highlight_line.name == "SquareShapeLine":
+			room_highlight_lines[RoomShape.SmallSquareShape] = room_highlight_line.points
+		if room_highlight_line.name == "BigSquareShapeLine":
+			room_highlight_lines[RoomShape.BigSquareShape] = room_highlight_line.points
+		if room_highlight_line.name == "LongHallwayShapeLine":
+			room_highlight_lines[RoomShape.LongHallwayShape] = room_highlight_line.points
+
 	polygon.polygon = room_shapes[_shape]
+
+	if room_highlight_lines.get(_shape):
+		highlight_line.points = room_highlight_lines[_shape]
 
 	# shapes the texture (Polygon2D) according to the room's shape,
 	# and colors it according to its category.
@@ -162,6 +184,11 @@ func _process(_delta: float) -> void:
 	#snap rotation to target value once close enough, might prevent some bugs with rounding
 	if abs(rotation_degrees - target_rotation) < 0.05:
 		rotation_degrees = target_rotation
+
+
+func highlight(time: int = 2) -> void:
+	highlight_anim_player.play("show_highlight")
+	highlight_line_timer.start(time)
 
 
 ## Called when a room is placed while near another room.
@@ -339,3 +366,7 @@ func _on_mouse_exited() -> void:
 	room_info.adjacent_rooms_label.hide()
 	room_info.shrink_panel_container()
 	room_info.z_index = 0
+
+
+func _on_highlight_line_timer_timeout() -> void:
+	highlight_anim_player.play("hide_highlight")
