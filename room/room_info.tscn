@@ -4,7 +4,7 @@
 [ext_resource type="FontFile" uid="uid://c63xjyk31oise" path="res://fonts/Xolonium-Regular.otf" id="2_jskd8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yms3g"]
-bg_color = Color(0, 0, 0, 0.545098)
+bg_color = Color(0, 0, 0, 0.5)
 
 [node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "traits_label", "resource_label", "adjacent_rooms_label", "description_label") groups=["RoomInfo"]]
 anchors_preset = -1

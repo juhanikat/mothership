@@ -117,11 +117,10 @@ text = "Next Turn"
 
 [node name="PanelContainer2" type="PanelContainer" parent="."]
 anchors_preset = -1
-anchor_top = -0.0308642
+anchor_top = 0.771605
 anchor_right = 0.277778
-anchor_bottom = 0.197531
-offset_top = 520.0
-offset_bottom = 520.0
+anchor_bottom = 1.0
+offset_bottom = -6.10352e-05
 grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
@@ -158,7 +157,6 @@ fit_content = true
 title = "Cargo"
 initial_position = 1
 size = Vector2i(119, 100)
-visible = true
 
 [node name="CargoOptionsHBox" type="HBoxContainer" parent="CargoPopup"]
 offset_left = 4.0
@@ -177,7 +175,6 @@ text = "Rations"
 [node name="HelpPopup" type="PopupPanel" parent="."]
 initial_position = 1
 size = Vector2i(1000, 537)
-visible = true
 borderless = false
 
 [node name="HelpTextLabel" type="RichTextLabel" parent="HelpPopup"]

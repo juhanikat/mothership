@@ -22,7 +22,7 @@ const ROOM_CATEGORIES = RoomData.RoomCategory
 ## Use these in other scripts.
 const starting_order = {
 	"description": "We need a few basic rooms to get started.",
-	"rooms": [ROOMS.POWER_PLANT, ROOMS.FUEL_STORAGE, ROOMS.ENGINE_ROOM, ROOMS.COMMAND_ROOM]
+	"rooms": [ROOMS.POWER_PLANT, ROOMS.FUEL_STORAGE, ROOMS.COMMAND_ROOM]
 	}
 
 # Orders that can be chosen randomly

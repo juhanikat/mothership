@@ -20,6 +20,7 @@ const RoomShape = RoomData.RoomShape
 
 @export var raycast: RayCast2D # if room data has a facing property, this raycast will be cast toward that side.
 # used to check if any other rooms are in front of this room, if needed.
+@export var raycast_line: Line2D
 
 @onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
 @onready var room_highlight_lines: Dictionary[RoomShape, PackedVector2Array]
@@ -30,7 +31,7 @@ var room_info: RoomInfo # The room's info box, this is a child of the main node
 const MAX_CONNECTOR_DISTANCE = 40
 
 var hovering: bool = false # true when mouse is hovering over this room.
-var is_picked: bool = false # true when the room is picked by mouse.
+var picked: bool = false # true when the room is picked by mouse.
 var locked: bool = false # true once room has been placed and can no longer be moved.
 var connecting_rooms: bool = false # used in _unhandled_input to keep room still while connecting.
 var target_rotation: float = 0
@@ -50,13 +51,13 @@ var is_starting_room: bool = false # the first room in the game is the only one 
 
 
 ## Call this before the room is added to the scene tree.
-func init_room(i_data: Dictionary[String, Variant], picked: bool = false) -> void:
+func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false) -> void:
 	_data = i_data
 	_shape = _data["room_shape"]
 	room_name = _data["room_name"]
 	room_type = RoomData.room_data.find_key(_data)
 	room_category = _data["room_category"]
-	is_picked = picked
+	picked = is_picked
 
 	# creates connectors for the room, depending on its shape
 	create_connectors()
@@ -107,15 +108,20 @@ func _ready() -> void:
 		raycast.add_exception(own_connector)
 	if "facing" in _data:
 		raycast.show()
+		raycast_line.show()
 		match _data.facing:
 			"up":
 				raycast.target_position = Vector2(0, -50000)
+				raycast_line.points = PackedVector2Array([Vector2(0, 0), Vector2(0, -50000)])
 			"right":
 				raycast.target_position = Vector2(50000, 0)
+				raycast_line.points = PackedVector2Array([Vector2(0, 0), Vector2(50000, 0)])
 			"down":
 				raycast.target_position = Vector2(0, 50000)
+				raycast_line.points = PackedVector2Array([Vector2(0, 0), Vector2(0, 50000)])
 			"left":
 				raycast.target_position = Vector2(-50000, 0)
+				raycast_line.points = PackedVector2Array([Vector2(0, 0), Vector2(-50000, 0)])
 	else:
 		raycast.enabled = false
 
@@ -130,7 +136,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("activate_room") and hovering and not is_picked:
+	if event.is_action_pressed("activate_room") and hovering and not picked:
 		if gameplay.activated:
 			gameplay.deactivate_room()
 		else:
@@ -143,7 +149,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if GlobalInputFlags.path_build_mode:
 		return
 
-	if event.is_action_pressed("cancel_room") and is_picked and not is_starting_room:
+	if event.is_action_pressed("cancel_room") and picked and not is_starting_room:
 		room_info.queue_free()
 		main.spawned_room_names[room_name] -= 1
 		queue_free()
@@ -152,7 +158,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	await get_tree().physics_frame # to make sure area overlap is detected
 
 	if event.is_action_pressed("move_room") and event.is_pressed():
-		if is_picked:
+		if picked:
 			connecting_rooms = true
 			var all_connectors: Array[Connector]
 			# weird trick to cast the type correctly
@@ -161,20 +167,22 @@ func _unhandled_input(event: InputEvent) -> void:
 			if len(connector_pair) == 2:
 				var connected = await connect_rooms(connector_pair)
 				if connected:
-					is_picked = false
+					picked = false
+					room_info.shrink_info()
 					locked = true
 				connecting_rooms = false
 				return
 			connecting_rooms = false
 			if is_starting_room:
-				is_picked = false
+				picked = false
+				room_info.shrink_info()
 
-	if event is InputEventMouseMotion and is_picked and not connecting_rooms:
+	if event is InputEventMouseMotion and picked and not connecting_rooms:
 		var global_mouse_pos = get_global_mouse_position()
 		global_position = global_mouse_pos
-		room_info.global_position = global_position + RoomData.room_info_pos[_shape]
+		room_info.global_position = global_position + RoomData.room_info_pos[_shape] + room_info.relative_pos
 
-	if event.is_action_pressed("rotate_tile") and is_picked:
+	if event.is_action_pressed("rotate_tile") and picked:
 			target_rotation += 90
 
 
@@ -353,19 +361,14 @@ func _on_area_exited(area: Area2D) -> void:
 
 func _on_mouse_entered() -> void:
 	hovering = true
-	## NOTE: room_info's description label is toggled here since room_info itself
-	## cannot be easily set to read input without consuming it :(
-	room_info.description_label.show()
-	room_info.adjacent_rooms_label.show()
-	room_info.z_index = 1
+	if not picked:
+		room_info.expand_info()
 
 
 func _on_mouse_exited() -> void:
 	hovering = false
-	room_info.description_label.hide()
-	room_info.adjacent_rooms_label.hide()
-	room_info.shrink_panel_container()
-	room_info.z_index = 0
+	if not picked:
+		room_info.shrink_info()
 
 
 func _on_highlight_line_timer_timeout() -> void:

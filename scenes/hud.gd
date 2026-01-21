@@ -108,6 +108,8 @@ func show_cargo_popup(cargo_bay: Room) -> void:
 	cargo_popup.popup()
 
 func _on_next_turn_button_pressed() -> void:
+	if not main.check_turn_requirements():
+		return
 	GlobalSignals.turn_advanced.emit()
 
 

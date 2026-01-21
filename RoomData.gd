@@ -71,7 +71,7 @@ const room_data = {
 const _command_room_data: Dictionary[String, Variant] = {
 	"room_name": "Command Room",
 	"room_shape": RoomShape.SmallSquareShape,
-	"room_desc": "test",
+	"room_desc": "",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0
 }

@@ -33,6 +33,7 @@ var camera_dragging: bool = false
 var previous_mouse_pos_dragging: Vector2 = Vector2(0, 0)
 var previous_mouse_pos_zooming: Vector2 = Vector2(0, 0)
 
+var spawned_rooms_count: int = 0 # NOTE: Is this decremented if a room is cancelled?
 var spawned_room_names = {} # used to give new rooms an ordering number (purely visual atm)
 
 var turn: int = 1
@@ -54,8 +55,8 @@ func _ready() -> void:
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
 	# starting room
-	var first_room = spawn_room_at_mouse(room_data[RoomData.RoomType.POWER_PLANT])
-	first_room.is_starting_room = true
+	# var first_room = spawn_room_at_mouse(room_data[RoomData.RoomType.POWER_PLANT])
+	# first_room.is_starting_room = true
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -124,7 +125,7 @@ func find_clicked_room() -> Variant:
 ## Spawns a room at the position of the mouse (with picked = true), and returns the Room.
 func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 	for room: Room in get_tree().get_nodes_in_group("Room"):
-		if room.is_picked == true:
+		if room.picked == true:
 			print("Cannot spawn new room at mouse pos when an existing one is picked!")
 			return
 
@@ -142,15 +143,18 @@ func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 	if spawned_room_names[room_name] > 1:
 		overwrite_name = "%s (%s)" % [room_name, spawned_room_names[room_name]]
 
+	if spawned_rooms_count == 0:
+		new_room.is_starting_room = true
+	spawned_rooms_count += 1
 	room_nodes.add_child(new_room)
 
 	# room info is a child of main scene because otherwise it will rotate with the room
 	var new_room_info: RoomInfo = room_info_scene.instantiate()
-	new_room_info.init_room_info(new_room_data, overwrite_name)
+	new_room_info.init_room_info(new_room, new_room_data, overwrite_name)
 	new_room_info.global_position = new_room.global_position + RoomData.room_info_pos[new_room_shape]
-	# room is responsible for moving info box with the room itself,
-	# so it needs a reference of it
 	new_room.room_info = new_room_info
+	if new_room.picked:
+		new_room_info.expand_info()
 	room_info_nodes.add_child(new_room_info)
 
 	return new_room
@@ -162,6 +166,23 @@ func find_path(from: Vector2, to: Vector2) -> void:
 	nav_agent.set_target_position(to)
 	if not nav_agent.is_target_reachable():
 		print("Position (%s) is not reachable from position (%s)!" % [str(to), str(from)])
+
+
+## Returns true if the player has done all that is needed to do on the current turn
+## (for example, the three starting rooms have to be placed on the first turn to continue).
+func check_turn_requirements() -> bool:
+	if turn == 1:
+		var all_room_types = get_tree().get_nodes_in_group("Room").map(func(room: Room): return room.room_type)
+		for required_type in [RoomData.RoomType.COMMAND_ROOM, RoomData.RoomType.FUEL_STORAGE, RoomData.RoomType.POWER_PLANT]:
+			if required_type not in all_room_types:
+				GlobalNotice.display("Place all required rooms first.", "warning")
+				return false
+	elif turn == 3:
+		var cargo_bay = get_tree().get_nodes_in_group("CargoBay")
+		if not cargo_bay:
+			GlobalNotice.display("Place all required rooms first.", "warning")
+			return false
+	return true
 
 
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
