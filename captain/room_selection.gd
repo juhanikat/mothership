@@ -7,7 +7,6 @@ class_name RoomSelection
 @onready var main: Node2D = get_tree().root.get_node("Main")
 
 
-
 func clear_room_buttons() -> void:
 	for button in room_container.get_children():
 		button.queue_free()
@@ -19,7 +18,9 @@ func show_order(description: String, room_data_array: Array[Dictionary]) -> void
 	order_description_label.text = "\"%s\"" % [description]
 	for room_data in room_data_array:
 		var new_room_button = Button.new()
-		new_room_button.text = room_data["room_name"]
+		var button_text_color = RoomData.room_colors[room_data["room_category"]]
+		new_room_button.add_theme_color_override("font_color", button_text_color)
+		new_room_button.text = "%s" % [room_data["room_name"]]
 		new_room_button.pressed.connect(_on_room_button_pressed.bind(room_data))
 		new_room_button.focus_mode = Control.FOCUS_NONE
 		room_container.add_child(new_room_button)

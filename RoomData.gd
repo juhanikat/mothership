@@ -16,7 +16,7 @@ const room_colors = {
 	RoomCategory.RESEARCH_ROOM: Color(0.678, 0.0, 0.68),
 	RoomCategory.COMBAT_ROOM: Color(0.681, 0.257, 0.219),
 	RoomCategory.LUXURY_ROOM: Color(0.394, 0.834, 0.113),
-	RoomCategory.SPECIAL_ROOM: Color(0.904, 0.741, 0.651)
+	RoomCategory.SPECIAL_ROOM: Color(1.0, 1.0, 1.0)
 	}
 
 
