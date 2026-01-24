@@ -66,6 +66,7 @@ func _ready() -> void:
 
 	# hidden by default, press D to show in-game!
 	dev_toolbar.hide()
+	dev_options_hint_label.show()
 
 
 func _unhandled_input(event: InputEvent) -> void:

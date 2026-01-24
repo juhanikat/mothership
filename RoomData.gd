@@ -5,7 +5,7 @@ class_name RoomData
 enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
 enum RoomType {
 	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, CREW_QUARTERS,
-	CANTEEN, LAVATORY, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
+	CANTEEN, LAVATORY, RATION_STORAGE, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
 }
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
@@ -51,6 +51,7 @@ const room_data = {
 	RoomType.CREW_QUARTERS: _crew_quarters_data,
 	RoomType.CANTEEN: _canteen_data,
 	RoomType.LAVATORY: _lavatory_data,
+	RoomType.RATION_STORAGE: _ration_storage_data,
 	RoomType.WPP: _wpp_data,
 	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.GARDEN: _garden_data,
@@ -79,7 +80,7 @@ const _command_room_data: Dictionary[String, Variant] = {
 const _power_plant_data: Dictionary[String, Variant] = {
 	"room_name": "Power Plant",
 	"room_shape": RoomShape.LShape,
-	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to activate.",
+	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to activate. When activated, uses 1 Fuel each turn.",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
 	"power_supply": {"capacity": 10, "range": 5}
@@ -118,7 +119,7 @@ const _crew_quarters_data: Dictionary[String, Variant] = {
 const _canteen_data: Dictionary[String, Variant] = {
 	"room_name": "Canteen",
 	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "Must be placed adjacent to a Crew Room.",
+	"room_desc": "Must be placed adjacent to a Crew Room. Needs a Ration Storage next to it to activate. When activated, uses 1 Ration each turn.",
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1
 }
@@ -129,6 +130,16 @@ const _lavatory_data: Dictionary[String, Variant] = {
 	"room_desc": "Must be placed adjacent to a Crew Room. There must be a Waste Processing Plant on the station to activate.",
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1
+}
+
+const _ration_storage_data: Dictionary[String, Variant] = {
+	"room_name": "Ration Storage",
+	"room_shape": RoomShape.SmallSquareShape,
+	"room_desc": "Must be placed next to a Canteen.",
+	"room_category": RoomCategory.CREW_ROOM,
+	"always_activated": true,
+	"power_usage": 0,
+	"rations_amount": 10
 }
 
 

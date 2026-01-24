@@ -26,6 +26,9 @@ var current_delivery: Dictionary # Contains type, turns_left, and made_by: Room
 # FOR FUEL STORAGE
 var fuel_remaining: int = 0
 
+# FOR RATION STORAGE
+var rations_remaining: int = 0
+
 # FOR POWER SUPPLIERS
 var power_supply = {}
 var supplies_to: Array[Room] = []
@@ -59,6 +62,9 @@ func init_gameplay_features(data: Dictionary) -> void:
 	elif parent_room_type == RoomType.FUEL_STORAGE:
 		fuel_remaining = _data["fuel_amount"]
 		parent_room.add_to_group("FuelStorage")
+	elif parent_room_type == RoomType.RATION_STORAGE:
+		rations_remaining = _data["rations_amount"]
+		parent_room.add_to_group("RationStorage")
 	elif parent_room_type == RoomType.LAVATORY:
 		parent_room.add_to_group("Lavatory")
 	elif parent_room_type == RoomType.WPP:
@@ -82,7 +88,7 @@ func init_gameplay_features(data: Dictionary) -> void:
 ## Called when a deactivated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been activated, and false otherwise.
 ## NOTE: Rooms with "always_activated" set to true have already been activated before this function!
-func activate_room() -> bool:
+func activate_room(show_activation_notice: bool = false) -> bool:
 	if always_deactivated:
 		GlobalNotice.display("Cannot activate room: It is set to be always deactivated.", "warning")
 		return false
@@ -100,14 +106,15 @@ func activate_room() -> bool:
 			sufficient_power_supplier.gameplay.power_supply.capacity -= power_usage
 			sufficient_power_supplier.gameplay.supplies_to.append(parent_room)
 			sufficient_power_supplier.room_info.update_power_supply_label(sufficient_power_supplier.gameplay.power_supply)
-		GlobalNotice.display("Room activated.")
+		if show_activation_notice:
+			GlobalNotice.display("Room activated.")
 		return true
 	return false
 
 
 ## Called when an activated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been deactivated, and false otherwise.
-func deactivate_room() -> bool:
+func deactivate_room(show_deactivation_notice: bool = false) -> bool:
 	if not activated:
 		push_error("Tried to deactivate room that was not active, this should never happen!")
 		return false
@@ -157,6 +164,8 @@ func deactivate_room() -> bool:
 
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
+	if show_deactivation_notice:
+			GlobalNotice.display("Room activated.")
 	GlobalNotice.display("Room deactivated.")
 	return true
 
@@ -169,6 +178,14 @@ func find_sufficient_fuel_storage():
 			continue
 		return fuel_storage_data.room
 	return null
+
+
+## Finds all Ration Storages adjacent to this room, and returns a random one. Combine with above function???
+func find_sufficient_ration_storage():
+	var adjacent_ration_storages_with_rations = parent_room.adjacent_rooms.filter(func(room: Room): return room.is_in_group("RationStorage") and room.gameplay.rations_remaining > 0)
+	if not adjacent_ration_storages_with_rations:
+		return null
+	return adjacent_ration_storages_with_rations.pick_random()
 
 
 ## Returns true if the room has been activated, or false otherwise.
@@ -186,6 +203,11 @@ func _try_to_activate() -> bool:
 				GlobalNotice.display("Cannot activate Crew Quarters: Crew Quarters limit has been reached.", "warning")
 				return false
 			GlobalSignals.crew_added.emit(crew_supply)
+		RoomType.CANTEEN:
+			var adjacent_ration_storage = parent_room.adjacent_rooms.filter(func(room: Room): return room.is_in_group("RationStorage"))[0]
+			if not adjacent_ration_storage or not adjacent_ration_storage.gameplay.activated:
+				GlobalNotice.display("Cannot activate Canteen: No activated Ration Storage adjacent to it.", "warning")
+				return false
 		RoomType.LAVATORY:
 			var nearest_wpp_data = RoomConnections.find_nearest_room_type(parent_room, RoomData.RoomType.WPP)
 			if len(nearest_wpp_data) == 0 or nearest_wpp_data[0].gameplay.activated == false:
@@ -232,7 +254,7 @@ func next_turn() -> void:
 	if parent_room_type == RoomType.POWER_PLANT and activated:
 		var fuel_storage = find_sufficient_fuel_storage()
 		if not fuel_storage:
-			GlobalNotice.display("Power Plant does not have any accessible fuel!", "warning")
+			GlobalNotice.display("Power Plant does not have any accessible fuel and has been deactivated.", "warning")
 			for room in supplies_to:
 				room.gameplay.deactivate_room()
 			supplies_to.clear()
@@ -240,6 +262,16 @@ func next_turn() -> void:
 		else:
 			fuel_storage.gameplay.fuel_remaining -= 1
 			fuel_storage.room_info.update_fuel_remaining_label(fuel_storage.gameplay.fuel_remaining)
+
+	if parent_room_type == RoomType.CANTEEN and activated:
+		var ration_storage = find_sufficient_ration_storage()
+		print(ration_storage)
+		if not ration_storage:
+			GlobalNotice.display("Canteen does not have any accessible rations and has been deactivated.", "warning")
+			deactivate_room()
+		else:
+			ration_storage.gameplay.rations_remaining -= 1
+			ration_storage.room_info.update_rations_remaining_label(ration_storage.gameplay.rations_remaining)
 
 	if delivery_in_progress:
 		current_delivery.turns_left -= 1
@@ -257,9 +289,18 @@ func next_turn() -> void:
 					random_fuel_storage.gameplay.fuel_remaining += 5
 					random_fuel_storage.room_info.update_fuel_remaining_label(random_fuel_storage.gameplay.fuel_remaining)
 					random_fuel_storage.highlight()
-					GlobalNotice.display("Fuel delivered.")
+					GlobalNotice.display("Fuel delivered to a random Fuel Storage.")
 			elif current_delivery.type == "Rations":
-				GlobalNotice.display("Rations delivered.")
+				var all_ration_storages = get_tree().get_nodes_in_group("RationStorage")
+				if not all_ration_storages:
+					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
+					return
+				else:
+					var random_ration_storage: Room = all_ration_storages.pick_random()
+					random_ration_storage.gameplay.rations_remaining += 10
+					random_ration_storage.room_info.update_rations_remaining_label(random_ration_storage.gameplay.rations_remaining)
+					random_ration_storage.highlight()
+					GlobalNotice.display("Rations delivered to a random Ration Storage.")
 			else:
 				push_error("Invalid delivery type!!")
 			deactivate_room()
@@ -271,7 +312,7 @@ func next_turn() -> void:
 ## Things that need to be done as soon as the room is connected are here.
 func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 	if connector1.get_parent_room() == parent_room or connector2.get_parent_room() == parent_room:
-		if always_activated:
+		if always_activated and not activated:
 			var can_be_activated = activate_room()
 			if not can_be_activated:
 				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")

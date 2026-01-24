@@ -43,6 +43,9 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 	if "fuel_amount" in _data:
 		resource_label.text = "%s fuel remaining." % [str(_data["fuel_amount"])]
 
+	if "rations_amount" in _data:
+		resource_label.text = "%s rations remaining." % [str(_data["rations_amount"])]
+
 
 ## Called by room.gd when this room is hovered over.
 func expand_info() -> void:
@@ -80,3 +83,7 @@ func update_power_supply_label(current_power_supply: Dictionary) -> void:
 
 func update_fuel_remaining_label(current_fuel_remaining: int) -> void:
 	resource_label.text = "%s fuel remaining." % [str(current_fuel_remaining)]
+
+
+func update_rations_remaining_label(current_rations_remaining: int) -> void:
+	resource_label.text = "%s rations remaining." % [str(current_rations_remaining)]

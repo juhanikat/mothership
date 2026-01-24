@@ -36,6 +36,7 @@ grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
 [node name="DevOptionsHintLabel" type="RichTextLabel" parent="PanelContainer"]
+visible = false
 layout_mode = 2
 text = "Press D top show dev options"
 
