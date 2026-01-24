@@ -28,8 +28,8 @@ const starting_order = {
 # Orders that can be chosen randomly
 const basic_orders = {
 	Order.NEUTRAL_ORDER: _neutral_order,
-	Order.COMBAT_WARNING_ORDER: _combat_warning_order,
-	Order.COMBAT_CRITICAL_ORDER: _combat_critical_order
+	#Order.COMBAT_WARNING_ORDER: _combat_warning_order,
+	#Order.COMBAT_CRITICAL_ORDER: _combat_critical_order
 	}
 
 # These orders can appear e.g. on specific turns

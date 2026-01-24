@@ -19,7 +19,8 @@ class_name Hud
 
 @export var delivery_info_label: RichTextLabel
 
-
+@export var dev_toolbar: HBoxContainer
+@export var dev_options_hint_label: RichTextLabel
 
 
 @onready var main: Main = get_parent()
@@ -62,6 +63,15 @@ func _ready() -> void:
 
 	crew_quarters_limit = main.crew_quarters_limit
 	crew_quarters_limit_label.text = "Crew Quarters limit: %s" % [str(crew_quarters_limit)]
+
+	# hidden by default, press D to show in-game!
+	dev_toolbar.hide()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("show_dev_toolbar"):
+		dev_options_hint_label.hide()
+		dev_toolbar.show()
 
 
 func find_room_data_by_name(room_name: String) -> Dictionary:

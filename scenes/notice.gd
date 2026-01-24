@@ -17,9 +17,15 @@ func display(text: String, type: String = "info", time: float = 2) -> void:
 			stylebox.bg_color = Color(1.0, 0.608, 0.129, 0.769)
 	panel_container.add_theme_stylebox_override("panel", stylebox)
 
+	show()
 	animation_player.play("show_notification")
 	notification_timer.start(time)
 
 
 func _on_timer_timeout() -> void:
 	animation_player.play("hide_notification")
+
+
+func _on_animation_player_animation_finished(anim_name: StringName) -> void:
+	if anim_name == "hide_notification":
+		hide()

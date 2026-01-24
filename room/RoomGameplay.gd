@@ -65,6 +65,8 @@ func init_gameplay_features(data: Dictionary) -> void:
 		parent_room.add_to_group("WPP")
 	elif parent_room_type == RoomType.DATA_ANALYSIS:
 		parent_room.add_to_group("DataAnalysis")
+	elif parent_room_type == RoomType.CARGO_BAY:
+		parent_room.add_to_group("CargoBay")
 
 
 	power_usage = _data["power_usage"]
@@ -251,9 +253,10 @@ func next_turn() -> void:
 					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
 					return
 				else:
-					var random_fuel_storage = all_fuel_storages.pick_random()
+					var random_fuel_storage: Room = all_fuel_storages.pick_random()
 					random_fuel_storage.gameplay.fuel_remaining += 5
 					random_fuel_storage.room_info.update_fuel_remaining_label(random_fuel_storage.gameplay.fuel_remaining)
+					random_fuel_storage.highlight()
 					GlobalNotice.display("Fuel delivered.")
 			elif current_delivery.type == "Rations":
 				GlobalNotice.display("Rations delivered.")
