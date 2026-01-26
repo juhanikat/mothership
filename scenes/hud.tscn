@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://d1spf4ifa2e2j"]
 
-[ext_resource type="Script" uid="uid://bej65is377k75" path="res://scenes/hud.gd" id="1_ahhtf"]
+[ext_resource type="Script" uid="uid://bej65is377k75" path="res://gameplay_scripts/hud/hud.gd" id="1_ahhtf"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ahhtf"]
 bg_color = Color(0.300296, 0.453884, 0.300172, 1)
@@ -8,13 +8,13 @@ bg_color = Color(0.300296, 0.453884, 0.300172, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oo0fn"]
 bg_color = Color(0.392165, 0.478501, 0.478927, 1)
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "combat_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
 luxury_room_list = NodePath("PanelContainer/TopBar/LuxuryRoomList")
 special_room_list = NodePath("PanelContainer/TopBar/SpecialRoomList")
-combat_room_list = NodePath("PanelContainer/TopBar/CombatRoomList")
+emergency_room_list = NodePath("PanelContainer/TopBar/EmergencyRoomList")
 research_room_list = NodePath("PanelContainer/TopBar/ResearchRoomList")
 help_popup = NodePath("HelpPopup")
 cargo_popup = NodePath("CargoPopup")
@@ -79,7 +79,7 @@ allow_search = false
 auto_width = true
 same_column_width = true
 
-[node name="CombatRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="EmergencyRoomList" type="ItemList" parent="PanelContainer/TopBar"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -214,7 +214,7 @@ text = "Pick rooms from the panel at the right side of the screen. When a room i
 There are six different room categories: 
 - Crew Rooms contain facilities such as Crew Quarters, Canteens and Lavatories to increase the size of your crew and keep them happy.
 - Maintenance Rooms are the backbone of the station and are needed for other rooms to function. They can also help you design the layout of the station and make it run more effectively, especially later in the game.
-- Combat Rooms are needed to defend the station against attackers. The Commander will notify you of threats when they appear. 
+- Emergency Rooms are needed to defend the station against attackers and other threats.
 - Research Rooms unlock new room types.
 - Luxury Rooms improve the quality of life on the station. (maybe remove this category later?)
 - Special Rooms such as Power Plants and the [color=orange]Command Room[/color] are rare and can only be built when The Commander orders you to. They have important gameplay mechanics assigned to them.

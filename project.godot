@@ -17,9 +17,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-GlobalSignals="*res://globals/GlobalSignals.gd"
-GlobalInputFlags="*res://globals/GlobalInputFlags.gd"
-GlobalNotice="*res://globals/GlobalNotice.gd"
+GlobalSignals="*res://global_scripts/GlobalSignals.gd"
+GlobalInputFlags="*res://global_scripts/GlobalInputFlags.gd"
+GlobalNotice="*res://global_scripts/GlobalNotice.gd"
 
 [debug]
 

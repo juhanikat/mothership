@@ -5,7 +5,7 @@ class_name Hud
 @export var maintenance_room_list: ItemList
 @export var luxury_room_list: ItemList
 @export var special_room_list: ItemList
-@export var combat_room_list: ItemList
+@export var emergency_room_list: ItemList
 @export var research_room_list: ItemList
 
 @export var help_popup: PopupPanel
@@ -33,7 +33,7 @@ var crew_quarters_limit: int
 	RoomData.RoomCategory.MAINTENANCE_ROOM: maintenance_room_list,
 	RoomData.RoomCategory.LUXURY_ROOM: luxury_room_list,
 	RoomData.RoomCategory.SPECIAL_ROOM: special_room_list,
-	RoomData.RoomCategory.COMBAT_ROOM: combat_room_list,
+	RoomData.RoomCategory.EMERGENCY_ROOM: emergency_room_list,
 	RoomData.RoomCategory.RESEARCH_ROOM: research_room_list,
 }
 

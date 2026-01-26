@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://b5dj4e3qdd2f6"]
 
-[ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://room/room.gd" id="1_ppkfq"]
+[ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://gameplay_scripts/room/room.gd" id="1_ppkfq"]
 
 [sub_resource type="Animation" id="Animation_j33j0"]
 length = 0.001

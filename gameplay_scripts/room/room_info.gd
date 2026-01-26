@@ -11,7 +11,10 @@ class_name RoomInfo
 @export var description_label: RichTextLabel
 
 var parent_room: Room
-var relative_pos = Vector2(-250, -75)
+var relative_pos = Vector2(-150, -75)
+
+
+
 ##  fills information from _data (positioning is done in main.gd).
 ## NOTE: showing/hiding information that is visible when hovering room is done in room.gd.
 func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_name: String = "") -> void:
@@ -53,7 +56,7 @@ func expand_info() -> void:
 	description_label.show()
 	adjacent_rooms_label.show()
 	z_index = 2
-	size.x = 250
+	offset_right += 100
 	var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
 	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 1.0))
 	add_theme_stylebox_override("panel", stylebox)
@@ -63,7 +66,8 @@ func shrink_info() -> void:
 	description_label.hide()
 	adjacent_rooms_label.hide()
 	z_index = 0
-	size = get_minimum_size()
+	reset_size()
+
 	var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
 	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 0.5))
 	add_theme_stylebox_override("panel", stylebox)

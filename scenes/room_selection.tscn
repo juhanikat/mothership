@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bha52nfpavehy"]
 
-[ext_resource type="Script" uid="uid://dmq65ad0ipcv4" path="res://captain/room_selection.gd" id="1_ayfju"]
+[ext_resource type="Script" uid="uid://dmq65ad0ipcv4" path="res://gameplay_scripts/hud/room_selection.gd" id="1_ayfju"]
 
 [node name="RoomSelection" type="CanvasLayer" node_paths=PackedStringArray("order_description_label", "room_container")]
 script = ExtResource("1_ayfju")

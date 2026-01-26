@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://d1wawstdvmyt0"]
 
-[ext_resource type="Script" uid="uid://mcwps04er507" path="res://scenes/notice.gd" id="1_84frb"]
+[ext_resource type="Script" uid="uid://mcwps04er507" path="res://gameplay_scripts/hud/notice.gd" id="1_84frb"]
 
 [sub_resource type="Theme" id="Theme_a8rcd"]
 

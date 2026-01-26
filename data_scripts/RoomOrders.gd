@@ -1,16 +1,16 @@
 extends Node
-class_name CaptainFunctions
+class_name RoomOrders
 
-## Holds functions related to the selection of new rooms etc.
+## Holds functions related to the selection of new rooms and events.
 ## Actual HUD for the room selection is elsewhere.
-## Also check out CaptainData.gd.
-static var starting_order = CaptainData.starting_order.duplicate(true)
-static var orders = CaptainData.basic_orders.duplicate(true)
-static var special_orders = CaptainData.special_orders.duplicate(true)
+## Also check out OrderData.gd.
+static var starting_order = OrderData.starting_order.duplicate(true)
+static var orders = OrderData.basic_orders.duplicate(true)
+static var special_orders = OrderData.special_orders.duplicate(true)
 
 
 # NOTE: The orders appended to this Array are modified from the original orders!
-static var order_history: Array[CaptainData.Order] = []
+static var order_history: Array[OrderData.Order] = []
 
 
 
@@ -55,7 +55,7 @@ static func get_random_order(extra_options: int = 0) -> Dictionary:
 	return new_order
 
 
-static func get_specific_order(order_enum: CaptainData.Order) -> Dictionary:
+static func get_specific_order(order_enum: OrderData.Order) -> Dictionary:
 	var new_order: Dictionary = special_orders[order_enum].duplicate(true)
 	order_history.append(order_enum)
 

@@ -1,7 +1,7 @@
 extends Area2D
 class_name Room
 
-var connector_scene = load("res://room/connector.tscn")
+var connector_scene = load("res://scenes/connector.tscn")
 
 const RoomShape = RoomData.RoomShape
 

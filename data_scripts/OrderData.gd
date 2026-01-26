@@ -1,5 +1,5 @@
 extends Node
-class_name CaptainData
+class_name OrderData
 
 
 ## Holds data related to the selection of new rooms etc.
@@ -27,9 +27,7 @@ const starting_order = {
 
 # Orders that can be chosen randomly
 const basic_orders = {
-	Order.NEUTRAL_ORDER: _neutral_order,
-	#Order.COMBAT_WARNING_ORDER: _combat_warning_order,
-	#Order.COMBAT_CRITICAL_ORDER: _combat_critical_order
+	Order.NEUTRAL_ORDER: _neutral_order
 	}
 
 # These orders can appear e.g. on specific turns
@@ -39,11 +37,11 @@ const special_orders = {
 
 
 const _neutral_order = {
-	"description": "The Captain has no orders for you. Choose the room you think would best fit our current situation.",
+	"description": "The Commander has no orders for you. Choose the room you think would best fit our current situation.",
 	"room_categories": [
 		ROOM_CATEGORIES.CREW_ROOM,
 		ROOM_CATEGORIES.MAINTENANCE_ROOM,
-		ROOM_CATEGORIES.COMBAT_ROOM,
+		ROOM_CATEGORIES.EMERGENCY_ROOM,
 		ROOM_CATEGORIES.RESEARCH_ROOM,
 		ROOM_CATEGORIES.LUXURY_ROOM
 	],
@@ -55,20 +53,4 @@ const _cargo_bay_order = {
 	"rooms": [
 		ROOMS.CARGO_BAY
 	]
-	}
-
-const _combat_warning_order = {
-	"description": "We've picked up some potentially hostile activity nearby.",
-	"room_categories": [
-		ROOM_CATEGORIES.COMBAT_ROOM,
-	],
-	"choose_from": 3
-	}
-
-const _combat_critical_order = {
-	"description": "Hostile activity imminent!",
-	"room_categories": [
-		ROOM_CATEGORIES.COMBAT_ROOM,
-	],
-	"choose_from": 3
 	}

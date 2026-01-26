@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bj8pqne0ixkqs"]
 
-[ext_resource type="Script" uid="uid://cilnba8yxxsj2" path="res://room/connector.gd" id="1_xi27r"]
+[ext_resource type="Script" uid="uid://cilnba8yxxsj2" path="res://gameplay_scripts/room/connector.gd" id="1_xi27r"]
 
 [node name="Connector" type="Area2D" node_paths=PackedStringArray("collision_polygon", "nav_region", "texture_polygon") groups=["Connector"]]
 script = ExtResource("1_xi27r")

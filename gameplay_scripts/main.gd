@@ -19,8 +19,8 @@ class_name Main
 
 @onready var hud = get_node("HUD")
 
-var room_scene = load("res://room/room.tscn")
-var room_info_scene = load("res://room/room_info.tscn")
+var room_scene = load("res://scenes/room.tscn")
+var room_info_scene = load("res://scenes/room_info.tscn")
 
 const room_data = RoomData.room_data
 
@@ -43,7 +43,7 @@ var crew_quarters_limit: int = 1
 
 
 func _ready() -> void:
-	var first_order = CaptainFunctions.get_starting_order()
+	var first_order = RoomOrders.get_starting_order()
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
 	room_selection.show_order(first_order.description, possible_rooms)
@@ -153,10 +153,8 @@ func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 	new_room_info.init_room_info(new_room, new_room_data, overwrite_name)
 	new_room_info.global_position = new_room.global_position + RoomData.room_info_pos[new_room_shape]
 	new_room.room_info = new_room_info
-	if new_room.picked:
-		new_room_info.expand_info()
-	room_info_nodes.add_child(new_room_info)
 
+	room_info_nodes.add_child(new_room_info)
 	return new_room
 
 
@@ -194,10 +192,10 @@ func _on_next_turn() -> void:
 
 	var next_order: Dictionary
 	if turn == 3:
-		next_order = CaptainFunctions.get_specific_order(CaptainData.Order.CARGO_BAY_ORDER)
+		next_order = RoomOrders.get_specific_order(OrderData.Order.CARGO_BAY_ORDER)
 	else:
 		var active_data_analysis_rooms = get_tree().get_nodes_in_group("DataAnalysis").filter(func(room: Room): return room.gameplay.activated)
-		next_order = CaptainFunctions.get_random_order(len(active_data_analysis_rooms))
+		next_order = RoomOrders.get_random_order(len(active_data_analysis_rooms))
 
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(next_order.selected_rooms)

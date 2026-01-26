@@ -5,16 +5,16 @@ class_name RoomData
 enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
 enum RoomType {
 	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, CREW_QUARTERS,
-	CANTEEN, LAVATORY, RATION_STORAGE, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, STINGRAY, CABLE_DUCT, PLACEHOLDER_ROOM
+	CANTEEN, LAVATORY, RATION_STORAGE, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, ARMORY, CABLE_DUCT, PLACEHOLDER_ROOM
 }
-enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, COMBAT_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
+enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, EMERGENCY_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
 
 const room_colors = {
 	RoomCategory.CREW_ROOM: Color(0.212, 0.561, 0.812),
 	RoomCategory.MAINTENANCE_ROOM: Color(0.957, 0.588, 0.098),
 	RoomCategory.RESEARCH_ROOM: Color(0.678, 0.0, 0.68),
-	RoomCategory.COMBAT_ROOM: Color(0.681, 0.257, 0.219),
+	RoomCategory.EMERGENCY_ROOM: Color(0.681, 0.257, 0.219),
 	RoomCategory.LUXURY_ROOM: Color(0.394, 0.834, 0.113),
 	RoomCategory.SPECIAL_ROOM: Color(0.925, 0.925, 0.925)
 	}
@@ -46,7 +46,6 @@ const room_connectors = {
 const room_data = {
 	RoomType.COMMAND_ROOM: _command_room_data,
 	RoomType.POWER_PLANT: _power_plant_data,
-	RoomType.ENGINE_ROOM: _engine_room_data,
 	RoomType.CARGO_BAY: _cargo_bay_data,
 	RoomType.CREW_QUARTERS: _crew_quarters_data,
 	RoomType.CANTEEN: _canteen_data,
@@ -59,7 +58,7 @@ const room_data = {
 	RoomType.WEAPONS_RESEARCH: _weapons_research_data,
 	RoomType.DATA_ANALYSIS: _data_analysis_data,
 	RoomType.CABLE_DUCT: _cable_duct_data,
-	RoomType.STINGRAY: _stingray_data,
+	RoomType.ARMORY: _armory_data,
 	RoomType.PLACEHOLDER_ROOM: _placeholder_room_data
 }
 
@@ -84,14 +83,6 @@ const _power_plant_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
 	"power_supply": {"capacity": 10, "range": 5}
-}
-
-const _engine_room_data: Dictionary[String, Variant] = {
-	"room_name": "Engine Room",
-	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "",
-	"room_category": RoomCategory.SPECIAL_ROOM,
-	"power_usage": 3
 }
 
 const _cargo_bay_data: Dictionary[String, Variant] = {
@@ -211,7 +202,7 @@ const _robotics_data: Dictionary[String, Variant] = {
 const _weapons_research_data: Dictionary[String, Variant] = {
 	"room_name": "Weapons Research",
 	"room_shape": RoomShape.TShape,
-	"room_desc": "Unlocks new combat rooms.",
+	"room_desc": "Unlocks new rooms.",
 	"room_category": RoomCategory.RESEARCH_ROOM,
 	"power_usage": 1
 }
@@ -228,11 +219,10 @@ const _data_analysis_data: Dictionary[String, Variant] = {
 ## COMBAT ROOMS
 
 
-const _stingray_data: Dictionary[String, Variant] = {
-	"room_name": "Stingray",
+const _armory_data: Dictionary[String, Variant] = {
+	"room_name": "Armory",
 	"room_shape": RoomShape.SmallSquareShape,
-	"room_desc": "Weapon. Shoots 1 column in front.",
-	"room_category": RoomCategory.COMBAT_ROOM,
-	"power_usage": 1,
-	"facing": "up"
+	"room_desc": "Contains weapons to help your crew fight intruders.",
+	"room_category": RoomCategory.EMERGENCY_ROOM,
+	"power_usage": 1
 }

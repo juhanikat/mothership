@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://ony8uad06hvx"]
 
-[ext_resource type="Script" uid="uid://6umoox1qwm3k" path="res://scenes/main.gd" id="1_0wfyh"]
+[ext_resource type="Script" uid="uid://6umoox1qwm3k" path="res://gameplay_scripts/main.gd" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://d1spf4ifa2e2j" path="res://scenes/hud.tscn" id="2_0wfyh"]
-[ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://captain/room_selection.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://scenes/room_selection.tscn" id="3_sugp2"]
 [ext_resource type="Texture2D" uid="uid://cnhvdsmq3pdln" path="res://inkscape files/background.png" id="4_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://d1wawstdvmyt0" path="res://scenes/notice.tscn" id="5_tbgi4"]
 
