@@ -26,11 +26,12 @@ var camera_dragging: bool = false
 var previous_mouse_pos_dragging: Vector2 = Vector2(0, 0)
 var previous_mouse_pos_zooming: Vector2 = Vector2(0, 0)
 
-var spawned_rooms_count: int = 0 # NOTE: Is this decremented if a room is cancelled?
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var turn: int = 1
 var total_crew: int = 0
-var crew_quarters_limit: int = 1
+var crew_quarters_limit: int = 3
+
+var used_crew_names: Array[String] = [] # to make sure no crew member name is used twice, should improve this later
 
 @onready var hud = get_node("HUD")
 
@@ -42,15 +43,9 @@ func _ready() -> void:
 	possible_rooms.assign(first_order.selected_rooms)
 	room_selection.show_order(first_order.description, possible_rooms)
 
-	GlobalSignals.crew_added.connect(_on_crew_added)
-	GlobalSignals.crew_removed.connect(_on_crew_removed)
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
-
-	# starting room
-	# var first_room = spawn_room_at_mouse(room_data[RoomData.RoomType.POWER_PLANT])
-	# first_room.is_starting_room = true
 
 
 func _physics_process(_delta: float) -> void:
@@ -137,9 +132,9 @@ func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 	if spawned_room_names[room_name] > 1:
 		overwrite_name = "%s (%s)" % [room_name, spawned_room_names[room_name]]
 
-	if spawned_rooms_count == 0:
+	if len(get_tree().get_nodes_in_group("Room")) == 0:
+		# this room is the first room
 		new_room.is_starting_room = true
-	spawned_rooms_count += 1
 	room_nodes.add_child(new_room)
 
 	# room info is a child of main scene because otherwise it will rotate with the room

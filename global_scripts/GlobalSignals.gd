@@ -17,8 +17,5 @@ signal turn_advanced
 signal delivery_status_changed(new_status: Dictionary)
 signal cargo_bay_order_made(delivery: Dictionary)
 
-signal crew_added(amount: int)
-signal crew_removed(amount: int)
-
 signal crew_quarters_limit_raised(amount: int)
 signal crew_quarters_limit_lowered(amount: int)

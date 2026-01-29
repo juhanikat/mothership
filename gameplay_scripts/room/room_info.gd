@@ -1,6 +1,10 @@
 class_name RoomInfo
 extends PanelContainer
 
+@export var assigned_crew_members_container: HBoxContainer
+@export var living_crew_members_container: HBoxContainer
+@export var assigned_crew_members_container_label: RichTextLabel
+@export var living_crew_members_container_label: RichTextLabel
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
 @export var traits_label: RichTextLabel
@@ -8,13 +12,19 @@ extends PanelContainer
 @export var description_label: RichTextLabel
 @export var adjacent_rooms_label: RichTextLabel
 
+var crew_member_scene = load("res://scenes/crew_member.tscn")
+
 
 var parent_room: Room
 var relative_pos = Vector2(-150, -75)
+var hovering: bool = false
+
+var crew_texture = load("res://icon.svg")
 
 func _ready() -> void:
 	description_label.hide()
 	adjacent_rooms_label.hide()
+
 
 ## fills information from _data (positioning is done in main.gd).
 ## NOTE: showing/hiding information that is visible when hovering room is done in room.gd.
@@ -107,3 +117,29 @@ func update_fuel_remaining_label(current_fuel_remaining: int) -> void:
 
 func update_rations_remaining_label(current_rations_remaining: int) -> void:
 	resource_label.text = "%s rations remaining." % [str(current_rations_remaining)]
+
+
+func update_assigned_crew_container(current_crew: Array[CrewMember]) -> void:
+	for label in assigned_crew_members_container.get_children():
+		label.queue_free()
+	for crew_member in current_crew:
+		var crew_name_label = RichTextLabel.new()
+		crew_name_label.text = crew_member.crewmember_name
+		crew_name_label.fit_content = true
+		crew_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		crew_name_label.add_theme_font_size_override("normal", 7)
+		crew_name_label.add_theme_constant_override("outline_size", 3)
+		parent_room.room_info.assigned_crew_members_container.add_child(crew_name_label)
+
+
+func update_living_crew_container(current_crew: Array[CrewMember]) -> void:
+	for label in living_crew_members_container.get_children():
+		label.queue_free()
+	for crew_member in current_crew:
+		var crew_name_label = RichTextLabel.new()
+		crew_name_label.text = crew_member.crewmember_name
+		crew_name_label.fit_content = true
+		crew_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		crew_name_label.add_theme_font_size_override("normal", 7)
+		crew_name_label.add_theme_constant_override("outline_size", 3)
+		parent_room.room_info.living_crew_members_container.add_child(crew_name_label)

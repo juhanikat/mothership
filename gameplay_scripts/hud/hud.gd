@@ -35,8 +35,6 @@ var crew_quarters_limit: int
 func _ready() -> void:
 	GlobalSignals.path_build_mode_toggled.connect(_on_path_build_mode_toggled)
 	GlobalSignals.path_completed.connect(_on_path_completed)
-	GlobalSignals.crew_added.connect(_on_crew_added)
-	GlobalSignals.crew_removed.connect(_on_crew_removed)
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
 

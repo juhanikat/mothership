@@ -103,7 +103,7 @@ const _crew_quarters_data: Dictionary[String, Variant] = {
 	"room_desc": "Must be connected to a Canteen through Crew Rooms to activate.",
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1,
-	"crew_supply": 4,
+	"crew_amount": 4,
 	"cannot_be_deactivated": true
 }
 

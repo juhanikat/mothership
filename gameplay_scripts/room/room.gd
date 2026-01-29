@@ -34,7 +34,7 @@ var overlapping_rooms: Array[Room] = []
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
 var gameplay: RoomGameplay
 
-var is_starting_room: bool = false # the first room in the game is the only one that can be palced while not connected.
+var is_starting_room: bool = false # the first room in the game is the only one that can be placed while not connected.
 var _shape: RoomData.RoomShape
 var _data: Dictionary[String, Variant]
 
@@ -129,21 +129,31 @@ func _unhandled_input(event: InputEvent) -> void:
 			gameplay.activate_room()
 		return
 
-	if locked:
-		return
-
 	if GlobalInputFlags.path_build_mode:
 		return
 
-	if event.is_action_pressed("cancel_room") and picked and not is_starting_room:
+	if locked:
+		if event.is_action_pressed("move_crew") and hovering:
+			# checks if a crew member is already picked
+			var picked_crew = get_tree().get_nodes_in_group("CrewMember").filter(func(crew: CrewMember): return crew.picked)
+			if len(picked_crew) > 0:
+				# there should be only one CrewMember in the picked_crew Array
+				picked_crew[0].picked = false
+				gameplay.assign_crew(picked_crew)
+				GlobalNotice.display("Moved crew member to another room.")
+			else:
+				var assigned_crew = get_tree().get_nodes_in_group("CrewMember").filter(func(crew: CrewMember): return crew.assigned_to == self)
+				if len(assigned_crew) > 0:
+					assigned_crew[0].picked = true
+		return
+
+	if event.is_action_pressed("cancel_room") and picked:
 		room_info.queue_free()
 		main.spawned_room_names[room_name] -= 1
 		queue_free()
 		return
 
-	await get_tree().physics_frame # to make sure area overlap is detected
-
-	if event.is_action_pressed("move_room") and event.is_pressed():
+	if event.is_action_pressed("move_room"):
 		if picked:
 			connecting_rooms = true
 			var all_connectors: Array[Connector]
@@ -159,8 +169,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				connecting_rooms = false
 				return
 			connecting_rooms = false
+
 			if is_starting_room:
 				picked = false
+				locked = true
 				room_info.shrink_info()
 
 	if event is InputEventMouseMotion and picked and not connecting_rooms:
@@ -353,7 +365,9 @@ func _on_area_exited(area: Area2D) -> void:
 func _on_mouse_entered() -> void:
 	hovering = true
 	if not picked:
-		room_info.expand_info()
+		# don't expand room infos if a crew member is picked, for better visibility
+		if len(get_tree().get_nodes_in_group("CrewMember").filter(func(crew: CrewMember): return crew.picked)) == 0:
+			room_info.expand_info()
 
 
 func _on_mouse_exited() -> void:

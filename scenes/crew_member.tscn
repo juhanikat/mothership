@@ -1,19 +1,35 @@
 [gd_scene load_steps=3 format=3 uid="uid://coybeeef8vy1x"]
 
 [ext_resource type="Script" uid="uid://c8vcuuhrskymx" path="res://gameplay_scripts/CrewMember.gd" id="1_qxf3p"]
-[ext_resource type="Texture2D" uid="uid://helckb633hms" path="res://icon.svg" id="2_usp6l"]
+[ext_resource type="Texture2D" uid="uid://dn50mq2q47vgq" path="res://inkscape files/crewmember.svg" id="2_usp6l"]
 
-[node name="CrewMember" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="CrewMember" type="TextureRect" node_paths=PackedStringArray("name_label") groups=["CrewMember"]]
+custom_minimum_size = Vector2(16, 16)
+anchors_preset = -1
+anchor_left = -0.00694444
+anchor_top = -0.0123457
+anchor_right = 0.00694444
+anchor_bottom = 0.0123457
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_qxf3p")
-
-[node name="Picture" type="TextureRect" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+size_flags_horizontal = 3
+mouse_filter = 2
 texture = ExtResource("2_usp6l")
+expand_mode = 1
+stretch_mode = 5
+script = ExtResource("1_qxf3p")
+name_label = NodePath("NameLabel")
+
+[node name="NameLabel" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.5
+anchor_bottom = 1.625
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/normal_font_size = 7
+text = "C111"
+fit_content = true
+metadata/_edit_use_anchors_ = true
+
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

@@ -9,7 +9,9 @@ var always_activated: bool = false # Room is activated automatically once connec
 var always_deactivated: bool = false
 var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay and Crew Quarters
 var accessible_by_crew: bool = true
+
 var power_usage: int
+var assigned_crew: Array[CrewMember] = [] # Array of CrewMembers assigned to this room
 
 # FOR CARGO BAY
 var order_in_progress: bool = false
@@ -28,12 +30,15 @@ var power_supply = { }
 var supplies_to: Array[Room] = []
 
 # FOR CREW SUPPLIERS
-var crew_supply: int = 0
+var crew_amount: int = 0 # amount of Crew this CrewQuarters will give once activated
+var living_crew: Array[CrewMember] = [] # Array of CrewMembers sleeping here
 var _data: Dictionary[String, Variant]
 
 @onready var parent_room: Room
 @onready var main: Main = get_tree().root.get_node("Main")
 @onready var hud: Hud = main.get_node("HUD")
+
+var crew_member_scene = load("res://scenes/crew_member.tscn")
 
 
 ## RoomGameplay is created and added as a child to a Room node (in room.gd).
@@ -51,11 +56,8 @@ func init_gameplay_features(data: Dictionary) -> void:
 		power_supply = _data["power_supply"].duplicate(true)
 		parent_room.add_to_group("PowerSupply")
 
-	if "crew_supply" in _data.keys():
-		crew_supply = _data["crew_supply"]
-		parent_room.add_to_group("CrewSupply")
-
 	if parent_room_type == RoomType.CREW_QUARTERS:
+		crew_amount = _data["crew_amount"]
 		parent_room.add_to_group("CrewQuarters")
 	elif parent_room_type == RoomType.FUEL_STORAGE:
 		fuel_remaining = _data["fuel_amount"]
@@ -113,6 +115,9 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 ## Called when an activated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been deactivated, and false otherwise.
 func deactivate_room(show_deactivation_notice: bool = false) -> bool:
+	print(crew_amount)
+	print(living_crew)
+	print(assigned_crew)
 	if not activated:
 		push_error("Tried to deactivate room that was not active, this should never happen!")
 		return false
@@ -139,8 +144,6 @@ func deactivate_room(show_deactivation_notice: bool = false) -> bool:
 					print(room)
 					room.highlight()
 				return false
-		RoomType.CREW_QUARTERS:
-			GlobalSignals.crew_removed.emit(crew_supply)
 		RoomType.WPP:
 			var activated_wpps = []
 			for wpp: Room in get_tree().get_nodes_in_group("WPP"):
@@ -185,6 +188,18 @@ func find_sufficient_ration_storage():
 	return adjacent_ration_storages_with_rations.pick_random()
 
 
+## Assings a crew member to this room, removing them from their previous room. Also updates both affected room_info nodes.
+func assign_crew(crew_member: CrewMember) -> void:
+	var previous_room = crew_member.assigned_to
+	if previous_room:
+		previous_room.gameplay.assigned_crew.erase(crew_member)
+		previous_room.room_info.update_assigned_crew_container(previous_room.gameplay.assigned_crew)
+	crew_member.assigned_to = parent_room
+	assigned_crew.append(crew_member)
+	parent_room.room_info.update_assigned_crew_container(assigned_crew)
+
+
+
 ## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
 ## which might be hard when multiple nodes listen to the same signal.
 func next_turn() -> void:
@@ -202,7 +217,6 @@ func next_turn() -> void:
 
 	if parent_room_type == RoomType.CANTEEN and activated:
 		var ration_storage = find_sufficient_ration_storage()
-		print(ration_storage)
 		if not ration_storage:
 			GlobalNotice.display("Canteen does not have any accessible rations and has been deactivated.", "warning")
 			deactivate_room()
@@ -258,10 +272,17 @@ func _try_to_activate() -> bool:
 			if len(activated_crew_quarters) >= main.crew_quarters_limit:
 				GlobalNotice.display("Cannot activate Crew Quarters: Crew Quarters limit has been reached.", "warning")
 				return false
-			GlobalSignals.crew_added.emit(crew_supply)
+			for i in range(crew_amount):
+				var new_crew_member: CrewMember = crew_member_scene.instantiate()
+				new_crew_member.init_crew_member(new_crew_member.create_random_name(main.used_crew_names), parent_room, parent_room)
+				main.used_crew_names.append(new_crew_member.crewmember_name)
+				# new crew members are assigned to their Crew Quarters by default
+				self.assign_crew(new_crew_member)
+				living_crew.append(new_crew_member)
+				parent_room.room_info.update_living_crew_container(living_crew)
 		RoomType.CANTEEN:
-			var adjacent_ration_storage = parent_room.adjacent_rooms.filter(func(room: Room): return room.is_in_group("RationStorage"))[0]
-			if not adjacent_ration_storage or not adjacent_ration_storage.gameplay.activated:
+			var adjacent_ration_storages = parent_room.adjacent_rooms.filter(func(room: Room): return room.is_in_group("RationStorage"))
+			if len(adjacent_ration_storages) == 0 or not adjacent_ration_storages[0].gameplay.activated:
 				GlobalNotice.display("Cannot activate Canteen: No activated Ration Storage adjacent to it.", "warning")
 				return false
 		RoomType.LAVATORY:
