@@ -13,6 +13,8 @@ var queue = []
 ## New notification is ignored if the current notification or the next notification
 ## in the queue has the same content.
 func display(text: String, type: String = "info", time: float = 2) -> void:
+	if notification_text_label.text == text or (len(queue) > 0 and queue[0].text == text):
+		return
 	if animation_player.is_playing() or not notification_timer.is_stopped():
 		queue.append({ "text": text, "type": type, "time": time })
 		return
@@ -37,6 +39,7 @@ func _on_timer_timeout() -> void:
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "hide_notification":
+		notification_text_label.text = ""
 		hide()
 		if len(queue) > 0:
 			var next_notice = queue.pop_front()

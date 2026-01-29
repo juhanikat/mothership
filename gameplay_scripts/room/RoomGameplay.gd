@@ -161,8 +161,7 @@ func deactivate_room(show_deactivation_notice: bool = false) -> bool:
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
 	if show_deactivation_notice:
-		GlobalNotice.display("Room activated.")
-	GlobalNotice.display("Room deactivated.")
+		GlobalNotice.display("Room deactivated.")
 	return true
 
 
