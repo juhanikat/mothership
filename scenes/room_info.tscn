@@ -3,24 +3,23 @@
 [ext_resource type="Script" uid="uid://ckk2sqm7720y" path="res://gameplay_scripts/room/room_info.gd" id="1_8n8ci"]
 [ext_resource type="FontFile" uid="uid://c63xjyk31oise" path="res://fonts/Xolonium-Regular.otf" id="2_lgln2"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yms3g"]
-bg_color = Color(0, 0, 0, 0.5)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8n8ci"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
 
-[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "traits_label", "resource_label", "adjacent_rooms_label", "description_label") groups=["RoomInfo"]]
+[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("room_name_label", "power_usage_label", "traits_label", "resource_label", "description_label", "adjacent_rooms_label") groups=["RoomInfo"]]
 anchors_preset = -1
 anchor_right = 0.111111
 anchor_bottom = 0.0833333
 grow_horizontal = 2
-grow_vertical = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_yms3g")
+theme_override_styles/panel = SubResource("StyleBoxFlat_8n8ci")
 script = ExtResource("1_8n8ci")
 room_name_label = NodePath("VBoxContainer/RoomName")
 power_usage_label = NodePath("VBoxContainer/PowerUsage")
 traits_label = NodePath("VBoxContainer/TraitsLabel")
 resource_label = NodePath("VBoxContainer/ResourceLabel")
-adjacent_rooms_label = NodePath("VBoxContainer/AdjacentRoomsLabel")
 description_label = NodePath("VBoxContainer/DescriptionLabel")
+adjacent_rooms_label = NodePath("VBoxContainer/AdjacentRoomsLabel")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 z_index = 1
@@ -34,53 +33,56 @@ metadata/_edit_use_anchors_ = true
 [node name="RoomName" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/normal_font_size = 16
 text = "room name"
 fit_content = true
 
 [node name="PowerUsage" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 14
 text = "power usage"
 fit_content = true
 
 [node name="TraitsLabel" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 14
+text = "traits"
 fit_content = true
 
 [node name="ResourceLabel" type="RichTextLabel" parent="VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 14
+text = "resource info"
 fit_content = true
 
 [node name="DescriptionLabel" type="RichTextLabel" parent="VBoxContainer"]
-visible = false
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 16
-text = "test popup
-fsfsffe
-fefefefFEWFEWF
-DEFDAFDSFWAVFABT34FR
-
-
-
-EFEWFE"
+theme_override_font_sizes/normal_font_size = 14
+text = "description of 
+the room"
 fit_content = true
 
 [node name="AdjacentRoomsLabel" type="RichTextLabel" parent="VBoxContainer"]
-visible = false
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/outline_size = 6
+theme_override_constants/shadow_outline_size = 10
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 14
+text = "adjacent 
+rooms"
 fit_content = true

@@ -107,7 +107,8 @@ static func find_all_room_types(start_room: Room, end_room_type: RoomData.RoomTy
 
 
 ## Returns all rooms within <range> of <start_room>, not including <start_room>.
-static func get_nearby_rooms(start_room: Room, search_range: int) -> Array[Room]:
+## If <crew_accessible> is set, only rooms that are accessible for a CrewMember that is inside <start_room> are included.
+static func get_all_rooms(start_room: Room, search_range: int = -1, crew_accessible: bool = false) -> Array[Room]:
 	var queue = [] # Contains [room: Room, distance_from_starting_room: int] pairs
 	var explored: Array[Room] = []
 
@@ -117,10 +118,11 @@ static func get_nearby_rooms(start_room: Room, search_range: int) -> Array[Room]
 	while len(queue) > 0:
 		var current: Array[Variant] = queue.pop_front()
 		if current[1] == search_range:
-			explored.erase(start_room)
-			return explored
+			break
 		for adjacent_room: Room in current[0].adjacent_rooms:
 			if adjacent_room not in explored:
+				if crew_accessible and adjacent_room.accessible_by_crew == false:
+					continue
 				queue.append([adjacent_room, current[1] + 1])
 				explored.append(adjacent_room)
 

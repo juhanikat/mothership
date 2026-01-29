@@ -5,14 +5,18 @@ extends PanelContainer
 @export var power_usage_label: RichTextLabel
 @export var traits_label: RichTextLabel
 @export var resource_label: RichTextLabel
-@export var adjacent_rooms_label: RichTextLabel
 @export var description_label: RichTextLabel
+@export var adjacent_rooms_label: RichTextLabel
+
 
 var parent_room: Room
 var relative_pos = Vector2(-150, -75)
 
+func _ready() -> void:
+	description_label.hide()
+	adjacent_rooms_label.hide()
 
-##  fills information from _data (positioning is done in main.gd).
+## fills information from _data (positioning is done in main.gd).
 ## NOTE: showing/hiding information that is visible when hovering room is done in room.gd.
 func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_name: String = "") -> void:
 	parent_room = p_room
@@ -28,10 +32,13 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 	else:
 		power_usage_label.text = "Consumes %s power." % [str(power_usage)]
 
+	traits_label.text = ""
 	if "always_activated" in _data:
 		traits_label.text += "Always active. \n"
 	if "always_deactivated" in _data:
 		traits_label.text += "Cannot be activated. \n"
+
+	resource_label.text = ""
 
 	description_label.text = _data.get("room_desc", "No description.")
 	adjacent_rooms_label.text = "No adjacent rooms."
@@ -49,26 +56,37 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 
 ## Called by room.gd when this room is hovered over.
 func expand_info() -> void:
-	global_position += relative_pos
+	#global_position += relative_pos
 	description_label.show()
 	adjacent_rooms_label.show()
 	z_index = 2
 	offset_right += 100
-	var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
-	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 1.0))
-	add_theme_stylebox_override("panel", stylebox)
+
+	for info_node in get_tree().get_nodes_in_group("RoomInfo"):
+		if info_node == self:
+			continue
+		info_node.hide()
+
+	#var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
+	#stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 1.0))
+	#add_theme_stylebox_override("panel", stylebox)
 
 
 func shrink_info() -> void:
-	global_position = parent_room.global_position + RoomData.room_info_pos[parent_room._shape]
+	#global_position = parent_room.global_position + RoomData.room_info_pos[parent_room._shape]
 	description_label.hide()
 	adjacent_rooms_label.hide()
 	z_index = 0
 	reset_size()
 
 	var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
-	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 0.5))
+	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 0.0))
 	add_theme_stylebox_override("panel", stylebox)
+
+	for info_node in get_tree().get_nodes_in_group("RoomInfo"):
+		if info_node == self:
+			continue
+		info_node.show()
 
 
 ## Called by room.gd to update the adjacent rooms popup.

@@ -8,6 +8,7 @@ var activated: bool = false
 var always_activated: bool = false # Room is activated automatically once connected, and cannot be deactivated
 var always_deactivated: bool = false
 var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay and Crew Quarters
+var accessible_by_crew: bool = true
 var power_usage: int
 
 # FOR CARGO BAY
@@ -76,6 +77,7 @@ func init_gameplay_features(data: Dictionary) -> void:
 	always_activated = _data.get("always_activated", false)
 	always_deactivated = _data.get("always_deactivated", false)
 	cannot_be_deactivated = _data.get("cannot_be_deactivated", false)
+	accessible_by_crew = _data.get("accessible_by_crew", true)
 
 	GlobalSignals.room_connected.connect(_on_room_connected)
 	GlobalSignals.cargo_bay_order_made.connect(_on_cargo_bay_order_made)
@@ -291,7 +293,7 @@ func _find_power_supplier():
 	var power_suppliers = get_tree().get_nodes_in_group("PowerSupply")
 	power_suppliers = power_suppliers.filter(func(supplier): return supplier.gameplay.activated)
 	for power_supplier: Room in power_suppliers:
-		var power_supplier_reach = RoomConnections.get_nearby_rooms(power_supplier, power_supplier.gameplay.power_supply.range)
+		var power_supplier_reach = RoomConnections.get_all_rooms(power_supplier, power_supplier.gameplay.power_supply.range)
 		if parent_room in power_supplier_reach:
 			not_in_range = false
 			if power_supplier.gameplay.power_supply.capacity >= power_usage:

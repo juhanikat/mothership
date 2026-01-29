@@ -23,14 +23,17 @@ var room_info: RoomInfo # The room's info box, this is a child of the main node
 var hovering: bool = false # true when mouse is hovering over this room.
 var picked: bool = false # true when the room is picked by mouse.
 var locked: bool = false # true once room has been placed and can no longer be moved.
+
 var connecting_rooms: bool = false # used in _unhandled_input to keep room still while connecting.
 var target_rotation: float = 0
+
 var room_name: String
 var room_type: RoomData.RoomType
 var room_category: RoomData.RoomCategory
 var overlapping_rooms: Array[Room] = []
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
 var gameplay: RoomGameplay
+
 var is_starting_room: bool = false # the first room in the game is the only one that can be palced while not connected.
 var _shape: RoomData.RoomShape
 var _data: Dictionary[String, Variant]
@@ -163,7 +166,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and picked and not connecting_rooms:
 		var global_mouse_pos = get_global_mouse_position()
 		global_position = global_mouse_pos
-		room_info.global_position = global_position + RoomData.room_info_pos[_shape] + room_info.relative_pos
+		room_info.global_position = global_position + RoomData.room_info_pos[_shape] # + room_info.relative_pos
 
 	if event.is_action_pressed("rotate_tile") and picked:
 		target_rotation += 90

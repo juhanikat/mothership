@@ -151,7 +151,8 @@ const _cable_duct_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.LongHallwayShape,
 	"room_desc": "",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
-	"power_usage": 0
+	"power_usage": 0,
+	"accessible_by_crew": false
 }
 
 const _fuel_storage_data: Dictionary[String, Variant] = {

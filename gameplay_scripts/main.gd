@@ -20,9 +20,12 @@ var path_start: Vector2
 var path_start_room: Room # the room where the path starts
 var path_end: Vector2
 var path_end_room: Room # the room where the path ends
+
+var default_zoom: Vector2 = Vector2(1.5, 1.5)
 var camera_dragging: bool = false
 var previous_mouse_pos_dragging: Vector2 = Vector2(0, 0)
 var previous_mouse_pos_zooming: Vector2 = Vector2(0, 0)
+
 var spawned_rooms_count: int = 0 # NOTE: Is this decremented if a room is cancelled?
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var turn: int = 1
@@ -33,6 +36,7 @@ var crew_quarters_limit: int = 1
 
 
 func _ready() -> void:
+	camera.zoom = default_zoom
 	var first_order = RoomOrders.get_starting_order()
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
