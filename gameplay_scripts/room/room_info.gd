@@ -1,18 +1,15 @@
-extends PanelContainer
 class_name RoomInfo
-
+extends PanelContainer
 
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
 @export var traits_label: RichTextLabel
 @export var resource_label: RichTextLabel
-
 @export var adjacent_rooms_label: RichTextLabel
 @export var description_label: RichTextLabel
 
 var parent_room: Room
 var relative_pos = Vector2(-150, -75)
-
 
 
 ##  fills information from _data (positioning is done in main.gd).
@@ -29,7 +26,7 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 		power_usage_label.text = ""
 		traits_label.text += "Does not consume power. \n"
 	else:
-		power_usage_label.text = "Consumes %s power." %  [str(power_usage)]
+		power_usage_label.text = "Consumes %s power." % [str(power_usage)]
 
 	if "always_activated" in _data:
 		traits_label.text += "Always active. \n"
@@ -61,6 +58,7 @@ func expand_info() -> void:
 	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 1.0))
 	add_theme_stylebox_override("panel", stylebox)
 
+
 func shrink_info() -> void:
 	global_position = parent_room.global_position + RoomData.room_info_pos[parent_room._shape]
 	description_label.hide()
@@ -82,7 +80,7 @@ func update_adjacent_rooms_label(rooms: Array[Room]) -> void:
 
 func update_power_supply_label(current_power_supply: Dictionary) -> void:
 	resource_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
-		[str(current_power_supply["range"]), str(current_power_supply["capacity"])]
+	[str(current_power_supply["range"]), str(current_power_supply["capacity"])]
 
 
 func update_fuel_remaining_label(current_fuel_remaining: int) -> void:

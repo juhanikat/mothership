@@ -1,9 +1,9 @@
-extends Node
 class_name RoomConnections
-
+extends Node
 
 static var RoomCategory = RoomData.RoomCategory
 static var RoomType = RoomData.RoomType
+
 
 ## Returns true if <placed_room> can be placed adjacent to <connecting_room>, or false otherwise.
 static func check_placement_rules(placed_room: Room, connecting_room: Room) -> bool:
@@ -26,7 +26,6 @@ static func check_placement_rules(placed_room: Room, connecting_room: Room) -> b
 			GlobalNotice.display("Room placement failed: Lavatories must be adjacent to at least one Crew Room.", "warning")
 			return false
 
-
 	return true
 
 
@@ -36,8 +35,8 @@ static func is_replacing_placeholder_room(room: Room, overlapping_rooms: Array[R
 	if (len(overlapping_rooms) == 1
 		and overlapping_rooms[0].global_position == room.global_position
 		and overlapping_rooms[0].room_type == RoomData.RoomType.PLACEHOLDER_ROOM
-		and overlapping_rooms[0]._shape == room._shape):
-			return true
+		and overlapping_rooms[0]._shape == room._shape ):
+		return true
 	return false
 
 
@@ -97,7 +96,7 @@ static func find_all_room_types(start_room: Room, end_room_type: RoomData.RoomTy
 	while len(queue) > 0:
 		var current: Array[Variant] = queue.pop_front()
 		if current[0].room_type == end_room_type:
-			found.append({"room": current[0], "distance": current[1]})
+			found.append({ "room": current[0], "distance": current[1] })
 		for adjacent_room: Room in current[0].adjacent_rooms:
 			if adjacent_room not in explored:
 				if len(allowed_rooms) > 0 and adjacent_room.room_category not in allowed_rooms:
@@ -105,6 +104,7 @@ static func find_all_room_types(start_room: Room, end_room_type: RoomData.RoomTy
 				queue.append([adjacent_room, current[1] + 1])
 				explored.append(adjacent_room)
 	return found
+
 
 ## Returns all rooms within <range> of <start_room>, not including <start_room>.
 static func get_nearby_rooms(start_room: Room, search_range: int) -> Array[Room]:

@@ -1,66 +1,43 @@
-extends Area2D
 class_name Room
-
-var connector_scene = load("res://scenes/connector.tscn")
+extends Area2D
 
 const RoomShape = RoomData.RoomShape
+const MAX_CONNECTOR_DISTANCE = 40
 
 @export var texture_polygon: Polygon2D
-
 @export var highlight_line: Line2D
 @export var highlight_line_timer: Timer
 @export var highlight_anim_player: AnimationPlayer
-
 @export var nav_region: NavigationRegion2D
 @export var nav_agent: NavigationAgent2D
 @export var connectors_node: Node2D
 @export var polygon: CollisionPolygon2D # actual CollisionPolygon of the room
 @export var all_room_shapes: Area2D # all possible room types are children of this node
 @export var all_room_highlights: Node2D # all highlights corresponding to above room types are children of this node
-
 @export var raycast: RayCast2D # if room data has a facing property, this raycast will be cast toward that side.
 # used to check if any other rooms are in front of this room, if needed.
 @export var raycast_line: Line2D
 
-@onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
-@onready var room_highlight_lines: Dictionary[RoomShape, PackedVector2Array]
-@onready var main: Main = get_tree().root.get_node("Main")
-
+var connector_scene = load("res://scenes/connector.tscn")
 var room_info: RoomInfo # The room's info box, this is a child of the main node
-
-const MAX_CONNECTOR_DISTANCE = 40
-
 var hovering: bool = false # true when mouse is hovering over this room.
 var picked: bool = false # true when the room is picked by mouse.
 var locked: bool = false # true once room has been placed and can no longer be moved.
 var connecting_rooms: bool = false # used in _unhandled_input to keep room still while connecting.
 var target_rotation: float = 0
-
-var _shape: RoomData.RoomShape
-var _data: Dictionary[String, Variant]
 var room_name: String
 var room_type: RoomData.RoomType
 var room_category: RoomData.RoomCategory
-
 var overlapping_rooms: Array[Room] = []
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
-
 var gameplay: RoomGameplay
 var is_starting_room: bool = false # the first room in the game is the only one that can be palced while not connected.
+var _shape: RoomData.RoomShape
+var _data: Dictionary[String, Variant]
 
-
-
-## Call this before the room is added to the scene tree.
-func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false) -> void:
-	_data = i_data
-	_shape = _data["room_shape"]
-	room_name = _data["room_name"]
-	room_type = RoomData.room_data.find_key(_data)
-	room_category = _data["room_category"]
-	picked = is_picked
-
-	# creates connectors for the room, depending on its shape
-	create_connectors()
+@onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
+@onready var room_highlight_lines: Dictionary[RoomShape, PackedVector2Array]
+@onready var main: Main = get_tree().root.get_node("Main")
 
 
 func _ready() -> void:
@@ -125,14 +102,20 @@ func _ready() -> void:
 	else:
 		raycast.enabled = false
 
-
-
 	GlobalSignals.room_connected.connect(_on_room_connected)
 
 	# RoomGameplay handles supplying power etc. gameplay things
 	gameplay = RoomGameplay.new()
 	add_child(gameplay)
 	gameplay.init_gameplay_features(_data)
+
+
+func _process(_delta: float) -> void:
+	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
+
+	#snap rotation to target value once close enough, might prevent some bugs with rounding
+	if abs(rotation_degrees - target_rotation) < 0.05:
+		rotation_degrees = target_rotation
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -183,15 +166,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		room_info.global_position = global_position + RoomData.room_info_pos[_shape] + room_info.relative_pos
 
 	if event.is_action_pressed("rotate_tile") and picked:
-			target_rotation += 90
+		target_rotation += 90
 
 
-func _process(_delta: float) -> void:
-	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
+## Call this before the room is added to the scene tree.
+func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false) -> void:
+	_data = i_data
+	_shape = _data["room_shape"]
+	room_name = _data["room_name"]
+	room_type = RoomData.room_data.find_key(_data)
+	room_category = _data["room_category"]
+	picked = is_picked
 
-	#snap rotation to target value once close enough, might prevent some bugs with rounding
-	if abs(rotation_degrees - target_rotation) < 0.05:
-		rotation_degrees = target_rotation
+	# creates connectors for the room, depending on its shape
+	create_connectors()
 
 
 func highlight(time: int = 2) -> void:
@@ -285,37 +273,9 @@ func get_own_connectors() -> Array[Connector]:
 	var own_connectors: Array[Connector] = []
 	for connector in all_connectors:
 		# check if connector is a child of this room, and add it to own_connectors
-			if connectors_node.is_ancestor_of(connector):
-				own_connectors.append(connector)
+		if connectors_node.is_ancestor_of(connector):
+			own_connectors.append(connector)
 	return own_connectors
-
-
-## If one of the connectors belongs to this room, lock the room, and add the owner of the
-## other connector to this rooms adjacent_rooms list.
-## If the connector belonging to this room is connector2, also delete
-## the connectors NavigationRegion (this has to be done in one of the connectors).
-func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
-	if connector1 in get_own_connectors():
-		locked = true
-		var other_room = connector2.get_parent_room()
-		adjacent_rooms.append(other_room)
-		room_info.update_adjacent_rooms_label(adjacent_rooms)
-		main.cut_room_shape_from_nav_region(self, get_own_connectors())
-	elif connector2 in get_own_connectors():
-		locked = true
-		var other_room = connector1.get_parent_room()
-		adjacent_rooms.append(other_room)
-		room_info.update_adjacent_rooms_label(adjacent_rooms)
-		connector2.delete_navigation_region()
-		main.cut_room_shape_from_nav_region(self, get_own_connectors())
-
-		## TODO: ??? Is this necessary, or in the right place?
-		await get_tree().physics_frame
-		for connector in connector2.get_overlapping_connectors():
-			if connector == connector1:
-				continue
-			print("Deleted connector %s" % [str(connector)])
-			connector.queue_free()
 
 
 ## Returns the first room or connector that hits this room's raycast, if any.
@@ -347,6 +307,34 @@ func replace_placeholder(replacer: Room) -> void:
 	room_info.queue_free()
 	main.spawned_room_names[room_name] -= 1
 	queue_free()
+
+
+## If one of the connectors belongs to this room, lock the room, and add the owner of the
+## other connector to this rooms adjacent_rooms list.
+## If the connector belonging to this room is connector2, also delete
+## the connectors NavigationRegion (this has to be done in one of the connectors).
+func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
+	if connector1 in get_own_connectors():
+		locked = true
+		var other_room = connector2.get_parent_room()
+		adjacent_rooms.append(other_room)
+		room_info.update_adjacent_rooms_label(adjacent_rooms)
+		main.cut_room_shape_from_nav_region(self, get_own_connectors())
+	elif connector2 in get_own_connectors():
+		locked = true
+		var other_room = connector1.get_parent_room()
+		adjacent_rooms.append(other_room)
+		room_info.update_adjacent_rooms_label(adjacent_rooms)
+		connector2.delete_navigation_region()
+		main.cut_room_shape_from_nav_region(self, get_own_connectors())
+
+		## TODO: ??? Is this necessary, or in the right place?
+		await get_tree().physics_frame
+		for connector in connector2.get_overlapping_connectors():
+			if connector == connector1:
+				continue
+			print("Deleted connector %s" % [str(connector)])
+			connector.queue_free()
 
 
 func _on_area_entered(area: Area2D) -> void:

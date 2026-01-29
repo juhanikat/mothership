@@ -1,18 +1,20 @@
-extends CanvasLayer
 class_name Notice
+extends CanvasLayer
 
 @export var panel_container: PanelContainer
 @export var notification_text_label: RichTextLabel
 @export var notification_timer: Timer
 @export var animation_player: AnimationPlayer
 
-
 var queue = []
 
+
+## Displays a notification, or puts it into a queue.
+## New notification is ignored if the current notification or the next notification
+## in the queue has the same content.
 func display(text: String, type: String = "info", time: float = 2) -> void:
 	if animation_player.is_playing() or not notification_timer.is_stopped():
-		print("joo")
-		queue.append({"text": text, "type": type, "time": time})
+		queue.append({ "text": text, "type": type, "time": time })
 		return
 
 	notification_text_label.text = text

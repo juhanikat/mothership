@@ -1,5 +1,5 @@
-extends CanvasLayer
 class_name Hud
+extends CanvasLayer
 
 @export var crew_room_list: ItemList
 @export var maintenance_room_list: ItemList
@@ -7,27 +7,21 @@ class_name Hud
 @export var special_room_list: ItemList
 @export var emergency_room_list: ItemList
 @export var research_room_list: ItemList
-
 @export var help_popup: PopupPanel
 @export var cargo_popup: PopupPanel
 @export var cargo_options_box: HBoxContainer
-
 @export var path_build_mode_label: RichTextLabel
 @export var path_info_label: RichTextLabel
 @export var total_crew_amount_label: RichTextLabel
 @export var crew_quarters_limit_label: RichTextLabel
-
 @export var delivery_info_label: RichTextLabel
-
 @export var dev_toolbar: HBoxContainer
 @export var dev_options_hint_label: RichTextLabel
-
-
-@onready var main: Main = get_parent()
 
 var total_crew: int = 0
 var crew_quarters_limit: int
 
+@onready var main: Main = get_parent()
 @onready var room_category_to_item_list = {
 	RoomData.RoomCategory.CREW_ROOM: crew_room_list,
 	RoomData.RoomCategory.MAINTENANCE_ROOM: maintenance_room_list,
@@ -80,7 +74,15 @@ func find_room_data_by_name(room_name: String) -> Dictionary:
 		if room_data["room_name"] == room_name:
 			return room_data
 	push_error("Could not find room by name: %s" % [room_name])
-	return {}
+	return { }
+
+
+func show_cargo_popup(cargo_bay: Room) -> void:
+	for button: Button in cargo_options_box.get_children():
+		if len(button.pressed.get_connections()) > 0:
+			button.pressed.disconnect(_on_cargo_options_button_pressed)
+		button.pressed.connect(_on_cargo_options_button_pressed.bind(button.text, cargo_bay))
+	cargo_popup.popup()
 
 
 func _on_path_build_mode_toggled(new_path_build_mode: bool) -> void:
@@ -110,13 +112,6 @@ func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
 	else:
 		GlobalInputFlags.show_tooltips = false
 
-
-func show_cargo_popup(cargo_bay: Room) -> void:
-	for button: Button in cargo_options_box.get_children():
-		if len(button.pressed.get_connections()) > 0:
-			button.pressed.disconnect(_on_cargo_options_button_pressed)
-		button.pressed.connect(_on_cargo_options_button_pressed.bind(button.text, cargo_bay))
-	cargo_popup.popup()
 
 func _on_next_turn_button_pressed() -> void:
 	if not main.check_turn_requirements():

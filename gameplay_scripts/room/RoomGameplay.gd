@@ -1,12 +1,5 @@
-extends Node
 class_name RoomGameplay
-
-
-var _data: Dictionary[String, Variant]
-@onready var parent_room: Room
-@onready var main: Main = get_tree().root.get_node("Main")
-@onready var hud: Hud = main.get_node("HUD")
-
+extends Node
 
 var RoomType = RoomData.RoomType
 var parent_room_type: RoomData.RoomType
@@ -30,12 +23,16 @@ var fuel_remaining: int = 0
 var rations_remaining: int = 0
 
 # FOR POWER SUPPLIERS
-var power_supply = {}
+var power_supply = { }
 var supplies_to: Array[Room] = []
 
 # FOR CREW SUPPLIERS
 var crew_supply: int = 0
+var _data: Dictionary[String, Variant]
 
+@onready var parent_room: Room
+@onready var main: Main = get_tree().root.get_node("Main")
+@onready var hud: Hud = main.get_node("HUD")
 
 
 ## RoomGameplay is created and added as a child to a Room node (in room.gd).
@@ -73,7 +70,6 @@ func init_gameplay_features(data: Dictionary) -> void:
 		parent_room.add_to_group("DataAnalysis")
 	elif parent_room_type == RoomType.CARGO_BAY:
 		parent_room.add_to_group("CargoBay")
-
 
 	power_usage = _data["power_usage"]
 
@@ -165,7 +161,7 @@ func deactivate_room(show_deactivation_notice: bool = false) -> bool:
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
 	if show_deactivation_notice:
-			GlobalNotice.display("Room activated.")
+		GlobalNotice.display("Room activated.")
 	GlobalNotice.display("Room deactivated.")
 	return true
 
@@ -186,6 +182,65 @@ func find_sufficient_ration_storage():
 	if not adjacent_ration_storages_with_rations:
 		return null
 	return adjacent_ration_storages_with_rations.pick_random()
+
+
+## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
+## which might be hard when multiple nodes listen to the same signal.
+func next_turn() -> void:
+	if parent_room_type == RoomType.POWER_PLANT and activated:
+		var fuel_storage = find_sufficient_fuel_storage()
+		if not fuel_storage:
+			GlobalNotice.display("Power Plant does not have any accessible fuel and has been deactivated.", "warning")
+			for room in supplies_to:
+				room.gameplay.deactivate_room()
+			supplies_to.clear()
+			deactivate_room()
+		else:
+			fuel_storage.gameplay.fuel_remaining -= 1
+			fuel_storage.room_info.update_fuel_remaining_label(fuel_storage.gameplay.fuel_remaining)
+
+	if parent_room_type == RoomType.CANTEEN and activated:
+		var ration_storage = find_sufficient_ration_storage()
+		print(ration_storage)
+		if not ration_storage:
+			GlobalNotice.display("Canteen does not have any accessible rations and has been deactivated.", "warning")
+			deactivate_room()
+		else:
+			ration_storage.gameplay.rations_remaining -= 1
+			ration_storage.room_info.update_rations_remaining_label(ration_storage.gameplay.rations_remaining)
+
+	if delivery_in_progress:
+		current_delivery.turns_left -= 1
+		GlobalSignals.delivery_status_changed.emit(current_delivery)
+		if current_delivery.turns_left == 0:
+			delivery_in_progress = false
+			cannot_be_deactivated = false
+			if current_delivery.type == "Fuel":
+				var all_fuel_storages = get_tree().get_nodes_in_group("FuelStorage")
+				if not all_fuel_storages:
+					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
+					return
+				else:
+					var random_fuel_storage: Room = all_fuel_storages.pick_random()
+					random_fuel_storage.gameplay.fuel_remaining += 5
+					random_fuel_storage.room_info.update_fuel_remaining_label(random_fuel_storage.gameplay.fuel_remaining)
+					random_fuel_storage.highlight()
+					GlobalNotice.display("Fuel delivered to a random Fuel Storage.")
+			elif current_delivery.type == "Rations":
+				var all_ration_storages = get_tree().get_nodes_in_group("RationStorage")
+				if not all_ration_storages:
+					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
+					return
+				else:
+					var random_ration_storage: Room = all_ration_storages.pick_random()
+					random_ration_storage.gameplay.rations_remaining += 10
+					random_ration_storage.room_info.update_rations_remaining_label(random_ration_storage.gameplay.rations_remaining)
+					random_ration_storage.highlight()
+					GlobalNotice.display("Rations delivered to a random Ration Storage.")
+			else:
+				push_error("Invalid delivery type!!")
+			deactivate_room()
+			return
 
 
 ## Returns true if the room has been activated, or false otherwise.
@@ -247,66 +302,6 @@ func _find_power_supplier():
 	else:
 		GlobalNotice.display("Cannot power room: Activated suppliers in range do not have enough capacity.", "warning")
 	return null
-
-## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
-## which might be hard when multiple nodes listen to the same signal.
-func next_turn() -> void:
-	if parent_room_type == RoomType.POWER_PLANT and activated:
-		var fuel_storage = find_sufficient_fuel_storage()
-		if not fuel_storage:
-			GlobalNotice.display("Power Plant does not have any accessible fuel and has been deactivated.", "warning")
-			for room in supplies_to:
-				room.gameplay.deactivate_room()
-			supplies_to.clear()
-			deactivate_room()
-		else:
-			fuel_storage.gameplay.fuel_remaining -= 1
-			fuel_storage.room_info.update_fuel_remaining_label(fuel_storage.gameplay.fuel_remaining)
-
-	if parent_room_type == RoomType.CANTEEN and activated:
-		var ration_storage = find_sufficient_ration_storage()
-		print(ration_storage)
-		if not ration_storage:
-			GlobalNotice.display("Canteen does not have any accessible rations and has been deactivated.", "warning")
-			deactivate_room()
-		else:
-			ration_storage.gameplay.rations_remaining -= 1
-			ration_storage.room_info.update_rations_remaining_label(ration_storage.gameplay.rations_remaining)
-
-	if delivery_in_progress:
-		current_delivery.turns_left -= 1
-		GlobalSignals.delivery_status_changed.emit(current_delivery)
-		if current_delivery.turns_left == 0:
-			delivery_in_progress = false
-			cannot_be_deactivated = false
-			if current_delivery.type == "Fuel":
-				var all_fuel_storages = get_tree().get_nodes_in_group("FuelStorage")
-				if not all_fuel_storages:
-					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
-					return
-				else:
-					var random_fuel_storage: Room = all_fuel_storages.pick_random()
-					random_fuel_storage.gameplay.fuel_remaining += 5
-					random_fuel_storage.room_info.update_fuel_remaining_label(random_fuel_storage.gameplay.fuel_remaining)
-					random_fuel_storage.highlight()
-					GlobalNotice.display("Fuel delivered to a random Fuel Storage.")
-			elif current_delivery.type == "Rations":
-				var all_ration_storages = get_tree().get_nodes_in_group("RationStorage")
-				if not all_ration_storages:
-					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
-					return
-				else:
-					var random_ration_storage: Room = all_ration_storages.pick_random()
-					random_ration_storage.gameplay.rations_remaining += 10
-					random_ration_storage.room_info.update_rations_remaining_label(random_ration_storage.gameplay.rations_remaining)
-					random_ration_storage.highlight()
-					GlobalNotice.display("Rations delivered to a random Ration Storage.")
-			else:
-				push_error("Invalid delivery type!!")
-			deactivate_room()
-			return
-
-
 
 
 ## Things that need to be done as soon as the room is connected are here.

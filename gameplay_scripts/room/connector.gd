@@ -1,15 +1,12 @@
-extends Area2D
 class_name Connector
-
+extends Area2D
 
 @export var collision_polygon: CollisionPolygon2D
 @export var nav_region: NavigationRegion2D
-
 @export var texture_polygon: Polygon2D
+
 var connector_color = Color("bfb7be")
-
 var hovering: bool = false
-
 
 
 func _ready() -> void:
