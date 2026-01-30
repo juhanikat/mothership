@@ -26,6 +26,7 @@ anchors_preset = -1
 anchor_top = 1.0
 anchor_right = 1.5
 anchor_bottom = 1.625
+mouse_filter = 2
 theme_override_constants/outline_size = 3
 theme_override_font_sizes/normal_font_size = 7
 text = "C111"

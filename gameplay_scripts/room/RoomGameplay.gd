@@ -11,7 +11,6 @@ var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay and Crew Quarte
 var accessible_by_crew: bool = true
 
 var power_usage: int
-var assigned_crew: Array[CrewMember] = [] # Array of CrewMembers assigned to this room
 
 # FOR CARGO BAY
 var order_in_progress: bool = false
@@ -31,7 +30,7 @@ var supplies_to: Array[Room] = []
 
 # FOR CREW SUPPLIERS
 var crew_amount: int = 0 # amount of Crew this CrewQuarters will give once activated
-var living_crew: Array[CrewMember] = [] # Array of CrewMembers sleeping here
+var living_crew: Array[CrewMember] = [] # Array of CrewMembers sleeping here NOTE not used atm?
 var _data: Dictionary[String, Variant]
 
 @onready var parent_room: Room
@@ -115,9 +114,6 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 ## Called when an activated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been deactivated, and false otherwise.
 func deactivate_room(show_deactivation_notice: bool = false) -> bool:
-	print(crew_amount)
-	print(living_crew)
-	print(assigned_crew)
 	if not activated:
 		push_error("Tried to deactivate room that was not active, this should never happen!")
 		return false
@@ -192,12 +188,12 @@ func find_sufficient_ration_storage():
 func assign_crew(crew_member: CrewMember) -> void:
 	var previous_room = crew_member.assigned_to
 	if previous_room:
-		previous_room.gameplay.assigned_crew.erase(crew_member)
-		previous_room.room_info.update_assigned_crew_container(previous_room.gameplay.assigned_crew)
+		previous_room.crew_member_node.remove_child(crew_member)
+		previous_room = null
+		previous_room.room_info.update_assigned_crew_container(previous_room.crew_member_node.get_children())
 	crew_member.assigned_to = parent_room
-	assigned_crew.append(crew_member)
-	parent_room.room_info.update_assigned_crew_container(assigned_crew)
-
+	parent_room.crew_member_node.add_child(crew_member)
+	parent_room.room_info.update_assigned_crew_container(parent_room.crew_member_node.get_children())
 
 
 ## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
@@ -273,13 +269,12 @@ func _try_to_activate() -> bool:
 				GlobalNotice.display("Cannot activate Crew Quarters: Crew Quarters limit has been reached.", "warning")
 				return false
 			for i in range(crew_amount):
+				# creates new crew members, fix this if Crew Quarters can ever be disabled and enabled again
 				var new_crew_member: CrewMember = crew_member_scene.instantiate()
 				new_crew_member.init_crew_member(new_crew_member.create_random_name(main.used_crew_names), parent_room, parent_room)
 				main.used_crew_names.append(new_crew_member.crewmember_name)
 				# new crew members are assigned to their Crew Quarters by default
 				self.assign_crew(new_crew_member)
-				living_crew.append(new_crew_member)
-				parent_room.room_info.update_living_crew_container(living_crew)
 		RoomType.CANTEEN:
 			var adjacent_ration_storages = parent_room.adjacent_rooms.filter(func(room: Room): return room.is_in_group("RationStorage"))
 			if len(adjacent_ration_storages) == 0 or not adjacent_ration_storages[0].gameplay.activated:
@@ -303,6 +298,7 @@ func _try_to_activate() -> bool:
 				main.new_cargo_order(parent_room)
 				# cargo bay will be activated again once order is made
 				return false
+	## TESTING
 
 	return true
 

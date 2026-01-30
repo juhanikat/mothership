@@ -5,6 +5,7 @@ const RoomShape = RoomData.RoomShape
 const MAX_CONNECTOR_DISTANCE = 40
 
 @export var texture_polygon: Polygon2D
+@export var crew_member_node: Node2D
 @export var highlight_line: Line2D
 @export var highlight_line_timer: Timer
 @export var highlight_anim_player: AnimationPlayer
@@ -139,12 +140,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			if len(picked_crew) > 0:
 				# there should be only one CrewMember in the picked_crew Array
 				picked_crew[0].picked = false
-				gameplay.assign_crew(picked_crew)
+				picked_crew[0].hide()
+				gameplay.assign_crew(picked_crew[0])
 				GlobalNotice.display("Moved crew member to another room.")
 			else:
 				var assigned_crew = get_tree().get_nodes_in_group("CrewMember").filter(func(crew: CrewMember): return crew.assigned_to == self)
 				if len(assigned_crew) > 0:
 					assigned_crew[0].picked = true
+					assigned_crew[0].show()
 		return
 
 	if event.is_action_pressed("cancel_room") and picked:
@@ -154,7 +157,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if event.is_action_pressed("move_room"):
-		if picked:
+		if picked and not connecting_rooms:
 			connecting_rooms = true
 			var all_connectors: Array[Connector]
 			# weird trick to cast the type correctly
@@ -210,13 +213,15 @@ func connect_rooms(connector_pair: Array[Connector]) -> bool:
 	if not rules_passed:
 		return false
 
-	## Actual connection code
-	var original_position = global_position
+	## Actual movement code
 	var to = connector_pair[1].global_position - connector_pair[0].global_position
-	global_position += to
-	room_info.global_position += to
+	var room_movement_tween = get_tree().create_tween()
+	var room_info_movement_tween = get_tree().create_tween()
+	room_movement_tween.tween_property(self, "global_position", global_position + to, 0.2)
+	room_info_movement_tween.tween_property(room_info, "global_position", room_info.global_position + to, 0.2)
+	# waits for room to reposition before checking overlaps etc.
+	await room_movement_tween.finished
 
-	# check for overlapping rooms AFTER placing connected room
 	await get_tree().physics_frame
 	if len(overlapping_rooms) > 0:
 		if RoomConnections.is_replacing_placeholder_room(self, overlapping_rooms):
@@ -233,7 +238,6 @@ func connect_rooms(connector_pair: Array[Connector]) -> bool:
 				GlobalNotice.display("Room activated automatically!")
 			return true
 		else:
-			global_position = original_position
 			GlobalNotice.display("Tried to snap connectors, but rooms are overlapping.", "warning")
 			return false
 
@@ -249,7 +253,6 @@ func connect_rooms(connector_pair: Array[Connector]) -> bool:
 			GlobalNotice.display("Cannot place room, this room is overlapping another room's raycast.", "warning")
 			return false
 
-	print("Connectors ({0}) and ({1}) snapped together.".format([str(connector_pair[0]), str(connector_pair[1])]))
 	GlobalSignals.room_connected.emit(connector_pair[0], connector_pair[1])
 
 	await get_tree().physics_frame

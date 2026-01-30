@@ -56,9 +56,10 @@ _data = {
 &"show_highlight": SubResource("Animation_ppkfq")
 }
 
-[node name="Room" type="Area2D" node_paths=PackedStringArray("texture_polygon", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
+[node name="Room" type="Area2D" node_paths=PackedStringArray("texture_polygon", "crew_member_node", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
 script = ExtResource("1_ppkfq")
 texture_polygon = NodePath("TexturePolygon")
+crew_member_node = NodePath("AssignedCrewMembers")
 highlight_line = NodePath("HighlightLine")
 highlight_line_timer = NodePath("HighlightLine/HighlightLineTimer")
 highlight_anim_player = NodePath("HighlightLine/HighlightAnimationPlayer")
@@ -76,6 +77,8 @@ raycast_line = NodePath("RayCast2D/RayCastLine")
 [node name="TexturePolygon" type="Polygon2D" parent="."]
 color = Color(0.884932, 0.78636, 0.391851, 1)
 uv = PackedVector2Array(-472, -25, -221, -28, -235, 58)
+
+[node name="AssignedCrewMembers" type="Node2D" parent="."]
 
 [node name="HighlightLine" type="Line2D" parent="."]
 closed = true

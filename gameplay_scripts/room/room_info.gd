@@ -2,18 +2,28 @@ class_name RoomInfo
 extends PanelContainer
 
 @export var assigned_crew_members_container: HBoxContainer
-@export var living_crew_members_container: HBoxContainer
 @export var assigned_crew_members_container_label: RichTextLabel
-@export var living_crew_members_container_label: RichTextLabel
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
 @export var traits_label: RichTextLabel
 @export var resource_label: RichTextLabel
 @export var description_label: RichTextLabel
 @export var adjacent_rooms_label: RichTextLabel
+@export var crew_member_label_duplicate: RichTextLabel
 
 var crew_member_scene = load("res://scenes/crew_member.tscn")
 
+# used to easily change e.g. which labels should be hidden if the room is not hovered over
+@onready var show_element = {
+	assigned_crew_members_container: "ON_HOVER",
+	assigned_crew_members_container_label: "ON_HOVER",
+	room_name_label: "ALWAYS",
+	power_usage_label: "ALWAYS",
+	traits_label: "ON_HOVER",
+	resource_label: "ON_HOVER",
+	description_label: "ON_HOVER",
+	adjacent_rooms_label: "ON_HOVER"
+}
 
 var parent_room: Room
 var relative_pos = Vector2(-150, -75)
@@ -22,14 +32,16 @@ var hovering: bool = false
 var crew_texture = load("res://icon.svg")
 
 func _ready() -> void:
-	description_label.hide()
-	adjacent_rooms_label.hide()
+	for element in show_element:
+		# show everything while the room is being placed
+			element.show()
 
 
 ## fills information from _data (positioning is done in main.gd).
 ## NOTE: showing/hiding information that is visible when hovering room is done in room.gd.
 func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_name: String = "") -> void:
 	parent_room = p_room
+
 	if overwrite_name:
 		room_name_label.text = overwrite_name
 	else:
@@ -67,8 +79,9 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 ## Called by room.gd when this room is hovered over.
 func expand_info() -> void:
 	#global_position += relative_pos
-	description_label.show()
-	adjacent_rooms_label.show()
+	for element in show_element:
+		if show_element[element] == "ON_HOVER":
+			element.show()
 	z_index = 2
 	offset_right += 100
 
@@ -83,9 +96,9 @@ func expand_info() -> void:
 
 
 func shrink_info() -> void:
-	#global_position = parent_room.global_position + RoomData.room_info_pos[parent_room._shape]
-	description_label.hide()
-	adjacent_rooms_label.hide()
+	for element in show_element:
+		if show_element[element] == "ON_HOVER":
+			element.hide()
 	z_index = 0
 	reset_size()
 
@@ -119,27 +132,11 @@ func update_rations_remaining_label(current_rations_remaining: int) -> void:
 	resource_label.text = "%s rations remaining." % [str(current_rations_remaining)]
 
 
-func update_assigned_crew_container(current_crew: Array[CrewMember]) -> void:
+func update_assigned_crew_container(current_crew: Array[Node]) -> void:
 	for label in assigned_crew_members_container.get_children():
 		label.queue_free()
 	for crew_member in current_crew:
-		var crew_name_label = RichTextLabel.new()
+		var crew_name_label: RichTextLabel = crew_member_label_duplicate.duplicate()
 		crew_name_label.text = crew_member.crewmember_name
-		crew_name_label.fit_content = true
-		crew_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		crew_name_label.add_theme_font_size_override("normal", 7)
-		crew_name_label.add_theme_constant_override("outline_size", 3)
 		parent_room.room_info.assigned_crew_members_container.add_child(crew_name_label)
-
-
-func update_living_crew_container(current_crew: Array[CrewMember]) -> void:
-	for label in living_crew_members_container.get_children():
-		label.queue_free()
-	for crew_member in current_crew:
-		var crew_name_label = RichTextLabel.new()
-		crew_name_label.text = crew_member.crewmember_name
-		crew_name_label.fit_content = true
-		crew_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		crew_name_label.add_theme_font_size_override("normal", 7)
-		crew_name_label.add_theme_constant_override("outline_size", 3)
-		parent_room.room_info.living_crew_members_container.add_child(crew_name_label)
+		crew_name_label.show()

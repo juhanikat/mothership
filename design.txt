@@ -1,5 +1,8 @@
 TODO:
-	NEXT: 	EVENTS!!!!
+	NEXT:
+	Easier testing (having rooms automatically placed when game is opened etc.)
+	Figure out living_crew functionality, or maybe remove the concept of them living somewhere entirely for now?
+	EVENTS!!!!
 	Add "impassable" booleans to some rooms (crew members cannot walk through them).
 
 	1. Room that gives you more options to choose from if activated at the end of the turn

@@ -33,6 +33,7 @@ func create_random_name(already_used: Array[String]) -> String:
 			random_name += str(randi_range(0, 9))
 		if random_name not in already_used:
 			break
+		random_name = "C"
 	return random_name
 
 ## Return an Array of Rooms this CrewMember can access from their current location.

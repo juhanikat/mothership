@@ -6,7 +6,7 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8n8ci"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
-[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("assigned_crew_members_container", "living_crew_members_container", "assigned_crew_members_container_label", "living_crew_members_container_label", "room_name_label", "power_usage_label", "traits_label", "resource_label", "description_label", "adjacent_rooms_label") groups=["RoomInfo"]]
+[node name="RoomInfo" type="PanelContainer" node_paths=PackedStringArray("assigned_crew_members_container", "assigned_crew_members_container_label", "room_name_label", "power_usage_label", "traits_label", "resource_label", "description_label", "adjacent_rooms_label", "crew_member_label_duplicate") groups=["RoomInfo"]]
 anchors_preset = -1
 anchor_right = 0.111
 anchor_bottom = 0.276
@@ -16,15 +16,14 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8n8ci")
 script = ExtResource("1_8n8ci")
 assigned_crew_members_container = NodePath("VBoxContainer/AssignedCrewMembers")
-living_crew_members_container = NodePath("VBoxContainer/LivingCrewMembers")
 assigned_crew_members_container_label = NodePath("VBoxContainer/AssignedCrewmembersLabel")
-living_crew_members_container_label = NodePath("VBoxContainer/LivingCrewmembersLabel")
 room_name_label = NodePath("VBoxContainer/TitleContainer/RoomName")
 power_usage_label = NodePath("VBoxContainer/PowerUsage")
 traits_label = NodePath("VBoxContainer/TraitsLabel")
 resource_label = NodePath("VBoxContainer/ResourceLabel")
 description_label = NodePath("VBoxContainer/DescriptionLabel")
 adjacent_rooms_label = NodePath("VBoxContainer/AdjacentRoomsLabel")
+crew_member_label_duplicate = NodePath("VBoxContainer/CrewMemberLabelDuplicate")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 z_index = 1
@@ -58,21 +57,7 @@ fit_content = true
 
 [node name="AssignedCrewMembers" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-
-[node name="LivingCrewmembersLabel" type="RichTextLabel" parent="VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/outline_size = 6
-theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
-text = "Crew members who live here:"
-fit_content = true
-
-[node name="LivingCrewMembers" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
+size_flags_vertical = 4
 mouse_filter = 2
 
 [node name="PowerUsage" type="RichTextLabel" parent="VBoxContainer"]
@@ -122,3 +107,13 @@ theme_override_font_sizes/normal_font_size = 14
 text = "adjacent 
 rooms"
 fit_content = true
+
+[node name="CrewMemberLabelDuplicate" type="RichTextLabel" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/normal_font_size = 10
+text = "sd"
+fit_content = true
+autowrap_mode = 0
