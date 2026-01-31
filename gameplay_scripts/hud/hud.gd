@@ -18,7 +18,7 @@ extends CanvasLayer
 @export var dev_toolbar: HBoxContainer
 @export var dev_options_hint_label: RichTextLabel
 
-var total_crew: int = 0
+var total_crew: int = 0 # changed by the update() function in this script
 var crew_quarters_limit: int
 
 @onready var main: Main = get_parent()
@@ -117,14 +117,9 @@ func _on_next_turn_button_pressed() -> void:
 	GlobalSignals.turn_advanced.emit()
 
 
-func _on_crew_added(amount: int) -> void:
-	total_crew += amount
-	total_crew_amount_label.text = "Crew amount: %s" % [str(total_crew)]
-
-
-func _on_crew_removed(amount: int) -> void:
-	total_crew -= amount
-	total_crew_amount_label.text = "Crew amount: %s" % [str(total_crew)]
+func update_crew_amount_label(crew_change: int) -> void:
+	total_crew += crew_change
+	total_crew_amount_label.text = "Total crew: %s" % [str(total_crew)]
 
 
 func _on_crew_quarters_limit_raised(amount: int) -> void:

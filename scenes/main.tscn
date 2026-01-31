@@ -12,7 +12,7 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-384, -320, -384, 1088, 1472, 1088, 1472, -320)])
 agent_radius = 5.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "room_selection")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "room_selection", "testing_room_nodes", "testing_room_locations")]
 script = ExtResource("1_0wfyh")
 camera = NodePath("Camera2D")
 nav_region = NodePath("NavigationRegion2D")
@@ -22,6 +22,30 @@ path_line = NodePath("PathLine")
 room_nodes = NodePath("RoomNodes")
 room_info_nodes = NodePath("RoomInfoNodes")
 room_selection = NodePath("RoomSelection")
+testing_room_nodes = NodePath("TestingRooms")
+testing_room_locations = NodePath("TestingRoomLocations")
+
+[node name="TestingRooms" type="Node2D" parent="."]
+
+[node name="TestingRoomLocations" type="Node2D" parent="."]
+
+[node name="Location1" type="Node2D" parent="TestingRoomLocations"]
+position = Vector2(272, 384)
+
+[node name="Location2" type="Node2D" parent="TestingRoomLocations"]
+position = Vector2(392, 384)
+
+[node name="Location3" type="Node2D" parent="TestingRoomLocations"]
+position = Vector2(560, 384)
+
+[node name="Location4" type="Node2D" parent="TestingRoomLocations"]
+position = Vector2(800, 384)
+
+[node name="Location5" type="Node2D" parent="TestingRoomLocations"]
+position = Vector2(912, 360)
+
+[node name="Location6" type="Node2D" parent="TestingRoomLocations"]
+position = Vector2(1000, 384)
 
 [node name="BackgroundSVG" type="TextureRect" parent="."]
 z_index = -3
@@ -31,6 +55,7 @@ offset_right = 8296.0
 offset_bottom = 7104.0
 texture = ExtResource("4_jyhfs")
 stretch_mode = 1
+metadata/_edit_lock_ = true
 
 [node name="HUD" parent="." instance=ExtResource("2_0wfyh")]
 
@@ -39,6 +64,7 @@ stretch_mode = 1
 [node name="Notice" parent="." instance=ExtResource("5_tbgi4")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(576, 328)
 editor_draw_drag_margin = true
 
 [node name="RoomNodes" type="Node2D" parent="."]

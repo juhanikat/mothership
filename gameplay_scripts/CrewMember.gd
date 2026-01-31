@@ -18,10 +18,10 @@ func _process(_delta: float) -> void:
 		global_position = global_mouse_pos
 
 
-func init_crew_member(p_name: String, p_crew_quarters: Room, p_assigned_to: Room):
+## NOTE: <assigned_to> is set inside a function in RoomGameplay.gd.
+func init_crew_member(p_name: String, p_crew_quarters: Room):
 	crewmember_name = p_name
 	crew_quarters = p_crew_quarters
-	assigned_to = p_assigned_to
 
 	name_label.text = crewmember_name
 

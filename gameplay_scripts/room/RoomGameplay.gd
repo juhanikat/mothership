@@ -186,14 +186,17 @@ func find_sufficient_ration_storage():
 
 ## Assings a crew member to this room, removing them from their previous room. Also updates both affected room_info nodes.
 func assign_crew(crew_member: CrewMember) -> void:
-	var previous_room = crew_member.assigned_to
+	var previous_room: Room = crew_member.assigned_to
 	if previous_room:
+		if previous_room == parent_room:
+			return
 		previous_room.crew_member_node.remove_child(crew_member)
-		previous_room = null
 		previous_room.room_info.update_assigned_crew_container(previous_room.crew_member_node.get_children())
 	crew_member.assigned_to = parent_room
 	parent_room.crew_member_node.add_child(crew_member)
 	parent_room.room_info.update_assigned_crew_container(parent_room.crew_member_node.get_children())
+	crew_member.hide()
+	parent_room.highlight(1)
 
 
 ## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
@@ -271,10 +274,11 @@ func _try_to_activate() -> bool:
 			for i in range(crew_amount):
 				# creates new crew members, fix this if Crew Quarters can ever be disabled and enabled again
 				var new_crew_member: CrewMember = crew_member_scene.instantiate()
-				new_crew_member.init_crew_member(new_crew_member.create_random_name(main.used_crew_names), parent_room, parent_room)
+				new_crew_member.init_crew_member(new_crew_member.create_random_name(main.used_crew_names), parent_room)
 				main.used_crew_names.append(new_crew_member.crewmember_name)
 				# new crew members are assigned to their Crew Quarters by default
 				self.assign_crew(new_crew_member)
+			hud.update_crew_amount_label(4)
 		RoomType.CANTEEN:
 			var adjacent_ration_storages = parent_room.adjacent_rooms.filter(func(room: Room): return room.is_in_group("RationStorage"))
 			if len(adjacent_ration_storages) == 0 or not adjacent_ration_storages[0].gameplay.activated:

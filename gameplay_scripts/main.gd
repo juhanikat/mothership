@@ -13,9 +13,11 @@ const room_data = RoomData.room_data
 # All room info boxes are children of this node
 @export var room_info_nodes: Control
 @export var room_selection: RoomSelection
+@export var testing_room_nodes: Node2D # holds rooms that are spawned when the game starts, for testing
+@export var testing_room_locations: Node2D # holds locations for above rooms
 
 var room_scene = load("res://scenes/room.tscn")
-var room_info_scene = load("res://scenes/room_info.tscn")
+
 var path_start: Vector2
 var path_start_room: Room # the room where the path starts
 var path_end: Vector2
@@ -35,6 +37,17 @@ var used_crew_names: Array[String] = [] # to make sure no crew member name is us
 
 @onready var hud = get_node("HUD")
 
+var create_testing_rooms: bool = true
+
+
+## Creates a new room at position, and adds it as a child to TestingRoom.
+func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
+	var new_room = room_scene.instantiate()
+	new_room.init_room(RoomData.room_data[room_type])
+	new_room.global_position = pos
+	testing_room_nodes.add_child(new_room)
+	return new_room
+
 
 func _ready() -> void:
 	camera.zoom = default_zoom
@@ -46,6 +59,25 @@ func _ready() -> void:
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
+
+	if create_testing_rooms:
+		var testing_room_types = [RoomData.RoomType.CREW_QUARTERS, RoomData.RoomType.CANTEEN, RoomData.RoomType.RATION_STORAGE, RoomData.RoomType.POWER_PLANT, RoomData.RoomType.FUEL_STORAGE, RoomData.RoomType.COMMAND_ROOM]
+		for location: Node2D in testing_room_locations.get_children():
+			# creates testing room and adds it as a child to TestingRooms.
+			# it's best to keep TestingROomLocations in a straight line so the rooms can connect easily
+			# also, make sure the amount of spawned rooms matches the amount of locations!
+			var new_room = create_testing_room(testing_room_types.pop_front(), location.global_position)
+			# connects all rooms that are placed by default, as long as they are near enough one another
+			var all_connectors: Array[Connector]
+			all_connectors.assign(get_tree().get_nodes_in_group("Connector"))
+			var connector_pair: Array[Connector] = RoomConnections.find_connector_pairing(new_room.get_own_connectors(), all_connectors, 1000)
+			if len(connector_pair) > 0 and not new_room.locked:
+				await new_room.connect_rooms(connector_pair)
+
+			await get_tree().physics_frame
+			for room: Room in get_tree().get_nodes_in_group("Room"):
+				assert(len(room.overlapping_rooms) == 0, "Testing rooms did not connect properly, move the locations around a bit.")
+
 
 
 func _physics_process(_delta: float) -> void:
@@ -119,31 +151,14 @@ func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 			return
 
 	var new_room: Room = room_scene.instantiate()
-	var new_room_shape = new_room_data["room_shape"]
 	new_room.init_room(new_room_data, true)
 	new_room.global_position = get_global_mouse_position()
-
-	var room_name = new_room_data["room_name"]
-	var overwrite_name = ""
-	if not spawned_room_names.get(room_name):
-		spawned_room_names[room_name] = 1
-	else:
-		spawned_room_names[room_name] += 1
-	if spawned_room_names[room_name] > 1:
-		overwrite_name = "%s (%s)" % [room_name, spawned_room_names[room_name]]
 
 	if len(get_tree().get_nodes_in_group("Room")) == 0:
 		# this room is the first room
 		new_room.is_starting_room = true
+	# everything else, like creating room_info, is done inside the room's _ready() function
 	room_nodes.add_child(new_room)
-
-	# room info is a child of main scene because otherwise it will rotate with the room
-	var new_room_info: RoomInfo = room_info_scene.instantiate()
-	new_room_info.init_room_info(new_room, new_room_data, overwrite_name)
-	new_room_info.global_position = new_room.global_position + RoomData.room_info_pos[new_room_shape]
-	new_room.room_info = new_room_info
-
-	room_info_nodes.add_child(new_room_info)
 	return new_room
 
 

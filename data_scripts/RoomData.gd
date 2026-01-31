@@ -209,7 +209,7 @@ const _weapons_research_data: Dictionary[String, Variant] = {
 }
 
 const _data_analysis_data: Dictionary[String, Variant] = {
-	"room_name": " Data Analysis",
+	"room_name": "Data Analysis",
 	"room_shape": RoomShape.LShape,
 	"room_desc": "If activated at the start of a turn, adds an extra room option to choose from.",
 	"room_category": RoomCategory.RESEARCH_ROOM,

@@ -131,7 +131,7 @@ static func get_all_rooms(start_room: Room, search_range: int = -1, crew_accessi
 
 
 ## loop through all connectors (in the entire game),
-## and find first two connectors that are in range of each other.
+## and find the closest two connectors that are in range of each other.
 ## If found, returns a list containing both connectors, and an empty list otherwise.
 static func find_connector_pairing(current_room_connectors: Array[Connector], all_connectors: Array[Connector], max_distance: int) -> Array[Connector]:
 	var closest_pair: Array[Connector] = []

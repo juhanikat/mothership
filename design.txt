@@ -1,7 +1,6 @@
 TODO:
 	NEXT:
 	Easier testing (having rooms automatically placed when game is opened etc.)
-	Figure out living_crew functionality, or maybe remove the concept of them living somewhere entirely for now?
 	EVENTS!!!!
 	Add "impassable" booleans to some rooms (crew members cannot walk through them).
 

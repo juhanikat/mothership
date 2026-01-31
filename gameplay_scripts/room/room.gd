@@ -20,6 +20,8 @@ const MAX_CONNECTOR_DISTANCE = 40
 @export var raycast_line: Line2D
 
 var connector_scene = load("res://scenes/connector.tscn")
+var room_info_scene = load("res://scenes/room_info.tscn")
+
 var room_info: RoomInfo # The room's info box, this is a child of the main node
 var hovering: bool = false # true when mouse is hovering over this room.
 var picked: bool = false # true when the room is picked by mouse.
@@ -44,6 +46,7 @@ var _data: Dictionary[String, Variant]
 @onready var main: Main = get_tree().root.get_node("Main")
 
 
+## NOTE: Also creates the room_info node and adds it to the main scene.
 func _ready() -> void:
 	assert(len(_data.keys()) > 0)
 
@@ -75,6 +78,10 @@ func _ready() -> void:
 
 	if room_highlight_lines.get(_shape):
 		highlight_line.points = room_highlight_lines[_shape]
+
+
+	# creates connectors for the room, depending on its shape
+	create_connectors()
 
 	# shapes the texture (Polygon2D) according to the room's shape,
 	# and colors it according to its category.
@@ -112,6 +119,20 @@ func _ready() -> void:
 	gameplay = RoomGameplay.new()
 	add_child(gameplay)
 	gameplay.init_gameplay_features(_data)
+
+	var overwrite_name = ""
+	if not main.spawned_room_names.get(room_name):
+		main.spawned_room_names[room_name] = 1
+	else:
+		main.spawned_room_names[room_name] += 1
+	if main.spawned_room_names[room_name] > 1:
+		overwrite_name = "%s (%s)" % [room_name, main.spawned_room_names[room_name]]
+
+	var new_room_info: RoomInfo = room_info_scene.instantiate()
+	new_room_info.init_room_info(self, _data, overwrite_name)
+	new_room_info.global_position = global_position + RoomData.room_info_pos[_shape]
+	room_info = new_room_info
+	main.room_info_nodes.add_child(new_room_info)
 
 
 func _process(_delta: float) -> void:
@@ -196,11 +217,8 @@ func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false) -> 
 	room_category = _data["room_category"]
 	picked = is_picked
 
-	# creates connectors for the room, depending on its shape
-	create_connectors()
 
-
-func highlight(time: int = 2) -> void:
+func highlight(time: float = 2.0) -> void:
 	highlight_anim_player.play("show_highlight")
 	highlight_line_timer.start(time)
 
@@ -368,9 +386,7 @@ func _on_area_exited(area: Area2D) -> void:
 func _on_mouse_entered() -> void:
 	hovering = true
 	if not picked:
-		# don't expand room infos if a crew member is picked, for better visibility
-		if len(get_tree().get_nodes_in_group("CrewMember").filter(func(crew: CrewMember): return crew.picked)) == 0:
-			room_info.expand_info()
+		room_info.expand_info()
 
 
 func _on_mouse_exited() -> void:
