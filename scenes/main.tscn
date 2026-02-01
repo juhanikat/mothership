@@ -12,8 +12,10 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-384, -320, -384, 1088, 1472, 1088, 1472, -320)])
 agent_radius = 5.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "room_selection", "testing_room_nodes", "testing_room_locations")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("room_selection", "hud", "camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "testing_room_nodes", "testing_room_locations")]
 script = ExtResource("1_0wfyh")
+room_selection = NodePath("RoomSelection")
+hud = NodePath("HUD")
 camera = NodePath("Camera2D")
 nav_region = NodePath("NavigationRegion2D")
 nav_actor = NodePath("NavActor")
@@ -21,7 +23,6 @@ nav_agent = NodePath("NavActor/NavigationAgent")
 path_line = NodePath("PathLine")
 room_nodes = NodePath("RoomNodes")
 room_info_nodes = NodePath("RoomInfoNodes")
-room_selection = NodePath("RoomSelection")
 testing_room_nodes = NodePath("TestingRooms")
 testing_room_locations = NodePath("TestingRoomLocations")
 

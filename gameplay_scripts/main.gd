@@ -1,48 +1,52 @@
 class_name Main
 extends Node2D
 
+const RoomType = RoomData.RoomType
 const room_data = RoomData.room_data
+
+@export var room_selection: RoomSelection
+@export var hud: Hud
 
 @export var camera: Camera2D
 @export var nav_region: NavigationRegion2D
 @export var nav_actor: Node2D
 @export var nav_agent: NavigationAgent2D
 @export var path_line: Line2D
+
 # All rooms are children of this node
 @export var room_nodes: Node2D
 # All room info boxes are children of this node
 @export var room_info_nodes: Control
-@export var room_selection: RoomSelection
+
 @export var testing_room_nodes: Node2D # holds rooms that are spawned when the game starts, for testing
 @export var testing_room_locations: Node2D # holds locations for above rooms
 
 var room_scene = load("res://scenes/room.tscn")
 var event_functions_scene = load("res://gameplay_scripts/EventFunctions.gd")
 
+# used for the path (press Space)
 var path_start: Vector2
 var path_start_room: Room # the room where the path starts
 var path_end: Vector2
 var path_end_room: Room # the room where the path ends
 
-var default_zoom: Vector2 = Vector2(1.5, 1.5)
 var camera_dragging: bool = false
+const default_zoom: Vector2 = Vector2(1.5, 1.5)
 var previous_mouse_pos_dragging: Vector2 = Vector2(0, 0)
 var previous_mouse_pos_zooming: Vector2 = Vector2(0, 0)
 
-var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var total_crew: int = 0
 var crew_quarters_limit: int = 3
-
+var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var used_crew_names: Array[String] = [] # to make sure no crew member name is used twice, should improve this later
 
-@onready var hud = get_node("HUD")
-
+## NOTE: Change these when testing!
 var create_testing_rooms: bool = true
-var event_functions: EventFunctions
+var NO_CARGO_BAY_REQUIREMENT: bool = true
 
 
 
-## Creates a new room at position, and adds it as a child to TestingRoom.
+## Creates a new room at <pos>, and adds it as a child to TestingRoom.
 func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
 	var new_room = room_scene.instantiate()
 	new_room.init_room(RoomData.room_data[room_type])
@@ -53,7 +57,7 @@ func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
 
 func _ready() -> void:
 	camera.zoom = default_zoom
-	var first_order = RoomOrders.get_starting_order()
+	var first_order = OrderFunctions.get_starting_order()
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
 	room_selection.show_order(first_order.description, possible_rooms)
@@ -181,8 +185,8 @@ func check_turn_requirements() -> bool:
 			if required_type not in all_room_types:
 				GlobalNotice.display("Place all required rooms first.", "warning")
 				return false
-	elif GlobalVariables.turn == 3:
-		var cargo_bay = get_tree().get_nodes_in_group("CargoBay")
+	elif GlobalVariables.turn == 3 and not NO_CARGO_BAY_REQUIREMENT:
+		var cargo_bay = get_tree().get_nodes_in_group(str(RoomType.CARGO_BAY))
 		if not cargo_bay:
 			GlobalNotice.display("Place all required rooms first.", "warning")
 			return false
@@ -236,10 +240,10 @@ func _on_next_turn() -> void:
 
 	var next_order: Dictionary
 	if GlobalVariables.turn == 3:
-		next_order = RoomOrders.get_specific_order(OrderData.Order.CARGO_BAY_ORDER)
+		next_order = OrderFunctions.get_specific_order(OrderData.Order.CARGO_BAY_ORDER)
 	else:
-		var active_data_analysis_rooms = get_tree().get_nodes_in_group("DataAnalysis").filter(func(room: Room): return room.gameplay.activated)
-		next_order = RoomOrders.get_random_order(len(active_data_analysis_rooms))
+		var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)).filter(func(room: Room): return room.gameplay.activated)
+		next_order = OrderFunctions.get_random_order(len(active_data_analysis_rooms))
 
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(next_order.selected_rooms)

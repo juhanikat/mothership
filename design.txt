@@ -1,12 +1,7 @@
 TODO:
 	NEXT:
-	Easier testing (having rooms automatically placed when game is opened etc.)
-	EVENTS!!!!
-	Add "impassable" booleans to some rooms (crew members cannot walk through them).
-
-	1. Room that gives you more options to choose from if activated at the end of the turn
-	2. An in-depth crew system, every crew member are their own entity (each one is assigned to a specific Crew Quarters, but can be moved to another one if needed?)
-	Crew members can become impostors (aliens)??
+	1. More events!
+	2. Add "impassable" booleans to some rooms (crew members cannot walk through them). Also update RoomConnections functions to check/filter out these rooms from paths.
 	3. Room that can be used to buy any room you want + a resource system for this?
 	4. Life support room (at some point, makes testing harder)
 	5. Airlock room (must have one of these that is not leading to a courtyard at all times)
@@ -14,16 +9,15 @@ TODO:
 
 
 
-ROOMS
+ROOMS (also read the ROOM_GAMEPLAY and ROOM_CONNECTIONS sections)
 
 When spawning a new room, call the init_room function and give the correct room data as a parameter
 (these are in the room_data dict inside the RoomData script). That's all!
+The function will create a room_info node for the room, and add it as a child of the Main node (since otherwise it will rotate with the room.)
 
-Rooms always spawn UNACTIVATED. Note that a lit up room means that the room is ACTIVATED:
-powered rooms can be dark if they are still UNACTIVATED (although this might not ever happen?).
-
-Rooms can be set to be always activated. These rooms are activated automatically once they are connected, and cannot be deactivated.
-Rooms with a power usage of 0 can never be powered, but they can be activated as usual.
+A lit up room means that the room is ACTIVATED. Rooms always spawn UNACTIVATED,
+and the activated status can be toggled by pressing middle mouse button over the room.
+Note that some rooms are automatically activated after they have been connected, and some rooms cannot be deactivated once they have been activated.
 
 If a room is picked up and then put down near or on top of another room, the connect_rooms()
 method inside room.gd is called to see if the room connectors are close enough to connect. If not,
@@ -35,18 +29,32 @@ accordingly. Everything that needs to be done AFTER rooms have been placed shoul
 the _on_room_connected function inside room.gd.
 
 
+ROOM_GAMEPLAY
+RoomGameplay.gd is instanced separately for each room, and it holds all functions and data related to the room's actual gameplay mechanics
+(activation status, power usage, the amount of crew it supplies etc.).
+
+Activating a room is complex, and it's split into two functions. When a room is activated by pressing MMB over it:
+	1. Room.gd calls activate_room() inside RoomGameplay.gd, which checks if the room is set to be always_deactivated, and also checks if the room has a sufficient power supplier nearby (if the room requires power). These checks are made for every room type.
+	2. If these checks succeed, the _try_to_activate() function is called, which checks various things depending on the room's type.
+	(NOTE! If these checks succeed as well, this function will also e.g. send a signal that more crew members have been added to the station, so it does more than just return a boolean value to activate_room().)
+	3. Finally, if the room can be activated, the activate_room() function will set the room's activated status to true, and change its Color to show that the room is now activated.
+Deactivating a room is usually simpler, but follows the same structure.
+
+
+ROOM_CONNECTIONS
+RoomConnections.gd contains static functions that either help with the connecting of rooms,
+check if two rooms can be next to each other according to the rules,
+or find paths through the station.
+For example the distance_between() function finds the shortest distance between any two rooms.
+NOTE: Since the functions are static, this script should not be instanced anywhere. Just use them.
+
+
+
 
 RoomData (IMPORTANT!)
-
 Lots of stuff in RoomData should probably be moved elsewhere and reimplemented,
 for example each room shape could have its own scene since there should not be that
 many of them and it would be much better to see the rooms visually.
-
-Remember to change the room_shape_dimensions dict if you resize the rooms!
-
-Add some offset to connector placements in the room_connectors dict, so the rooms are not adjacent when snapped.
-Otherwise, room area detection does not work because the room areas are too close together!
-
 
 
 CREATING A NEW ROOM TYPE:
@@ -59,11 +67,3 @@ CREATING A NEW ROOM TYPE:
 	5. Finally, if you created a new shape, add a polygon representing it to the "AllRoomShapes"
 	node inside the Room scene, and update the (_ready(), create_clickable_area()) function in room.gd accordingly.
 	(This should be simplified!)
-
-
-
-FOLDER STRUCTURE FOR THE PROJECT
-
-The "room" folder has everything that is related to a single room: the room scene, the connector scene etc.
-There's also the  "RoomConnections" script, which holds functions related to connecting rooms or checking distances etc.
-(These are not in room.gd mainly to not make that script too lengthy)

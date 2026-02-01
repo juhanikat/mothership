@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://dn50mq2q47vgq" path="res://inkscape files/crewmember.svg" id="2_usp6l"]
 
 [node name="CrewMember" type="TextureRect" node_paths=PackedStringArray("name_label") groups=["CrewMember"]]
+z_index = 1
 custom_minimum_size = Vector2(16, 16)
 anchors_preset = -1
 anchor_left = -0.00694444

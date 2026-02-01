@@ -1,5 +1,5 @@
 extends Script
-class_name RoomOrders
+class_name OrderFunctions
 
 ## Holds functions related to the selection of new rooms and events.
 ## Actual HUD for the room selection is elsewhere.

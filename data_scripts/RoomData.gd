@@ -1,5 +1,5 @@
-extends Script
 class_name RoomData
+extends Node
 
 
 enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
