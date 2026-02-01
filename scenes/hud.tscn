@@ -8,7 +8,7 @@ bg_color = Color(0.300296, 0.453884, 0.300172, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oo0fn"]
 bg_color = Color(0.392165, 0.478501, 0.478927, 1)
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "event_popup", "event_title_label", "event_description_label", "event_choice_buttons_container")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -26,6 +26,10 @@ crew_quarters_limit_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVb
 delivery_info_label = NodePath("PanelContainer2/HBoxContainer/DeliveryInfoLabel")
 dev_toolbar = NodePath("PanelContainer/TopBar")
 dev_options_hint_label = NodePath("PanelContainer/DevOptionsHintLabel")
+event_popup = NodePath("EventPopup")
+event_title_label = NodePath("EventPopup/HBoxContainer/VBoxContainer/EventTitle")
+event_description_label = NodePath("EventPopup/HBoxContainer/VBoxContainer/EventDescription")
+event_choice_buttons_container = NodePath("EventPopup/HBoxContainer/EventChoiceButtons")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = -1
@@ -171,6 +175,46 @@ size_flags_stretch_ratio = 0.63
 focus_mode = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_oo0fn")
 text = "Next Turn"
+
+[node name="EventPopup" type="PopupPanel" parent="."]
+auto_translate_mode = 1
+initial_position = 1
+size = Vector2i(1000, 537)
+visible = true
+borderless = false
+
+[node name="HBoxContainer" type="HBoxContainer" parent="EventPopup"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 996.0
+offset_bottom = 533.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="EventPopup/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EventTitle" type="RichTextLabel" parent="EventPopup/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+bbcode_enabled = true
+text = "event title"
+fit_content = true
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="EventDescription" type="RichTextLabel" parent="EventPopup/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "event
+description"
+fit_content = true
+metadata/_edit_use_anchors_ = true
+
+[node name="EventChoiceButtons" type="VBoxContainer" parent="EventPopup/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
 
 [node name="CargoPopup" type="PopupPanel" parent="."]
 title = "Cargo"

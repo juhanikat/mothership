@@ -20,6 +20,8 @@ config/icon="res://icon.svg"
 GlobalSignals="*res://global_scripts/GlobalSignals.gd"
 GlobalInputFlags="*res://global_scripts/GlobalInputFlags.gd"
 GlobalNotice="*res://global_scripts/GlobalNotice.gd"
+GlobalVariables="*res://global_scripts/GlobalVariables.gd"
+EventData="*res://global_scripts/EventData.gd"
 
 [debug]
 

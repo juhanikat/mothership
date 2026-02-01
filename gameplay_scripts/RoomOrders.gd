@@ -1,4 +1,4 @@
-extends Node
+extends Script
 class_name RoomOrders
 
 ## Holds functions related to the selection of new rooms and events.

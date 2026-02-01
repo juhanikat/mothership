@@ -17,6 +17,7 @@ const room_data = RoomData.room_data
 @export var testing_room_locations: Node2D # holds locations for above rooms
 
 var room_scene = load("res://scenes/room.tscn")
+var event_functions_scene = load("res://gameplay_scripts/EventFunctions.gd")
 
 var path_start: Vector2
 var path_start_room: Room # the room where the path starts
@@ -29,7 +30,6 @@ var previous_mouse_pos_dragging: Vector2 = Vector2(0, 0)
 var previous_mouse_pos_zooming: Vector2 = Vector2(0, 0)
 
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
-var turn: int = 1
 var total_crew: int = 0
 var crew_quarters_limit: int = 3
 
@@ -38,6 +38,8 @@ var used_crew_names: Array[String] = [] # to make sure no crew member name is us
 @onready var hud = get_node("HUD")
 
 var create_testing_rooms: bool = true
+var event_functions: EventFunctions
+
 
 
 ## Creates a new room at position, and adds it as a child to TestingRoom.
@@ -173,13 +175,13 @@ func find_path(from: Vector2, to: Vector2) -> void:
 ## Returns true if the player has done all that is needed to do on the current turn
 ## (for example, the three starting rooms have to be placed on the first turn to continue).
 func check_turn_requirements() -> bool:
-	if turn == 1:
+	if GlobalVariables.turn == 1:
 		var all_room_types = get_tree().get_nodes_in_group("Room").map(func(room: Room): return room.room_type)
 		for required_type in [RoomData.RoomType.COMMAND_ROOM, RoomData.RoomType.FUEL_STORAGE, RoomData.RoomType.POWER_PLANT]:
 			if required_type not in all_room_types:
 				GlobalNotice.display("Place all required rooms first.", "warning")
 				return false
-	elif turn == 3:
+	elif GlobalVariables.turn == 3:
 		var cargo_bay = get_tree().get_nodes_in_group("CargoBay")
 		if not cargo_bay:
 			GlobalNotice.display("Place all required rooms first.", "warning")
@@ -228,12 +230,12 @@ func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
 ## Also calls next_turn() inside each RoomGameplay.
 func _on_next_turn() -> void:
-	turn += 1
+	GlobalVariables.turn += 1
 	for gameplay: RoomGameplay in get_tree().get_nodes_in_group("RoomGameplay"):
 		gameplay.next_turn()
 
 	var next_order: Dictionary
-	if turn == 3:
+	if GlobalVariables.turn == 3:
 		next_order = RoomOrders.get_specific_order(OrderData.Order.CARGO_BAY_ORDER)
 	else:
 		var active_data_analysis_rooms = get_tree().get_nodes_in_group("DataAnalysis").filter(func(room: Room): return room.gameplay.activated)
@@ -243,6 +245,11 @@ func _on_next_turn() -> void:
 	possible_rooms.assign(next_order.selected_rooms)
 	room_selection.clear_room_buttons()
 	room_selection.show_order(next_order.description, possible_rooms)
+
+	EventFunctions.print_event_info(get_tree())
+	var next_event_data = EventFunctions.get_random_event(get_tree())
+	if next_event_data:
+		hud.show_event(next_event_data)
 
 
 func _on_crew_added(amount: int) -> void:

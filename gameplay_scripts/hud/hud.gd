@@ -18,6 +18,11 @@ extends CanvasLayer
 @export var dev_toolbar: HBoxContainer
 @export var dev_options_hint_label: RichTextLabel
 
+@export var event_popup: PopupPanel
+@export var event_title_label: RichTextLabel
+@export var event_description_label: RichTextLabel
+@export var event_choice_buttons_container: VBoxContainer
+
 var total_crew: int = 0 # changed by the update() function in this script
 var crew_quarters_limit: int
 
@@ -153,3 +158,14 @@ func _on_delivery_status_changed(new_status: Dictionary) -> void:
 
 func _on_help_button_pressed() -> void:
 	help_popup.show()
+
+func show_event(event_data: Dictionary) -> void:
+	event_title_label.text = event_data["title"]
+	event_description_label.text = event_data["description"]
+	var choices = event_data.get("choices", null)
+	if choices:
+		for choice in choices:
+			var choice_button = Button.new()
+			choice_button.text = choice.text
+			choice_button.connect(choice_button.pressed, func(): EventFunctions.handle_choice(choice.value))
+	event_popup.show()
