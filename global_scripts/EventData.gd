@@ -16,7 +16,7 @@ var _build_research_data = {
 
 var _shock_1_data = {
 	"title": "A wave sweeps over the station",
-	"description": "The force of the anomaly is not enough to cause injury, but it is enough to wake you up. The entire station has apparently experienced periodic electromagnetic pulses for the last few hours, with the latest one being the strongest one yet.
+	"description": "The force of the anomaly is not enough to cause injury, but it is enough to wake you up. The entire station has apparently experienced periodic electromagnetic pulses for the last few hours, with this latest one being the strongest yet.
 
 	\"We're still investigating, but it doesn't seem to be originating from any machinery. Nothing's damaged yet either, but that might change soon.\"
 	",

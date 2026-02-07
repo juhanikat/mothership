@@ -5,6 +5,7 @@ extends PanelContainer
 @export var assigned_crew_members_container_label: RichTextLabel
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
+@export var crew_needed_label: RichTextLabel
 @export var traits_label: RichTextLabel
 @export var resource_label: RichTextLabel
 @export var description_label: RichTextLabel
@@ -14,9 +15,10 @@ extends PanelContainer
 var crew_member_scene = load("res://scenes/crew_member.tscn")
 
 # used to easily change e.g. which labels should be hidden if the room is not hovered over
+# MANUAL means that the element is explicitly shown using show() in code.
 @onready var show_element = {
 	assigned_crew_members_container: "ON_HOVER",
-	assigned_crew_members_container_label: "ON_HOVER",
+	assigned_crew_members_container_label: "MANUAL",
 	room_name_label: "ALWAYS",
 	power_usage_label: "ALWAYS",
 	traits_label: "ON_HOVER",
@@ -27,13 +29,17 @@ var crew_member_scene = load("res://scenes/crew_member.tscn")
 
 var parent_room: Room
 var relative_pos = Vector2(-150, -75)
+var default_size: Vector2 # this is set to be the same size as the node appears in the editor
 var hovering: bool = false
 
 var crew_texture = load("res://icon.svg")
 
 func _ready() -> void:
+	default_size = size
+	assigned_crew_members_container_label.hide()
 	for element in show_element:
 		# show everything while the room is being placed
+		if show_element[element] != "MANUAL":
 			element.show()
 
 
@@ -47,6 +53,12 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 	else:
 		room_name_label.text = _data["room_name"]
 
+	traits_label.text = ""
+	if "always_activated" in _data:
+		traits_label.text += "Always active. \n"
+	if "always_deactivated" in _data:
+		traits_label.text += "Cannot be activated. \n"
+
 	var power_usage = _data["power_usage"]
 	if power_usage == 0:
 		power_usage_label.text = ""
@@ -54,11 +66,12 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 	else:
 		power_usage_label.text = "Consumes %s power." % [str(power_usage)]
 
-	traits_label.text = ""
-	if "always_activated" in _data:
-		traits_label.text += "Always active. \n"
-	if "always_deactivated" in _data:
-		traits_label.text += "Cannot be activated. \n"
+	var crew_needed = _data["crew_needed"]
+	if crew_needed.min == 0 and crew_needed.max == 0:
+		crew_needed_label.text = ""
+		traits_label.text += "Cannot assign crew. \n"
+	else:
+		crew_needed_label.text = "Crew needed: %s-%s." % [str(crew_needed.min), str(crew_needed.max)]
 
 	resource_label.text = ""
 
@@ -90,17 +103,13 @@ func expand_info() -> void:
 			continue
 		info_node.hide()
 
-	#var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
-	#stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 1.0))
-	#add_theme_stylebox_override("panel", stylebox)
-
 
 func shrink_info() -> void:
 	for element in show_element:
 		if show_element[element] == "ON_HOVER":
 			element.hide()
 	z_index = 0
-	reset_size()
+	set_size(default_size)
 
 	var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
 	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 0.0))
@@ -140,3 +149,7 @@ func update_assigned_crew_container(current_crew: Array[Node]) -> void:
 		crew_name_label.text = crew_member.crewmember_name
 		parent_room.room_info.assigned_crew_members_container.add_child(crew_name_label)
 		crew_name_label.show()
+	if len(current_crew) == 0:
+		assigned_crew_members_container_label.hide()
+	else:
+		assigned_crew_members_container_label.show()

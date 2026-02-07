@@ -162,8 +162,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				# there should be only one CrewMember in the picked_crew Array
 				picked_crew[0].picked = false
 				picked_crew[0].hide()
-				gameplay.assign_crew(picked_crew[0])
-				GlobalNotice.display("Moved crew member to another room.")
+				var crew_assigned = gameplay.assign_crew(picked_crew[0])
+				if crew_assigned:
+					GlobalNotice.display("Moved crew member to another room.")
 			else:
 				var assigned_crew = get_tree().get_nodes_in_group("CrewMember").filter(func(crew: CrewMember): return crew.assigned_to == self)
 				if len(assigned_crew) > 0:

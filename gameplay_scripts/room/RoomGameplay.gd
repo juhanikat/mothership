@@ -11,6 +11,7 @@ var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay and Crew Quarte
 var accessible_by_crew: bool = true
 
 var power_usage: int
+var crew_needed = {} # with keys "min" and "max", if assigned crew is less than min, the room cannot be activated.
 
 # FOR CARGO BAY
 var order_in_progress: bool = false
@@ -25,12 +26,12 @@ var fuel_remaining: int = 0
 var rations_remaining: int = 0
 
 # FOR POWER SUPPLIERS
-var power_supply = { }
+var power_supply = { } # "capacity" and "range"
 var supplies_to: Array[Room] = []
 
 # FOR CREW SUPPLIERS
 var crew_amount: int = 0 # amount of Crew this CrewQuarters will give once activated
-var living_crew: Array[CrewMember] = [] # Array of CrewMembers sleeping here NOTE not used atm?
+# NOTE: Assigned crew are children of a node in the Room scene, there is no list for them
 var _data: Dictionary[String, Variant]
 
 @onready var parent_room: Room
@@ -63,6 +64,7 @@ func init_gameplay_features(data: Dictionary) -> void:
 		rations_remaining = _data["rations_amount"]
 
 	power_usage = _data["power_usage"]
+	crew_needed = _data["crew_needed"]
 
 	always_activated = _data.get("always_activated", false)
 	always_deactivated = _data.get("always_deactivated", false)
@@ -71,6 +73,12 @@ func init_gameplay_features(data: Dictionary) -> void:
 
 	GlobalSignals.room_connected.connect(_on_room_connected)
 	GlobalSignals.cargo_bay_order_made.connect(_on_cargo_bay_order_made)
+
+
+func get_crew() -> Array[CrewMember]:
+	var all_crew_nodes: Array[CrewMember] = []
+	all_crew_nodes.assign(parent_room.crew_member_node.get_children())
+	return all_crew_nodes
 
 
 ## Called when a deactivated room is middle-clicked. Calls lots of other functions depending on room type.
@@ -86,6 +94,11 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 		sufficient_power_supplier = _find_power_supplier()
 		if not sufficient_power_supplier:
 			return false
+
+	if len(get_crew()) < crew_needed.min:
+		GlobalNotice.display("Cannot activate room: It needs at least %s crew members." % [str(crew_needed.min)], "warning")
+		return false
+
 
 	activated = _try_to_activate()
 	if activated:
@@ -131,18 +144,48 @@ func deactivate_room(show_deactivation_notice: bool = false) -> bool:
 
 
 ## Assings a crew member to this room, removing them from their previous room. Also updates both affected room_info nodes.
-func assign_crew(crew_member: CrewMember) -> void:
+func assign_crew(crew_member: CrewMember) -> bool:
+	if len(get_crew()) == crew_needed.max:
+		GlobalNotice.display("Cannot assign crew to %s: The maximum amount is %s." % [str(parent_room.room_name), str(crew_needed.min)], "warning")
+		return false
+
 	var previous_room: Room = crew_member.assigned_to
 	if previous_room:
 		if previous_room == parent_room:
-			return
-		previous_room.crew_member_node.remove_child(crew_member)
-		previous_room.room_info.update_assigned_crew_container(previous_room.crew_member_node.get_children())
+			return false
+		var crew_unassigned = previous_room.gameplay._unassign_crew(crew_member)
+		if not crew_unassigned:
+			return false
+
 	crew_member.assigned_to = parent_room
 	parent_room.crew_member_node.add_child(crew_member)
 	parent_room.room_info.update_assigned_crew_container(parent_room.crew_member_node.get_children())
 	crew_member.hide()
 	parent_room.highlight(1)
+
+	match parent_room_type:
+		RoomType.POWER_PLANT:
+			power_supply.capacity += 5
+			parent_room.room_info.update_power_supply_label(power_supply)
+
+	return true
+
+## Only call this if the crew member is actually assigned here.
+func _unassign_crew(crew_member: CrewMember) -> bool:
+	assert(crew_member in parent_room.crew_member_node.get_children(), "Crew member is not assigned to this room.")
+	if len(get_crew()) == crew_needed.min:
+		GlobalNotice.display("Cannot unassign crew from %s: It needs at least %s crew members." % [str(parent_room.room_name), str(crew_needed.min)], "warning")
+		return false
+
+	parent_room.crew_member_node.remove_child(crew_member)
+	parent_room.room_info.update_assigned_crew_container(parent_room.crew_member_node.get_children())
+	crew_member.assigned_to = null
+
+	match parent_room_type:
+		RoomType.POWER_PLANT:
+			power_supply.capacity -= 5
+
+	return true
 
 
 ## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,

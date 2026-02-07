@@ -73,7 +73,10 @@ const _command_room_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "",
 	"room_category": RoomCategory.SPECIAL_ROOM,
-	"power_usage": 0
+	"power_usage": 0,
+	"crew_needed": {"min": 0, "max": 0},
+	"always_activated": true,
+
 }
 
 const _power_plant_data: Dictionary[String, Variant] = {
@@ -82,6 +85,7 @@ const _power_plant_data: Dictionary[String, Variant] = {
 	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to activate. When activated, uses 1 Fuel each turn.",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
+	"crew_needed": {"min": 0, "max": 4},
 	"power_supply": {"capacity": 10, "range": 5}
 }
 
@@ -90,7 +94,8 @@ const _cargo_bay_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.BigSquareShape,
 	"room_desc": "Allows importing resources such as fuel. Each delivery takes 3 turns to complete, and the room is locked in a powered state during that time.",
 	"room_category": RoomCategory.SPECIAL_ROOM,
-	"power_usage": 1
+	"power_usage": 1,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 
@@ -104,6 +109,7 @@ const _crew_quarters_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1,
 	"crew_amount": 4,
+	"crew_needed": {"min": 0, "max": 4},
 	"cannot_be_deactivated": true
 }
 
@@ -112,7 +118,8 @@ const _canteen_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.BigSquareShape,
 	"room_desc": "Must be placed adjacent to a Crew Room. Needs a Ration Storage next to it to activate. When activated, uses 1 Ration each turn.",
 	"room_category": RoomCategory.CREW_ROOM,
-	"power_usage": 1
+	"power_usage": 1,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 const _lavatory_data: Dictionary[String, Variant] = {
@@ -120,7 +127,8 @@ const _lavatory_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.TShape,
 	"room_desc": "Must be placed adjacent to a Crew Room. There must be a Waste Processing Plant on the station to activate.",
 	"room_category": RoomCategory.CREW_ROOM,
-	"power_usage": 1
+	"power_usage": 1,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 const _ration_storage_data: Dictionary[String, Variant] = {
@@ -130,7 +138,8 @@ const _ration_storage_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.CREW_ROOM,
 	"always_activated": true,
 	"power_usage": 0,
-	"rations_amount": 10
+	"rations_amount": 10,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 
@@ -143,7 +152,8 @@ const _wpp_data: Dictionary[String, Variant] = {
 					Adds one fuel to the nearest Fuel Storage for every two lavatories
 					that are activated at the end of the turn.",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
-	"power_usage": 2
+	"power_usage": 2,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 const _cable_duct_data: Dictionary[String, Variant] = {
@@ -152,7 +162,8 @@ const _cable_duct_data: Dictionary[String, Variant] = {
 	"room_desc": "",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
-	"accessible_by_crew": false
+	"accessible_by_crew": false,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 const _fuel_storage_data: Dictionary[String, Variant] = {
@@ -162,7 +173,8 @@ const _fuel_storage_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
 	"always_activated": true,
-	"fuel_amount": 5
+	"fuel_amount": 5,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 const _placeholder_room_data: Dictionary[String, Variant] = {
@@ -171,7 +183,8 @@ const _placeholder_room_data: Dictionary[String, Variant] = {
 	"room_desc": "A placeholder room can be replaced by another room of the same size.",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
-	"always_deactivated": true
+	"always_deactivated": true,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 
@@ -185,7 +198,8 @@ const _garden_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.LUXURY_ROOM,
 	"power_usage": 0,
 	"crew_quarters_limit_increase": 2,
-	"always_activated": true
+	"always_activated": true,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 
@@ -197,7 +211,8 @@ const _robotics_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.LShape,
 	"room_desc": "",
 	"room_category": RoomCategory.RESEARCH_ROOM,
-	"power_usage": 1
+	"power_usage": 1,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 const _weapons_research_data: Dictionary[String, Variant] = {
@@ -205,7 +220,8 @@ const _weapons_research_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.TShape,
 	"room_desc": "Unlocks new rooms.",
 	"room_category": RoomCategory.RESEARCH_ROOM,
-	"power_usage": 1
+	"power_usage": 1,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 const _data_analysis_data: Dictionary[String, Variant] = {
@@ -213,7 +229,8 @@ const _data_analysis_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.LShape,
 	"room_desc": "If activated at the start of a turn, adds an extra room option to choose from.",
 	"room_category": RoomCategory.RESEARCH_ROOM,
-	"power_usage": 1
+	"power_usage": 1,
+	"crew_needed": {"min": 0, "max": 0},
 }
 
 
@@ -225,5 +242,6 @@ const _armory_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "Contains weapons to help your crew fight intruders.",
 	"room_category": RoomCategory.EMERGENCY_ROOM,
-	"power_usage": 1
-}
+	"power_usage": 1,
+	"crew_needed": {"min": 0, "max": 0},
+	}
