@@ -303,10 +303,12 @@ func _try_to_deactivate() -> bool:
 	match parent_room_type:
 		RoomData.RoomType.POWER_PLANT:
 			if len(supplies_to) > 0:
-				GlobalNotice.display("Cannot deactivate Power Plant: It is supplying power to one or more rooms.", "warning")
 				for room in supplies_to:
-					room.highlight()
-				return false
+					var room_deactivated = room.gameplay.deactivate_room()
+					if not room_deactivated:
+						GlobalNotice.display("Cannot deactivate Power Plant: It is supplying power to %s, which can not be deactivated." % [str(room.room_name)], "warning")
+						return false
+			return true
 		RoomType.WPP:
 			var activated_wpps = []
 			for wpp: Room in get_tree().get_nodes_in_group(str(RoomType.WPP)):

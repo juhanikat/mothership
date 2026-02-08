@@ -234,6 +234,8 @@ func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
 ## Also calls next_turn() inside each RoomGameplay.
 func _on_next_turn() -> void:
+	if hud.event_popup.visible:
+		hud.event_popup.hide()
 	GlobalVariables.turn += 1
 	for gameplay: RoomGameplay in get_tree().get_nodes_in_group("RoomGameplay"):
 		gameplay.next_turn()

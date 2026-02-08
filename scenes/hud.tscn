@@ -8,7 +8,7 @@ bg_color = Color(0.300296, 0.453884, 0.300172, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oo0fn"]
 bg_color = Color(0.392165, 0.478501, 0.478927, 1)
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "event_popup", "event_title_label", "event_description_label", "event_choice_buttons_container")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "next_turn_button", "event_popup", "event_title_label", "event_description_label", "event_choice_buttons_container")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -26,6 +26,7 @@ crew_quarters_limit_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVb
 delivery_info_label = NodePath("PanelContainer2/HBoxContainer/DeliveryInfoLabel")
 dev_toolbar = NodePath("PanelContainer/TopBar")
 dev_options_hint_label = NodePath("PanelContainer/DevOptionsHintLabel")
+next_turn_button = NodePath("PanelContainer2/HBoxContainer/NextTurnButton")
 event_popup = NodePath("EventPopup")
 event_title_label = NodePath("EventPopup/HBoxContainer/VBoxContainer/EventTitle")
 event_description_label = NodePath("EventPopup/HBoxContainer/VBoxContainer/EventDescription")
@@ -178,10 +179,13 @@ text = "Next Turn"
 
 [node name="EventPopup" type="PopupPanel" parent="."]
 auto_translate_mode = 1
+transparent_bg = false
 initial_position = 1
 size = Vector2i(1000, 537)
 visible = true
 borderless = false
+always_on_top = true
+transparent = false
 
 [node name="HBoxContainer" type="HBoxContainer" parent="EventPopup"]
 offset_left = 4.0
@@ -273,3 +277,5 @@ metadata/_edit_use_anchors_ = true
 [connection signal="pressed" from="PanelContainer/TopBar/AddRoomButton" to="." method="_on_add_room_button_pressed"]
 [connection signal="pressed" from="PanelContainer2/HBoxContainer/HelpButton" to="." method="_on_help_button_pressed"]
 [connection signal="pressed" from="PanelContainer2/HBoxContainer/NextTurnButton" to="." method="_on_next_turn_button_pressed"]
+[connection signal="close_requested" from="EventPopup" to="." method="_on_event_popup_close_requested"]
+[connection signal="popup_hide" from="EventPopup" to="." method="_on_event_popup_popup_hide"]

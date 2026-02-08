@@ -13,7 +13,7 @@ dest_files=["res://.godot/imported/Xolonium-Bold.otf-b49b8fdc5dccad1e01f25dbf4ec
 [params]
 
 Rendering=null
-antialiasing=1
+antialiasing=-5487113439841091583
 generate_mipmaps=false
 disable_embedded_bitmaps=true
 multichannel_signed_distance_field=false
