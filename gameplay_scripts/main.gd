@@ -255,7 +255,7 @@ func _on_next_turn() -> void:
 	EventFunctions.print_event_info(get_tree())
 	var next_event_data = EventFunctions.get_random_event(get_tree())
 	if next_event_data:
-		hud.show_event(next_event_data)
+		hud.event_popup.show_event(next_event_data)
 
 
 func _on_crew_added(amount: int) -> void:

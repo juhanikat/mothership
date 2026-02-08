@@ -20,10 +20,7 @@ extends CanvasLayer
 
 @export var next_turn_button: Button
 
-@export var event_popup: PopupPanel
-@export var event_title_label: RichTextLabel
-@export var event_description_label: RichTextLabel
-@export var event_choice_buttons_container: VBoxContainer
+@export var event_popup: EventPopup
 
 var total_crew: int = 0 # changed by the update() function in this script
 var crew_quarters_limit: int
@@ -40,7 +37,6 @@ var crew_quarters_limit: int
 
 
 func _ready() -> void:
-	event_popup.popup_window = true
 	GlobalSignals.path_build_mode_toggled.connect(_on_path_build_mode_toggled)
 	GlobalSignals.path_completed.connect(_on_path_completed)
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
@@ -161,37 +157,3 @@ func _on_delivery_status_changed(new_status: Dictionary) -> void:
 
 func _on_help_button_pressed() -> void:
 	help_popup.show()
-
-func show_event(event_data: Dictionary) -> void:
-	for existing_button in event_choice_buttons_container.get_children():
-		existing_button.queue_free()
-
-	event_title_label.text = event_data["title"]
-	event_description_label.text = event_data["description"]
-	var affected_rooms = event_data.get("affected_rooms")
-	if affected_rooms:
-		var room_names = affected_rooms.map(func(room: Room): return room.room_name)
-		event_description_label.text += "Affected rooms: %s" % [", ".join(room_names)]
-	var choices = event_data.get("choices", null)
-	if choices:
-		# disable next turn button and force popup to be shown until a choice is made
-		next_turn_button.disabled = true
-		for choice in choices:
-			var choice_button = Button.new()
-			choice_button.text = choice.text
-			choice_button.pressed.connect(_on_choice_button_pressed.bind(choice.value, affected_rooms))
-			event_choice_buttons_container.add_child(choice_button)
-	event_popup.popup()
-
-
-func _on_choice_button_pressed(choice_value: EventData.CHOICES, affected_rooms) -> void:
-	next_turn_button.disabled = false
-	var returned_event_data = EventFunctions.handle_choice(choice_value, affected_rooms)
-	if returned_event_data:
-		# if handle_choice() returns a new event_data, handle that event immediately
-		show_event(returned_event_data)
-
-
-func _on_event_popup_close_requested() -> void:
-	print("yea")
-	pass # Replace with function body.
