@@ -38,6 +38,7 @@ CrewQuarters=""
 Lavatory=""
 WPP=""
 CrewMember=""
+RoomArea=""
 
 [gui]
 

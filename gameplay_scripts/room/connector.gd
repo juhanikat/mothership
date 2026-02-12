@@ -41,6 +41,18 @@ func get_parent_room() -> Room:
 	return null
 
 
+func check_deletion() -> void:
+	var overlapping_conns: Array[Connector] = get_overlapping_connectors()
+	if len(overlapping_conns) > 0:
+		if not (len(overlapping_conns) == 1 and connected_to() == overlapping_conns[0]):
+			queue_free()
+	var overlapping_rooms: Array[Room] = get_overlapping_rooms()
+	if len(overlapping_rooms) > 0:
+		# COnnectors can overlap exactly one room (the one they are connected to), this is easier than to fix the overlap
+		if not (len(overlapping_rooms) == 1 and connected_to() and connected_to() in overlapping_rooms[0].get_own_connectors()):
+			queue_free()
+
+
 func get_overlapping_connectors() -> Array[Connector]:
 	## Returns all connectors that are overlapping this one (partially or fully).
 	## Used to delete those connectors after the room is placed.
@@ -54,15 +66,17 @@ func get_overlapping_connectors() -> Array[Connector]:
 	return overlapping_connectors
 
 
+## Returns all Rooms that are overlapping this connector (partially or fully).
 func get_overlapping_rooms() -> Array[Room]:
-	## Returns all Rooms that are overlapping this connector (partially or fully).
 	var overlapping_areas = get_overlapping_areas()
 	var overlapping_rooms: Array[Room] = []
-	for room: Room in get_tree().get_nodes_in_group("Room"):
-		if get_parent_room() == room:
-			continue
-		if room in overlapping_areas:
-			overlapping_rooms.append(room)
+	var overlapping_conns: Array[Connector] = []
+	for area in overlapping_areas:
+		if area.is_in_group("Room") and area != get_parent_room():
+			overlapping_rooms.append(area)
+		elif area.is_in_group("Connector"):
+			overlapping_conns.append(area)
+	print(overlapping_conns)
 	return overlapping_rooms
 
 

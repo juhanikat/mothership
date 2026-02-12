@@ -67,8 +67,9 @@ func _ready() -> void:
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
 	if create_testing_rooms:
-		var testing_room_types = [RoomData.RoomType.CREW_QUARTERS, RoomData.RoomType.CANTEEN, RoomData.RoomType.RATION_STORAGE, RoomData.RoomType.POWER_PLANT, RoomData.RoomType.FUEL_STORAGE, RoomData.RoomType.COMMAND_ROOM]
+		var testing_room_types = [RoomType.CREW_QUARTERS, RoomType.CANTEEN, RoomType.FUEL_STORAGE, RoomType.POWER_PLANT]
 		for location: Node2D in testing_room_locations.get_children():
+
 			# creates testing room and adds it as a child to TestingRooms.
 			# it's best to keep TestingROomLocations in a straight line so the rooms can connect easily
 			# also, make sure the amount of spawned rooms matches the amount of locations!
@@ -84,6 +85,8 @@ func _ready() -> void:
 			for room: Room in get_tree().get_nodes_in_group("Room"):
 				assert(len(room.overlapping_rooms) == 0, "Testing rooms did not connect properly, move the locations around a bit.")
 
+			if len(testing_room_types) == 0:
+				break
 
 
 func _physics_process(_delta: float) -> void:

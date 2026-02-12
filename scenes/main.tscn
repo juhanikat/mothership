@@ -34,7 +34,7 @@ testing_room_locations = NodePath("TestingRoomLocations")
 position = Vector2(272, 384)
 
 [node name="Location2" type="Node2D" parent="TestingRoomLocations"]
-position = Vector2(392, 384)
+position = Vector2(408, 384)
 
 [node name="Location3" type="Node2D" parent="TestingRoomLocations"]
 position = Vector2(560, 384)

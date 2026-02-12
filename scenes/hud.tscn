@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://d1spf4ifa2e2j"]
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://gameplay_scripts/hud/hud.gd" id="1_ahhtf"]
-[ext_resource type="PackedScene" uid="uid://cisar4i6gjwbk" path="res://scenes/event_popup.tscn" id="2_oo0fn"]
+[ext_resource type="PackedScene" path="res://scenes/event_popup.tscn" id="2_oo0fn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ahhtf"]
 bg_color = Color(0.300296, 0.453884, 0.300172, 1)

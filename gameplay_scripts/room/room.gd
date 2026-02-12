@@ -144,7 +144,7 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("activate_room") and hovering and not picked:
+	if event.is_action_pressed("activate_room") and hovering and not GlobalVariables.room_is_picked:
 		if gameplay.activated:
 			gameplay.deactivate_room()
 		else:
@@ -189,6 +189,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				var connected = await connect_rooms(connector_pair)
 				if connected:
 					picked = false
+					GlobalVariables.room_is_picked = false
 					room_info.shrink_info()
 					locked = true
 				connecting_rooms = false
@@ -197,6 +198,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 			if is_starting_room:
 				picked = false
+				GlobalVariables.room_is_picked = false
 				locked = true
 				room_info.shrink_info()
 
@@ -217,6 +219,8 @@ func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false) -> 
 	room_type = RoomData.room_data.find_key(_data)
 	room_category = _data["room_category"]
 	picked = is_picked
+	if is_picked:
+		GlobalVariables.room_is_picked = true
 
 
 func highlight(time: float = 2.0) -> void:
@@ -365,13 +369,9 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		connector2.delete_navigation_region()
 		main.cut_room_shape_from_nav_region(self, get_own_connectors())
 
-		## TODO: ??? Is this necessary, or in the right place?
-		await get_tree().physics_frame
-		for connector in connector2.get_overlapping_connectors():
-			if connector == connector1:
-				continue
-			print("Deleted connector %s" % [str(connector)])
-			connector.queue_free()
+	# done by all rooms in the game whenever any room is connected
+	for conn in get_own_connectors():
+		conn.check_deletion()
 
 
 func _on_area_entered(area: Area2D) -> void:
