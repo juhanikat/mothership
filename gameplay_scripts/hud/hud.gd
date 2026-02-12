@@ -118,6 +118,8 @@ func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
 func _on_next_turn_button_pressed() -> void:
 	if not main.check_turn_requirements():
 		return
+	if GlobalVariables.room_is_picked:
+		return
 	GlobalSignals.turn_advanced.emit()
 
 

@@ -37,16 +37,16 @@ position = Vector2(272, 384)
 position = Vector2(408, 384)
 
 [node name="Location3" type="Node2D" parent="TestingRoomLocations"]
-position = Vector2(560, 384)
+position = Vector2(408, 208)
 
 [node name="Location4" type="Node2D" parent="TestingRoomLocations"]
-position = Vector2(800, 384)
+position = Vector2(568, 383)
 
 [node name="Location5" type="Node2D" parent="TestingRoomLocations"]
-position = Vector2(912, 360)
+position = Vector2(408, 480)
 
 [node name="Location6" type="Node2D" parent="TestingRoomLocations"]
-position = Vector2(1000, 384)
+position = Vector2(568, 480)
 
 [node name="BackgroundSVG" type="TextureRect" parent="."]
 z_index = -3

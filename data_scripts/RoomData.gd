@@ -31,14 +31,22 @@ const room_info_pos = {
 
 
 ## Maps a RoomShape to an Array containing the locations of its connectors.
-## NOTE: Add some offset to these so the rooms are not adjacent when snapped,
-## otherwise room area detection does not work!
 const room_connectors = {
-	RoomShape.LShape: [Vector2(0, -72), Vector2(72, -32), Vector2(-32, 72), Vector2(-72, 0)],
+	RoomShape.LShape: [Vector2(72, -32), Vector2(-32, 72)],
 	RoomShape.TShape: [Vector2(0, -72), Vector2(104, 32), Vector2(-104, 32)],
 	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
 	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
 	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)]
+}
+
+## Maps a RoomShape to an Array containing the directions of its connectors.
+## Used if a room wants to only have e.g. the up and down connectors actually appear.
+const room_conn_directions = {
+	RoomShape.LShape: ["right", "down"],
+	RoomShape.TShape:  ["up", "right", "left"],
+	RoomShape.SmallSquareShape: ["up", "right", "down", "left"],
+	RoomShape.BigSquareShape: ["up", "right", "down", "left"],
+	RoomShape.LongHallwayShape: ["left", "right"]
 }
 
 
@@ -140,6 +148,7 @@ const _ration_storage_data: Dictionary[String, Variant] = {
 	"power_usage": 0,
 	"rations_amount": 10,
 	"crew_needed": {"min": 0, "max": 0},
+	"delete_conns": ["left", "down", "right"]
 }
 
 
@@ -175,6 +184,7 @@ const _fuel_storage_data: Dictionary[String, Variant] = {
 	"always_activated": true,
 	"fuel_amount": 5,
 	"crew_needed": {"min": 0, "max": 0},
+	"delete_conns": ["left", "down", "right"]
 }
 
 const _placeholder_room_data: Dictionary[String, Variant] = {
@@ -222,6 +232,7 @@ const _weapons_research_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.RESEARCH_ROOM,
 	"power_usage": 1,
 	"crew_needed": {"min": 0, "max": 0},
+	"delete_conns": ["up"]
 }
 
 const _data_analysis_data: Dictionary[String, Variant] = {

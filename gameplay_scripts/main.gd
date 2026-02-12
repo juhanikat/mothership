@@ -67,7 +67,7 @@ func _ready() -> void:
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
 	if create_testing_rooms:
-		var testing_room_types = [RoomType.CREW_QUARTERS, RoomType.CANTEEN, RoomType.FUEL_STORAGE, RoomType.POWER_PLANT]
+		var testing_room_types = [RoomType.CREW_QUARTERS, RoomType.CANTEEN, RoomType.POWER_PLANT, RoomType.COMMAND_ROOM, RoomType.RATION_STORAGE, RoomType.FUEL_STORAGE]
 		for location: Node2D in testing_room_locations.get_children():
 
 			# creates testing room and adds it as a child to TestingRooms.

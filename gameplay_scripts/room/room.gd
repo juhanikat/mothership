@@ -81,7 +81,12 @@ func _ready() -> void:
 
 
 	# creates connectors for the room, depending on its shape
-	create_connectors()
+	if "delete_conns" in _data:
+		var delete_conns_list: Array[String] = []
+		delete_conns_list.assign(_data["delete_conns"])
+		create_connectors(delete_conns_list)
+	else:
+		create_connectors([])
 
 	# shapes the texture (Polygon2D) according to the room's shape,
 	# and colors it according to its category.
@@ -285,12 +290,17 @@ func connect_rooms(connector_pair: Array[Connector]) -> bool:
 			GlobalSignals.room_connected.emit(connector, connected_to)
 	return true
 
-
-func create_connectors() -> void:
-	for connector_pos in RoomData.room_connectors[_shape]:
+## <deleted_connectors> is a list of conn directions which are not added to this room,
+## e.g. ["up", "down"].
+func create_connectors(deleted_connectors: Array[String]) -> void:
+	for i in range(len(RoomData.room_connectors[_shape])):
+		var conn_pos = RoomData.room_connectors[_shape][i]
+		var conn_direction = RoomData.room_conn_directions[_shape][i]
+		if conn_direction in deleted_connectors:
+			continue
 		var new_connector: Area2D = connector_scene.instantiate()
 		connectors_node.add_child(new_connector)
-		new_connector.position = connector_pos
+		new_connector.position = conn_pos
 
 
 ## Creates a navigation region for this room (connector regions are made in connector.gd).
