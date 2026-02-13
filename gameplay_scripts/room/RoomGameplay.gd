@@ -149,6 +149,13 @@ func assign_crew(crew_member: CrewMember) -> bool:
 		GlobalNotice.display("Cannot assign crew to %s: The maximum amount is %s." % [str(parent_room.room_name), str(crew_needed.min)], "warning")
 		return false
 
+	if crew_member.assigned_to:
+		var crew_accessible_rooms = RoomConnections.get_all_rooms(parent_room, -1, true)
+		# if there is no path to the previous room, the crewmember cannot be assigned
+		if crew_member.assigned_to not in crew_accessible_rooms:
+			GlobalNotice.display("Cannot assign crew to %s: There is no crew accessible path there." % [str(parent_room.room_name)], "warning")
+			return false
+
 	var previous_room: Room = crew_member.assigned_to
 	if previous_room:
 		if previous_room == parent_room:

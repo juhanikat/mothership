@@ -74,7 +74,7 @@ raycast = NodePath("RayCast2D")
 raycast_line = NodePath("RayCast2D/RayCastLine")
 
 [node name="CheckConnectionTimer" type="Timer" parent="."]
-wait_time = 0.2
+wait_time = 0.1
 autostart = true
 
 [node name="Polygon" type="CollisionPolygon2D" parent="."]
@@ -121,6 +121,10 @@ polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
 visible = false
 polygon = PackedVector2Array(-192, -16, -192, 16, 192, 16, 192, -16)
 
+[node name="MediumHallwayShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+visible = false
+polygon = PackedVector2Array(-128, -16, -128, 16, 128, 16, 128, -16)
+
 [node name="AllRoomHighlightLines" type="Node2D" parent="."]
 
 [node name="LShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
@@ -147,6 +151,12 @@ closed = true
 visible = false
 position = Vector2(-128, 48)
 points = PackedVector2Array(-64, -64, 320, -64, 320, -32, -64, -32)
+closed = true
+
+[node name="MediumHallwayShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
+visible = false
+position = Vector2(-128, 48)
+points = PackedVector2Array(0, -64, 256, -64, 256, -32, 0, -32)
 closed = true
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]

@@ -2,10 +2,10 @@ class_name RoomData
 extends Node
 
 
-enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape}
+enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape, MediumHallwayShape}
 enum RoomType {
 	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, CREW_QUARTERS,
-	CANTEEN, LAVATORY, RATION_STORAGE, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, ARMORY, CABLE_DUCT, PLACEHOLDER_ROOM
+	CANTEEN, LAVATORY, RATION_STORAGE, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, ARMORY, HALLWAY, CABLE_DUCT, PLACEHOLDER_ROOM
 }
 enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, EMERGENCY_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
 
@@ -26,7 +26,8 @@ const room_info_pos = {
 	RoomShape.TShape: Vector2(-64, -64),
 	RoomShape.SmallSquareShape: Vector2(-32, -32),
 	RoomShape.BigSquareShape: Vector2(-64, -64),
-	RoomShape.LongHallwayShape: Vector2(-192, -32)
+	RoomShape.LongHallwayShape: Vector2(-192, -20),
+	RoomShape.MediumHallwayShape: Vector2(-128, -20)
 }
 
 
@@ -36,7 +37,8 @@ const room_connectors = {
 	RoomShape.TShape: [Vector2(0, -72), Vector2(104, 32), Vector2(-104, 32)],
 	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
 	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
-	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)]
+	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)],
+	RoomShape.MediumHallwayShape: [Vector2(-136, 0), Vector2(136, 0)]
 }
 
 ## Maps a RoomShape to an Array containing the directions of its connectors.
@@ -46,7 +48,8 @@ const room_conn_directions = {
 	RoomShape.TShape:  ["up", "right", "left"],
 	RoomShape.SmallSquareShape: ["up", "right", "down", "left"],
 	RoomShape.BigSquareShape: ["up", "right", "down", "left"],
-	RoomShape.LongHallwayShape: ["left", "right"]
+	RoomShape.LongHallwayShape: ["left", "right"],
+	RoomShape.MediumHallwayShape: ["left", "right"]
 }
 
 
@@ -65,6 +68,7 @@ const room_data = {
 	RoomType.ROBOTICS: _robotics_data,
 	RoomType.WEAPONS_RESEARCH: _weapons_research_data,
 	RoomType.DATA_ANALYSIS: _data_analysis_data,
+	RoomType.HALLWAY: _hallway_data,
 	RoomType.CABLE_DUCT: _cable_duct_data,
 	RoomType.ARMORY: _armory_data,
 	RoomType.PLACEHOLDER_ROOM: _placeholder_room_data
@@ -82,7 +86,7 @@ const _command_room_data: Dictionary[String, Variant] = {
 	"room_desc": "",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": {"min": 0, "max": 3},
 	"always_activated": true,
 
 }
@@ -162,6 +166,17 @@ const _wpp_data: Dictionary[String, Variant] = {
 					that are activated at the end of the turn.",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 2,
+	"crew_needed": {"min": 0, "max": 0},
+}
+
+const _hallway_data: Dictionary[String, Variant] = {
+	"room_name": "Hallway",
+	"room_shape": RoomShape.MediumHallwayShape,
+	"room_desc": "",
+	"room_category": RoomCategory.MAINTENANCE_ROOM,
+	"power_usage": 0,
+	"always_deactivated": true,
+	"accessible_by_crew": true,
 	"crew_needed": {"min": 0, "max": 0},
 }
 

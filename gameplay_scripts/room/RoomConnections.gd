@@ -121,7 +121,7 @@ static func get_all_rooms(start_room: Room, search_range: int = -1, crew_accessi
 			break
 		for adjacent_room: Room in current[0].adjacent_rooms:
 			if adjacent_room not in explored:
-				if crew_accessible and adjacent_room.accessible_by_crew == false:
+				if crew_accessible and adjacent_room.gameplay.accessible_by_crew == false:
 					continue
 				queue.append([adjacent_room, current[1] + 1])
 				explored.append(adjacent_room)

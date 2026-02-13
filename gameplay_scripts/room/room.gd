@@ -63,6 +63,8 @@ func _ready() -> void:
 			room_shapes[RoomShape.BigSquareShape] = room_shape.polygon
 		if room_shape.name == "LongHallwayShapePolygon":
 			room_shapes[RoomShape.LongHallwayShape] = room_shape.polygon
+		if room_shape.name == "MediumHallwayShapePolygon":
+			room_shapes[RoomShape.MediumHallwayShape] = room_shape.polygon
 
 	for room_highlight_line: Line2D in all_room_highlights.get_children():
 		if room_highlight_line.name == "LShapeLine":
@@ -75,6 +77,8 @@ func _ready() -> void:
 			room_highlight_lines[RoomShape.BigSquareShape] = room_highlight_line.points
 		if room_highlight_line.name == "LongHallwayShapeLine":
 			room_highlight_lines[RoomShape.LongHallwayShape] = room_highlight_line.points
+		if room_highlight_line.name == "MediumHallwayShapeLine":
+			room_highlight_lines[RoomShape.MediumHallwayShape] = room_highlight_line.points
 
 	polygon.polygon = room_shapes[_shape]
 
