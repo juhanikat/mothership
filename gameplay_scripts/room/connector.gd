@@ -4,6 +4,7 @@ extends Area2D
 @export var collision_polygon: CollisionPolygon2D
 @export var nav_region: NavigationRegion2D
 @export var texture_polygon: Polygon2D
+@export var check_connection_timer: Timer
 
 var connector_color = Color("bfb7be")
 var hovering: bool = false
@@ -76,14 +77,13 @@ func get_overlapping_rooms() -> Array[Room]:
 			overlapping_rooms.append(area)
 		elif area.is_in_group("Connector"):
 			overlapping_conns.append(area)
-	print(overlapping_conns)
 	return overlapping_rooms
 
 
+## Returns the connector that is connected to this one (both connectors must fully overlap),
+## or null otherwise.
+## Used when a room is connected to see which rooms must have their "adjacent_rooms" lists updated.
 func connected_to() -> Variant:
-	## Returns the connector that is connected to this one (both connectors must fully overlap),
-	## or null otherwise.
-	## Used when a room is connected to see which rooms must have their "adjacent_rooms" lists updated.
 	for connector: Connector in get_tree().get_nodes_in_group("Connector"):
 		if connector == self:
 			continue

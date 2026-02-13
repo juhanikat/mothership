@@ -40,7 +40,7 @@ position = Vector2(408, 384)
 position = Vector2(408, 208)
 
 [node name="Location4" type="Node2D" parent="TestingRoomLocations"]
-position = Vector2(568, 383)
+position = Vector2(560, 384)
 
 [node name="Location5" type="Node2D" parent="TestingRoomLocations"]
 position = Vector2(408, 480)

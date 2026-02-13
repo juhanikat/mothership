@@ -4,6 +4,7 @@ extends Area2D
 const RoomShape = RoomData.RoomShape
 const MAX_CONNECTOR_DISTANCE = 40
 
+@export var check_connection_timer: Timer
 @export var texture_polygon: Polygon2D
 @export var crew_member_node: Node2D
 @export var highlight_line: Line2D
@@ -28,6 +29,7 @@ var picked: bool = false # true when the room is picked by mouse.
 var locked: bool = false # true once room has been placed and can no longer be moved.
 
 var connecting_rooms: bool = false # used in _unhandled_input to keep room still while connecting.
+var closest_conns_pair = [] # used to highlight two Connectors that are close enough to pair
 var target_rotation: float = 0
 
 var room_name: String
@@ -186,12 +188,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("move_room"):
 		if picked and not connecting_rooms:
 			connecting_rooms = true
-			var all_connectors: Array[Connector]
-			# weird trick to cast the type correctly
-			all_connectors.assign(get_tree().get_nodes_in_group("Connector"))
-			var connector_pair: Array[Connector] = RoomConnections.find_connector_pairing(get_own_connectors(), all_connectors, 20)
-			if len(connector_pair) == 2:
-				var connected = await connect_rooms(connector_pair)
+			var conn_pair = get_connection_candidates()
+			if conn_pair:
+				var connected = await try_to_connect_rooms(conn_pair)
 				if connected:
 					picked = false
 					GlobalVariables.room_is_picked = false
@@ -233,10 +232,28 @@ func highlight(time: float = 2.0) -> void:
 	highlight_line_timer.start(time)
 
 
+## Returns the Connector of this room that is closest to another room's Connector,
+## or null if none are found in connection range.
+func get_connection_candidates() -> Array:
+	var closest_pair = []
+	var closest_conn_distance = null
+
+	var own_conns = get_own_connectors()
+	for own_conn in own_conns:
+		for other_conn: Connector in get_tree().get_nodes_in_group("Connector"):
+			if other_conn in own_conns:
+				continue
+			var distance = own_conn.global_position.distance_to(other_conn.global_position)
+			if distance < 75 and (len(closest_pair) == 0 or distance < closest_conn_distance):
+				closest_pair = [own_conn, other_conn]
+				closest_conn_distance = distance
+	return closest_pair
+
+
 ## Called when a room is placed while near another room.
 ## If the room can be placed, the "room_connected" signal is emitted and the list of own connectors
 ## is looped through so that ALL newly adjacent rooms can get connected properly.
-func connect_rooms(connector_pair: Array[Connector]) -> bool:
+func try_to_connect_rooms(connector_pair) -> bool:
 	var rules_passed = RoomConnections.check_placement_rules(self, connector_pair[1].get_parent_room())
 	if not rules_passed:
 		return false
@@ -380,6 +397,7 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		main.cut_room_shape_from_nav_region(self, get_own_connectors())
 
 	# done by all rooms in the game whenever any room is connected
+	room_info.shrink_info()
 	for conn in get_own_connectors():
 		conn.check_deletion()
 
@@ -408,3 +426,20 @@ func _on_mouse_exited() -> void:
 
 func _on_highlight_line_timer_timeout() -> void:
 	highlight_anim_player.play("hide_highlight")
+
+
+func _on_check_connection_timer_timeout() -> void:
+	var new_conn_pair = get_connection_candidates()
+	if new_conn_pair:
+		if closest_conns_pair:
+			closest_conns_pair[0].texture_polygon.color = Color(0.749, 0.718, 0.745)
+			closest_conns_pair[1].texture_polygon.color = Color(0.749, 0.718, 0.745)
+		closest_conns_pair = new_conn_pair
+		closest_conns_pair[0].texture_polygon.color = Color(0.0, 0.886, 0.516)
+		closest_conns_pair[1].texture_polygon.color = Color(0.0, 0.886, 0.516)
+	elif closest_conns_pair:
+		closest_conns_pair[0].texture_polygon.color = Color(0.749, 0.718, 0.745)
+		closest_conns_pair[1].texture_polygon.color = Color(0.749, 0.718, 0.745)
+		closest_conns_pair = []
+	if locked:
+		check_connection_timer.stop()

@@ -56,8 +56,9 @@ _data = {
 &"show_highlight": SubResource("Animation_ppkfq")
 }
 
-[node name="Room" type="Area2D" node_paths=PackedStringArray("texture_polygon", "crew_member_node", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
+[node name="Room" type="Area2D" node_paths=PackedStringArray("check_connection_timer", "texture_polygon", "crew_member_node", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
 script = ExtResource("1_ppkfq")
+check_connection_timer = NodePath("CheckConnectionTimer")
 texture_polygon = NodePath("TexturePolygon")
 crew_member_node = NodePath("AssignedCrewMembers")
 highlight_line = NodePath("HighlightLine")
@@ -71,6 +72,10 @@ all_room_shapes = NodePath("AllRoomShapes")
 all_room_highlights = NodePath("AllRoomHighlightLines")
 raycast = NodePath("RayCast2D")
 raycast_line = NodePath("RayCast2D/RayCastLine")
+
+[node name="CheckConnectionTimer" type="Timer" parent="."]
+wait_time = 0.2
+autostart = true
 
 [node name="Polygon" type="CollisionPolygon2D" parent="."]
 
@@ -165,4 +170,5 @@ default_color = Color(1, 0.329412, 0.333333, 0.619608)
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="timeout" from="CheckConnectionTimer" to="." method="_on_check_connection_timer_timeout"]
 [connection signal="timeout" from="HighlightLine/HighlightLineTimer" to="." method="_on_highlight_line_timer_timeout"]

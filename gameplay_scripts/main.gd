@@ -69,17 +69,21 @@ func _ready() -> void:
 	if create_testing_rooms:
 		var testing_room_types = [RoomType.CREW_QUARTERS, RoomType.CANTEEN, RoomType.POWER_PLANT, RoomType.COMMAND_ROOM, RoomType.RATION_STORAGE, RoomType.FUEL_STORAGE]
 		for location: Node2D in testing_room_locations.get_children():
-
 			# creates testing room and adds it as a child to TestingRooms.
 			# it's best to keep TestingROomLocations in a straight line so the rooms can connect easily
 			# also, make sure the amount of spawned rooms matches the amount of locations!
 			var new_room = create_testing_room(testing_room_types.pop_front(), location.global_position)
 			# connects all rooms that are placed by default, as long as they are near enough one another
-			var all_connectors: Array[Connector]
-			all_connectors.assign(get_tree().get_nodes_in_group("Connector"))
-			var connector_pair: Array[Connector] = RoomConnections.find_connector_pairing(new_room.get_own_connectors(), all_connectors, 1000)
-			if len(connector_pair) > 0 and not new_room.locked:
-				await new_room.connect_rooms(connector_pair)
+			new_room.connecting_rooms = true
+			var conn_pair = new_room.get_connection_candidates()
+			if conn_pair:
+				var connected = await new_room.try_to_connect_rooms(conn_pair)
+				if connected:
+					new_room.picked = false
+					GlobalVariables.room_is_picked = false
+					new_room.room_info.shrink_info()
+					new_room.locked = true
+			new_room.connecting_rooms = false
 
 			await get_tree().physics_frame
 			for room: Room in get_tree().get_nodes_in_group("Room"):
