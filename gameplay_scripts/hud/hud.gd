@@ -159,3 +159,7 @@ func _on_delivery_status_changed(new_status: Dictionary) -> void:
 
 func _on_help_button_pressed() -> void:
 	help_popup.show()
+
+
+func _on_disable_events_button_toggled(toggled_on: bool) -> void:
+	GlobalVariables.events_disabled = toggled_on

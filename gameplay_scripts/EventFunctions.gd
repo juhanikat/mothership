@@ -55,7 +55,10 @@ static func print_event_info(scene_tree: SceneTree) -> void:
 	if len(possible_events_strings) == 0:
 		print("No events can appear this turn.")
 	else:
-		print("The following events have a change to appear:")
+		if GlobalVariables.events_disabled:
+			print("The following events would have a change to appear, but events are currently disabled:")
+		else:
+			print("The following events have a change to appear:")
 		for event_string in possible_events_strings:
 			print(event_string)
 	print("")

@@ -16,6 +16,8 @@ func _ready() -> void:
 	hide()
 
 func show_event(event_data: Dictionary) -> void:
+	if GlobalVariables.events_disabled:
+		return
 	for existing_button in event_choice_button_container.get_children():
 		existing_button.queue_free()
 
