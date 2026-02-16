@@ -4,7 +4,6 @@ extends Node2D
 const RoomType = RoomData.RoomType
 const room_data = RoomData.room_data
 
-@export var room_selection: RoomSelection
 @export var hud: Hud
 
 @export var camera: Camera2D
@@ -60,7 +59,7 @@ func _ready() -> void:
 	var first_order = OrderFunctions.get_starting_order()
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
-	room_selection.show_order(first_order.description, possible_rooms)
+	hud.room_selection.show_order(first_order.description, possible_rooms)
 
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
@@ -243,21 +242,19 @@ func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
 func _on_next_turn() -> void:
 	if hud.event_popup.visible:
 		hud.event_popup.hide()
+
 	GlobalVariables.turn += 1
 	for gameplay: RoomGameplay in get_tree().get_nodes_in_group("RoomGameplay"):
 		gameplay.next_turn()
 
-	var next_order: Dictionary
-	if GlobalVariables.turn == 3:
-		next_order = OrderFunctions.get_specific_order(OrderData.Order.CARGO_BAY_ORDER)
-	else:
-		var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)).filter(func(room: Room): return room.gameplay.activated)
-		next_order = OrderFunctions.get_random_order(len(active_data_analysis_rooms))
+	var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)) \
+	.filter(func(room: Room): return room.gameplay.activated)
+	var next_order = OrderFunctions.get_order_for_next_turn(len(active_data_analysis_rooms))
 
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(next_order.selected_rooms)
-	room_selection.clear_room_buttons()
-	room_selection.show_order(next_order.description, possible_rooms)
+	hud.room_selection.clear_room_buttons()
+	hud.room_selection.show_order(next_order.description, possible_rooms)
 
 	EventFunctions.print_event_info(get_tree())
 	var next_event_data = EventFunctions.get_random_event(get_tree())

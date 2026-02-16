@@ -1,27 +1,38 @@
-[gd_scene load_steps=2 format=3 uid="uid://bha52nfpavehy"]
+[gd_scene load_steps=3 format=3 uid="uid://bha52nfpavehy"]
 
 [ext_resource type="Script" uid="uid://dmq65ad0ipcv4" path="res://gameplay_scripts/hud/room_selection.gd" id="1_ayfju"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cs5ee"]
+bg_color = Color(0, 0, 0, 0.745098)
+
 [node name="RoomSelection" type="CanvasLayer" node_paths=PackedStringArray("order_description_label", "room_container")]
 script = ExtResource("1_ayfju")
-order_description_label = NodePath("SidePanel/VBoxContainer/OrderDescription")
-room_container = NodePath("SidePanel/VBoxContainer/RoomContainer")
+order_description_label = NodePath("SelectionPanel/HBoxContainer/OrderDescription")
+room_container = NodePath("SelectionPanel/HBoxContainer/RoomContainer")
 
-[node name="SidePanel" type="PanelContainer" parent="."]
+[node name="SelectionPanel" type="PanelContainer" parent="."]
 anchors_preset = -1
-anchor_left = 0.888889
-anchor_top = 0.197531
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 0
+anchor_left = 0.111111
+anchor_top = 0.246914
+anchor_right = 0.888889
+anchor_bottom = 0.395062
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cs5ee")
 metadata/_edit_use_anchors_ = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="SidePanel"]
+[node name="HBoxContainer" type="HBoxContainer" parent="SelectionPanel"]
 layout_mode = 2
 
-[node name="OrderDescription" type="RichTextLabel" parent="SidePanel/VBoxContainer"]
+[node name="OrderDescription" type="RichTextLabel" parent="SelectionPanel/HBoxContainer"]
 layout_mode = 2
-fit_content = true
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+text = "order description
+goes
+here
+srdf"
 
-[node name="RoomContainer" type="VBoxContainer" parent="SidePanel/VBoxContainer"]
+[node name="RoomContainer" type="HBoxContainer" parent="SelectionPanel/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3

@@ -3,7 +3,7 @@ class_name RoomSelection
 
 
 @export var order_description_label: RichTextLabel
-@export var room_container: VBoxContainer
+@export var room_container: HBoxContainer
 @onready var main: Node2D = get_tree().root.get_node("Main")
 
 

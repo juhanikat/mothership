@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://d1spf4ifa2e2j"]
+[gd_scene load_steps=6 format=3 uid="uid://d1spf4ifa2e2j"]
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://gameplay_scripts/hud/hud.gd" id="1_ahhtf"]
+[ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://scenes/room_selection.tscn" id="2_5ysmq"]
 [ext_resource type="PackedScene" uid="uid://cisar4i6gjwbk" path="res://scenes/event_popup.tscn" id="2_oo0fn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ahhtf"]
@@ -9,7 +10,7 @@ bg_color = Color(0.300296, 0.453884, 0.300172, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oo0fn"]
 bg_color = Color(0.392165, 0.478501, 0.478927, 1)
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "next_turn_button", "event_popup")]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selection", "event_popup")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -27,8 +28,12 @@ crew_quarters_limit_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVb
 delivery_info_label = NodePath("PanelContainer2/HBoxContainer/DeliveryInfoLabel")
 dev_toolbar = NodePath("PanelContainer/TopBar")
 dev_options_hint_label = NodePath("PanelContainer/DevOptionsHintLabel")
+disable_events_toggle = NodePath("PanelContainer/TopBar/DisableEventsButton")
 next_turn_button = NodePath("PanelContainer2/HBoxContainer/NextTurnButton")
+room_selection = NodePath("RoomSelection")
 event_popup = NodePath("EventPopup")
+
+[node name="RoomSelection" parent="." instance=ExtResource("2_5ysmq")]
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = -1

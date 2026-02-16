@@ -237,7 +237,7 @@ func next_turn() -> void:
 					random_fuel_storage.highlight()
 					GlobalNotice.display("Fuel delivered to a random Fuel Storage.")
 			elif current_delivery.type == "Rations":
-				var all_ration_storages = get_tree().get_nodes_in_groupstr(RoomType.RATION_STORAGE)
+				var all_ration_storages = get_tree().get_nodes_in_group(str(RoomType.RATION_STORAGE))
 				if not all_ration_storages:
 					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
 					return

@@ -10,7 +10,7 @@ class_name OrderData
 enum StartingOrder {POWER_PLANT_ORDER, ENGINE_ROOM_ORDER, FUEL_STORAGE_ORDER, COMMAND_ROOM_ORDER}
 
 # The normal orders.
-enum Order {NEUTRAL_ORDER, CARGO_BAY_ORDER, COMBAT_WARNING_ORDER, COMBAT_CRITICAL_ORDER, CREW_ORDER}
+enum Order {NEUTRAL_ORDER, CARGO_BAY_ORDER, RESEARCH_ROOM_ORDER}
 
 const ROOMS = RoomData.RoomType
 # If an order has a "room_category" array, then any room that is in those categories can appear.
@@ -32,7 +32,8 @@ const basic_orders = {
 
 # These orders can appear e.g. on specific turns
 const special_orders = {
-	Order.CARGO_BAY_ORDER: _cargo_bay_order
+	Order.CARGO_BAY_ORDER: _cargo_bay_order,
+	Order.RESEARCH_ROOM_ORDER: _research_room_order,
 }
 
 
@@ -45,7 +46,14 @@ const _neutral_order = {
 		ROOM_CATEGORIES.RESEARCH_ROOM,
 		ROOM_CATEGORIES.LUXURY_ROOM
 	],
-	"choose_from": 3
+	"choose_from": 5
+	}
+
+const _research_room_order = {
+	"description": "It's time to build a new research station.",
+	"room_categories": [
+		ROOM_CATEGORIES.RESEARCH_ROOM,
+	]
 	}
 
 const _cargo_bay_order = {

@@ -15,11 +15,14 @@ extends CanvasLayer
 @export var total_crew_amount_label: RichTextLabel
 @export var crew_quarters_limit_label: RichTextLabel
 @export var delivery_info_label: RichTextLabel
+
 @export var dev_toolbar: HBoxContainer
 @export var dev_options_hint_label: RichTextLabel
+@export var disable_events_toggle: CheckButton
 
 @export var next_turn_button: Button
 
+@export var room_selection: RoomSelection
 @export var event_popup: EventPopup
 
 var total_crew: int = 0 # changed by the update() function in this script
@@ -63,6 +66,7 @@ func _ready() -> void:
 	# hidden by default, press D to show in-game!
 	dev_toolbar.hide()
 	dev_options_hint_label.show()
+	disable_events_toggle.set_pressed_no_signal(GlobalVariables.events_disabled)
 
 
 func _unhandled_input(event: InputEvent) -> void:

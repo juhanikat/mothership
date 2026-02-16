@@ -6,4 +6,4 @@ var room_is_picked: bool = false
 
 
 # dev options
-var events_disabled: bool = false
+var events_disabled: bool = true
