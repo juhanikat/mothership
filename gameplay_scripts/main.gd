@@ -56,7 +56,10 @@ func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
 
 func _ready() -> void:
 	camera.zoom = default_zoom
-	var first_order = OrderFunctions.get_starting_order()
+	var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)) \
+	.filter(func(room: Room): return room.gameplay.activated)
+	var first_order = OrderFunctions.get_order_for_next_turn(len(active_data_analysis_rooms))
+
 	var possible_rooms: Array[Dictionary]
 	possible_rooms.assign(first_order.selected_rooms)
 	hud.room_selection.show_order(first_order.description, possible_rooms)

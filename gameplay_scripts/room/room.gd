@@ -85,7 +85,6 @@ func _ready() -> void:
 	if room_highlight_lines.get(_shape):
 		highlight_line.points = room_highlight_lines[_shape]
 
-
 	# creates connectors for the room, depending on its shape
 	if "delete_conns" in _data:
 		var delete_conns_list: Array[String] = []
@@ -186,6 +185,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel_room") and picked:
 		room_info.queue_free()
 		main.spawned_room_names[room_name] -= 1
+		GlobalVariables.room_is_picked = false
 		queue_free()
 		return
 
@@ -437,7 +437,8 @@ func _on_check_connection_timer_timeout() -> void:
 	if new_conn_pair:
 		if closest_conns_pair:
 			closest_conns_pair[0].texture_polygon.color = Color(0.749, 0.718, 0.745)
-			closest_conns_pair[1].texture_polygon.color = Color(0.749, 0.718, 0.745)
+			if closest_conns_pair[1]: # check because the connector might have been deleted
+				closest_conns_pair[1].texture_polygon.color = Color(0.749, 0.718, 0.745)
 		closest_conns_pair = new_conn_pair
 		closest_conns_pair[0].texture_polygon.color = Color(0.0, 0.886, 0.516)
 		closest_conns_pair[1].texture_polygon.color = Color(0.0, 0.886, 0.516)

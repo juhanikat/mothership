@@ -12,7 +12,7 @@ enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, EMERGENCY_ROOM, L
 
 const room_colors = {
 	RoomCategory.CREW_ROOM: Color(0.212, 0.561, 0.812),
-	RoomCategory.MAINTENANCE_ROOM: Color(0.957, 0.588, 0.098),
+	RoomCategory.MAINTENANCE_ROOM: Color(0.992, 0.596, 0.306),
 	RoomCategory.RESEARCH_ROOM: Color(0.678, 0.0, 0.68),
 	RoomCategory.EMERGENCY_ROOM: Color(0.681, 0.257, 0.219),
 	RoomCategory.LUXURY_ROOM: Color(0.394, 0.834, 0.113),
@@ -161,12 +161,13 @@ const _ration_storage_data: Dictionary[String, Variant] = {
 const _wpp_data: Dictionary[String, Variant] = {
 	"room_name": "Waste Processing Plant",
 	"room_shape": RoomShape.BigSquareShape,
-	"room_desc": "Must be on the station to activate Lavatories.
-					Adds one fuel to the nearest Fuel Storage for every two lavatories
+	"room_desc": "Must be on the station to activate Lavatories. \
+					Adds one fuel to the nearest Fuel Storage for every two lavatories \
 					that are activated at the end of the turn.",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 2,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": {"min": 0, "max": 3},
+	"delete_conns": ["left", "down", "right"]
 }
 
 const _hallway_data: Dictionary[String, Variant] = {
@@ -183,7 +184,7 @@ const _hallway_data: Dictionary[String, Variant] = {
 const _cable_duct_data: Dictionary[String, Variant] = {
 	"room_name": "Cable Duct",
 	"room_shape": RoomShape.LongHallwayShape,
-	"room_desc": "",
+	"room_desc": "Impassable by crew.",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
 	"accessible_by_crew": false,
