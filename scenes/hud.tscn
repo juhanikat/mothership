@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://d1spf4ifa2e2j"]
+[gd_scene load_steps=7 format=3 uid="uid://d1spf4ifa2e2j"]
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://gameplay_scripts/hud/hud.gd" id="1_ahhtf"]
 [ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://scenes/room_selection.tscn" id="2_5ysmq"]
@@ -9,6 +9,9 @@ bg_color = Color(0.300296, 0.453884, 0.300172, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oo0fn"]
 bg_color = Color(0.392165, 0.478501, 0.478927, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ysmq"]
+bg_color = Color(0.0768358, 0.0768358, 0.0768358, 1)
 
 [node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selection", "event_popup")]
 script = ExtResource("1_ahhtf")
@@ -192,20 +195,37 @@ visible = false
 [node name="CargoPopup" type="PopupPanel" parent="."]
 title = "Cargo"
 initial_position = 1
-size = Vector2i(119, 100)
+size = Vector2i(200, 180)
+visible = true
+theme_override_styles/panel = SubResource("StyleBoxFlat_5ysmq")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CargoPopup"]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.344444
+offset_right = 200.0
+offset_bottom = 180.0
+text = "What do you want to order?"
+metadata/_edit_use_anchors_ = true
 
 [node name="CargoOptionsHBox" type="HBoxContainer" parent="CargoPopup"]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 115.0
-offset_bottom = 96.0
+anchors_preset = -1
+anchor_top = 0.483333
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 200.0
+offset_bottom = 180.0
+size_flags_vertical = 8
+metadata/_edit_use_anchors_ = true
 
 [node name="FuelButton" type="Button" parent="CargoPopup/CargoOptionsHBox"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Fuel"
 
 [node name="RationsButton" type="Button" parent="CargoPopup/CargoOptionsHBox"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Rations"
 
 [node name="HelpPopup" type="PopupPanel" parent="."]

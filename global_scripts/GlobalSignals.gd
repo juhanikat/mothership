@@ -2,6 +2,7 @@ extends Node
 
 
 ## Put signals here
+signal room_spawned(room: Room)
 signal room_connected(connector1: Connector, connector2: Connector)
 signal path_build_mode_toggled(new_path_build_mode: bool)
 

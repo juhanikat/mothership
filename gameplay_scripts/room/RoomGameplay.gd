@@ -115,7 +115,7 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 
 ## Called when an activated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been deactivated, and false otherwise.
-func deactivate_room(show_deactivation_notice: bool = false) -> bool:
+func deactivate_room(ignore_power_supplier: bool = false, show_deactivation_notice: bool = false) -> bool:
 	if not activated:
 		push_error("Tried to deactivate room that was not active, this should never happen!")
 		return false
@@ -129,7 +129,7 @@ func deactivate_room(show_deactivation_notice: bool = false) -> bool:
 
 	if _try_to_deactivate():
 		activated = false
-		if power_usage != 0:
+		if power_usage != 0 and not ignore_power_supplier:
 			for power_supplier: Room in get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)):
 				if parent_room in power_supplier.gameplay.supplies_to:
 					power_supplier.gameplay.power_supply.capacity += power_usage
@@ -145,6 +145,10 @@ func deactivate_room(show_deactivation_notice: bool = false) -> bool:
 
 ## Assings a crew member to this room, removing them from their previous room. Also updates both affected room_info nodes.
 func assign_crew(crew_member: CrewMember) -> bool:
+	var previous_room: Room = crew_member.assigned_to
+	if previous_room and previous_room == parent_room:
+		return false
+
 	if len(get_crew()) == crew_needed.max:
 		GlobalNotice.display("Cannot assign crew to %s: The maximum amount is %s." % [str(parent_room.room_name), str(crew_needed.min)], "warning")
 		return false
@@ -156,10 +160,7 @@ func assign_crew(crew_member: CrewMember) -> bool:
 			GlobalNotice.display("Cannot assign crew to %s: There is no crew accessible path there." % [str(parent_room.room_name)], "warning")
 			return false
 
-	var previous_room: Room = crew_member.assigned_to
 	if previous_room:
-		if previous_room == parent_room:
-			return false
 		var crew_unassigned = previous_room.gameplay._unassign_crew(crew_member)
 		if not crew_unassigned:
 			return false
@@ -310,11 +311,13 @@ func _try_to_deactivate() -> bool:
 	match parent_room_type:
 		RoomData.RoomType.POWER_PLANT:
 			if len(supplies_to) > 0:
-				for room in supplies_to:
-					var room_deactivated = room.gameplay.deactivate_room()
+				for room: Room in supplies_to:
+					var room_deactivated = room.gameplay.deactivate_room(true)
 					if not room_deactivated:
+						# TODO: there should currently be no rooms that require power AND can't be deactivated
+						# since it causes problems, maybe try to make that combo work in the future
+						push_error("found room that used power and could not be deactivated, this should not happen!")
 						GlobalNotice.display("Cannot deactivate Power Plant: It is supplying power to %s, which can not be deactivated." % [str(room.room_name)], "warning")
-						return false
 			return true
 		RoomType.WPP:
 			var activated_wpps = []

@@ -28,6 +28,8 @@ extends CanvasLayer
 var total_crew: int = 0 # changed by the update() function in this script
 var crew_quarters_limit: int
 
+var spawned_room = null
+
 @onready var main: Main = get_parent()
 @onready var room_category_to_item_list = {
 	RoomData.RoomCategory.CREW_ROOM: crew_room_list,
@@ -47,6 +49,9 @@ func _ready() -> void:
 
 	GlobalSignals.cargo_bay_order_made.connect(_on_delivery_status_changed)
 	GlobalSignals.delivery_status_changed.connect(_on_delivery_status_changed)
+
+	GlobalSignals.room_spawned.connect(_on_room_spawned)
+	GlobalSignals.room_connected.connect(_on_room_connected)
 
 	path_build_mode_label.text = "Path build mode: OFF"
 	path_info_label.text = "No path yet"
@@ -112,6 +117,20 @@ func _on_add_room_button_pressed() -> void:
 			main.spawn_room_at_mouse(selected_room_data)
 
 
+func _on_room_spawned(room: Room) -> void:
+	spawned_room = room
+
+
+func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
+	print("täs")
+	print(spawned_room)
+	if connector1.get_parent_room() == spawned_room or connector2.get_parent_room() == spawned_room:
+		# TODO: remove the hardcoded turn number here?
+		if GlobalVariables.turn != 1 and not GlobalVariables.CAN_PICK_MULTIPLE_ROOMS:
+			room_selection.hide()
+			spawned_room = null
+
+
 func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
 	if toggled_on:
 		GlobalInputFlags.show_tooltips = true
@@ -124,6 +143,7 @@ func _on_next_turn_button_pressed() -> void:
 		return
 	if GlobalVariables.room_is_picked:
 		return
+	room_selection.show()
 	GlobalSignals.turn_advanced.emit()
 
 

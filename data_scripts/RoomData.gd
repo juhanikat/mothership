@@ -188,6 +188,7 @@ const _cable_duct_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
 	"accessible_by_crew": false,
+	"always_deactivated": true,
 	"crew_needed": {"min": 0, "max": 0},
 }
 

@@ -39,9 +39,7 @@ var crew_quarters_limit: int = 3
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var used_crew_names: Array[String] = [] # to make sure no crew member name is used twice, should improve this later
 
-## NOTE: Change these when testing!
-var create_testing_rooms: bool = true
-var NO_CARGO_BAY_REQUIREMENT: bool = true
+
 
 
 
@@ -68,7 +66,7 @@ func _ready() -> void:
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
-	if create_testing_rooms:
+	if GlobalVariables.create_testing_rooms:
 		var testing_room_types = [RoomType.CREW_QUARTERS, RoomType.CANTEEN, RoomType.POWER_PLANT, RoomType.COMMAND_ROOM, RoomType.RATION_STORAGE, RoomType.FUEL_STORAGE]
 		for location: Node2D in testing_room_locations.get_children():
 			# creates testing room and adds it as a child to TestingRooms.
@@ -126,6 +124,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and camera_dragging:
 		camera.global_position += event.relative * (3 / (camera.zoom.x * 3)) # this is mouse movement direction from center of screen I think?
 
+	if event.is_action_pressed("cancel_crew_move") and GlobalVariables.picked_crew:
+		GlobalVariables.picked_crew.picked = false
+		GlobalVariables.picked_crew.hide()
+		GlobalVariables.picked_crew = null
+
 	if event.is_action_pressed("add_point_to_path") and GlobalInputFlags.path_build_mode:
 		var mouse_pos = get_global_mouse_position()
 		if not path_start:
@@ -174,6 +177,7 @@ func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 		new_room.is_starting_room = true
 	# everything else, like creating room_info, is done inside the room's _ready() function
 	room_nodes.add_child(new_room)
+	GlobalSignals.room_spawned.emit(new_room)
 	return new_room
 
 
@@ -194,7 +198,7 @@ func check_turn_requirements() -> bool:
 			if required_type not in all_room_types:
 				GlobalNotice.display("Place all required rooms first.", "warning")
 				return false
-	elif GlobalVariables.turn == 3 and not NO_CARGO_BAY_REQUIREMENT:
+	elif GlobalVariables.turn == 3 and not GlobalVariables.NO_CARGO_BAY_REQUIREMENT:
 		var cargo_bay = get_tree().get_nodes_in_group(str(RoomType.CARGO_BAY))
 		if not cargo_bay:
 			GlobalNotice.display("Place all required rooms first.", "warning")

@@ -34,15 +34,19 @@ static func room_sort(a: Dictionary, b: Dictionary) -> bool:
 	return true
 
 
-static func _get_random_order(extra_options: int = 0) -> Dictionary:
-	var orders = basic_orders.keys().duplicate(true)
-	orders.shuffle()
-	return _get_specific_order(orders[0], extra_options)
+## Returns a normal order (which are upgraded if there are active data analysis rooms).
+static func _get_normal_order(active_data_rooms: int = 0) -> Dictionary:
+	var orders_enums = basic_orders.keys().duplicate(true)
+	if active_data_rooms == 0:
+		return _get_specific_order(orders_enums[0], active_data_rooms)
+	elif active_data_rooms == 1:
+		return _get_specific_order(orders_enums[1], active_data_rooms)
+	else:
+		return _get_specific_order(orders_enums[2], active_data_rooms)
 
 
 ## Returns an order's data, converting the "rooms" value from enums to room_data dicts.
-## If the order contains a "choose_from" field with value n, n + <extra_options> random rooms are selected from the list.
-static func _get_specific_order(order_enum: OrderData.Order, extra_options: int = 0) -> Dictionary:
+static func _get_specific_order(order_enum: OrderData.Order, active_data_rooms: int) -> Dictionary:
 	var new_order: Dictionary = {}
 	if order_enum in basic_orders:
 		new_order = basic_orders[order_enum].duplicate(true)
@@ -53,10 +57,14 @@ static func _get_specific_order(order_enum: OrderData.Order, extra_options: int 
 	var room_data_array = []
 
 	if "room_categories_array" in new_order:
-		# if order has categories instead of specific rooms
+		# if order has categories instead of specific rooms, this is the only case where active data rooms have an effect
 		for room_data_dict in RoomData.room_data.values():
 			if room_data_dict["room_category"] in new_order.room_categories_array:
 				room_data_array.append(room_data_dict)
+		if "choose_from" in new_order:
+			room_data_array.shuffle()
+			room_data_array = room_data_array.slice(0, new_order["choose_from"] + active_data_rooms)
+
 	if "room_categories_dict" in new_order:
 		# if the category selection is a dict, it contains an exact amount of rooms chosen for each category
 		for category in new_order["room_categories_dict"]:
@@ -65,13 +73,10 @@ static func _get_specific_order(order_enum: OrderData.Order, extra_options: int 
 			rooms.shuffle()
 			for room_data in rooms.slice(0, amount):
 				room_data_array.append(room_data)
+
 	if "rooms" in new_order:
 		for room_enum in new_order.rooms:
 			room_data_array.append(RoomData.room_data[room_enum])
-
-	if "choose_from" in new_order:
-		room_data_array.shuffle()
-		room_data_array = room_data_array.slice(0, new_order["choose_from"] + extra_options)
 
 	room_data_array.sort_custom(room_sort)
 
@@ -83,9 +88,9 @@ static func _get_specific_order(order_enum: OrderData.Order, extra_options: int 
 
 static func get_order_for_next_turn(active_data_rooms: int) -> Dictionary:
 	if GlobalVariables.turn == 1:
-		return _get_specific_order(Order.STARTING_ORDER)
+		return _get_specific_order(Order.STARTING_ORDER, active_data_rooms)
 	if GlobalVariables.turn == 3:
-		return _get_specific_order(Order.CARGO_BAY_ORDER)
+		return _get_specific_order(Order.CARGO_BAY_ORDER, active_data_rooms)
 	elif GlobalVariables.turn % 5 == 0:
-		return _get_specific_order(Order.RESEARCH_ROOM_ORDER)
-	return _get_random_order(active_data_rooms)
+		return _get_specific_order(Order.RESEARCH_ROOM_ORDER, active_data_rooms)
+	return _get_normal_order(active_data_rooms)
