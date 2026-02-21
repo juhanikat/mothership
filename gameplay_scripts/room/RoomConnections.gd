@@ -6,26 +6,28 @@ static var RoomType = RoomData.RoomType
 
 
 ## Returns true if <placed_room> can be placed adjacent to <connecting_room>, or false otherwise.
-static func check_placement_rules(placed_room: Room, connecting_room: Room) -> bool:
+static func check_placement_rules(room1: Room, room2: Room, display_warnings: bool = true) -> bool:
 	# these two exist to make checking easier when e.g. comparing only the categories with has()
-	var room_categories = [placed_room.room_category, connecting_room.room_category]
-	var _room_types = [placed_room.room_type, connecting_room.room_type]
+	var room_categories = [room1.room_category, room2.room_category]
+	var _room_types = [room1.room_type, room2.room_type]
+	var warning_text = ""
 
 	if room_categories.has(RoomCategory.LUXURY_ROOM) and room_categories.has(RoomCategory.MAINTENANCE_ROOM):
-		GlobalNotice.display("Room placement failed: Cannot place Luxury Room next to a Maintenance Room.", "warning")
+		warning_text += "Room placement failed: Cannot place Luxury Room next to a Maintenance Room.\n"
+
+	match room1.room_type:
+		RoomType.CANTEEN:
+			if room2.room_category != RoomCategory.CREW_ROOM:
+				## TODO: fix, this likely fails if ANY connecting room is not a Crew Room!
+				warning_text += "Room placement failed: Canteens must be adjacent to at least one Crew Room.\n"
+		RoomType.LAVATORY:
+			if room2.room_category != RoomCategory.CREW_ROOM:
+				warning_text += "Room placement failed: Lavatories must be adjacent to at least one Crew Room.\n"
+
+	if warning_text:
+		if display_warnings:
+			GlobalNotice.display(warning_text, "warning")
 		return false
-
-	if placed_room.room_type == RoomType.CANTEEN:
-		if connecting_room.room_category != RoomCategory.CREW_ROOM:
-			## TODO: fix, this likely fails if ANY connecting room is not a Crew Room!
-			GlobalNotice.display("Room placement failed: Canteens must be adjacent to at least one Crew Room.", "warning")
-			return false
-
-	if placed_room.room_type == RoomType.LAVATORY:
-		if connecting_room.room_category != RoomCategory.CREW_ROOM:
-			GlobalNotice.display("Room placement failed: Lavatories must be adjacent to at least one Crew Room.", "warning")
-			return false
-
 	return true
 
 

@@ -38,6 +38,7 @@ var total_crew: int = 0
 var crew_quarters_limit: int = 3
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var used_crew_names: Array[String] = [] # to make sure no crew member name is used twice, should improve this later
+var command_room : Room
 
 # maps a room/connector to the NavObstacle created by it, so we can remove the obstacle if the room/connector is removed for any reason
 var nav_obstacles = {}
@@ -109,6 +110,15 @@ func _physics_process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("path_build_mode"):
 		GlobalInputFlags.path_build_mode = not GlobalInputFlags.path_build_mode
+
+	if Input.is_action_pressed("move_camera_left"):
+		camera.global_position.x -= 30
+	if Input.is_action_pressed("move_camera_right"):
+		camera.global_position.x += 30
+	if Input.is_action_pressed("move_camera_up"):
+		camera.global_position.y -= 30
+	if Input.is_action_pressed("move_camera_down"):
+		camera.global_position.y += 30
 
 	if event.is_action_pressed("drag_camera"):
 		camera_dragging = true
@@ -193,6 +203,11 @@ func find_path(from: Vector2, to: Vector2) -> void:
 ## Returns true if the player has done all that is needed to do on the current turn
 ## (for example, the three starting rooms have to be placed on the first turn to continue).
 func check_turn_requirements() -> bool:
+	if not command_room.gameplay.activated:
+		var active_power_plants = get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)).filter(func(comm): return comm.gameplay.activated)
+		if len(active_power_plants) == 0 or not command_room.gameplay.find_power_supplier(true):
+			pass
+
 	if GlobalVariables.turn == 1:
 		var all_room_types = get_tree().get_nodes_in_group("Room").map(func(room: Room): return room.room_type)
 		for required_type in [RoomData.RoomType.COMMAND_ROOM, RoomData.RoomType.FUEL_STORAGE, RoomData.RoomType.POWER_PLANT]:
@@ -269,6 +284,10 @@ func _on_next_turn() -> void:
 	GlobalVariables.turn += 1
 	for gameplay: RoomGameplay in get_tree().get_nodes_in_group("RoomGameplay"):
 		gameplay.next_turn()
+
+	var active_command_rooms = get_tree().get_nodes_in_group(str(RoomType.COMMAND_ROOM)).filter(func(comm): return comm.gameplay.activated)
+	if len(active_command_rooms) == 0:
+		GlobalNotice.display("Game over! There are no active command rooms.", "error")
 
 	var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)) \
 	.filter(func(room: Room): return room.gameplay.activated)

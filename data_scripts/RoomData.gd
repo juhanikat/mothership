@@ -85,9 +85,9 @@ const _command_room_data: Dictionary[String, Variant] = {
 	"room_shape": RoomShape.SmallSquareShape,
 	"room_desc": "",
 	"room_category": RoomCategory.SPECIAL_ROOM,
-	"power_usage": 0,
+	"power_usage": 1,
 	"crew_needed": {"min": 0, "max": 3},
-	"always_activated": true,
+	"activate_when_connected": true,
 
 }
 

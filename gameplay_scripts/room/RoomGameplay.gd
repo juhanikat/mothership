@@ -5,6 +5,7 @@ const RoomType = RoomData.RoomType
 var parent_room_type: RoomData.RoomType
 
 var activated: bool = false
+var activate_when_connected: bool = false # can be deactivated, but is automatically activated when connected (if possible)
 var always_activated: bool = false # Room is activated automatically once connected, and cannot be deactivated
 var always_deactivated: bool = false
 var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay and Crew Quarters
@@ -67,6 +68,7 @@ func init_gameplay_features(data: Dictionary) -> void:
 	crew_needed = _data["crew_needed"]
 
 	always_activated = _data.get("always_activated", false)
+	activate_when_connected = _data.get("activate_when_connected", false)
 	always_deactivated = _data.get("always_deactivated", false)
 	cannot_be_deactivated = _data.get("cannot_be_deactivated", false)
 	accessible_by_crew = _data.get("accessible_by_crew", true)
@@ -108,7 +110,7 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 	activated = true
 	parent_room.texture_polygon.color.a += 0.5
 	if power_usage != 0:
-		var sufficient_power_supplier = _find_power_supplier()
+		var sufficient_power_supplier = find_power_supplier()
 		sufficient_power_supplier.gameplay.power_supply.capacity -= power_usage
 		sufficient_power_supplier.gameplay.supplies_to.append(parent_room)
 		sufficient_power_supplier.room_info.update_power_supply_label(sufficient_power_supplier.gameplay.power_supply)
@@ -273,7 +275,7 @@ func _can_be_activated() -> bool:
 	# power plant check
 	var sufficient_power_supplier
 	if power_usage != 0:
-		sufficient_power_supplier = _find_power_supplier()
+		sufficient_power_supplier = find_power_supplier()
 		if not sufficient_power_supplier:
 			GlobalNotice.display("Cannot activate room: There are no active Power Plants nearby.", "warning")
 			return false
@@ -350,12 +352,13 @@ func _can_be_deactivated() -> bool:
 	return true
 
 
-## Returns the nearest ACTIVATED power supplier with sufficient capacity and range if one was found,
-## and null otherwise.
-func _find_power_supplier():
+## Returns the nearest power supplier with sufficient capacity and range if one was found,
+## and null otherwise. If include_deactivated is true, include all power plants in the search.
+func find_power_supplier(include_deactivated: bool = false):
 	var not_in_range = true
 	var power_suppliers = get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT))
-	power_suppliers = power_suppliers.filter(func(supplier): return supplier.gameplay.activated)
+	if not include_deactivated:
+		power_suppliers = power_suppliers.filter(func(supplier): return supplier.gameplay.activated)
 	for power_supplier: Room in power_suppliers:
 		var power_supplier_reach = RoomConnections.get_all_rooms(power_supplier, power_supplier.gameplay.power_supply.range)
 		if parent_room in power_supplier_reach:
@@ -388,13 +391,15 @@ func _find_sufficient_ration_storage():
 
 
 ## Things that need to be done as soon as the room is connected are here.
-func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
-	if connector1.get_parent_room() == parent_room or connector2.get_parent_room() == parent_room:
-		if always_activated and not activated:
-			var can_be_activated = activate_room()
-			if not can_be_activated:
+func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
+	if connector1.get_parent_room() == parent_room:
+		if always_activated or activate_when_connected:
+			var was_activated = activate_room()
+			if was_activated:
+				GlobalNotice.display("Room activated automatically!")
+			elif always_activated:
 				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")
-			GlobalNotice.display("Room activated automatically!")
+
 
 
 func _on_cargo_bay_order_made(delivery: Dictionary) -> void:

@@ -26,6 +26,8 @@ func display(text: String, type: String = "info", time: float = 2) -> void:
 			stylebox.bg_color = Color(0.0, 0.0, 0.0, 0.686)
 		"warning":
 			stylebox.bg_color = Color(1.0, 0.608, 0.129, 0.769)
+		"error":
+			stylebox.bg_color = Color(1.0, 0.204, 0.129, 0.769)
 	panel_container.add_theme_stylebox_override("panel", stylebox)
 
 	show()

@@ -259,6 +259,7 @@ func get_connection_candidates() -> Array:
 ## If the room can be placed, the "room_connected" signal is emitted and the list of own connectors
 ## is looped through so that ALL newly adjacent rooms can get connected properly.
 func try_to_connect_rooms(connector_pair, no_animation: bool = false) -> bool:
+	print("here")
 	var rules_passed = RoomConnections.check_placement_rules(self, connector_pair[1].get_parent_room())
 	if not rules_passed:
 		return false
@@ -441,17 +442,25 @@ func _on_highlight_line_timer_timeout() -> void:
 
 func _on_check_connection_timer_timeout() -> void:
 	var new_conn_pair = get_connection_candidates()
+
 	if new_conn_pair:
 		if closest_conns_pair:
-			closest_conns_pair[0].texture_polygon.color = Color(0.749, 0.718, 0.745)
+			closest_conns_pair[0].texture_polygon.color = closest_conns_pair[0].connector_color
 			if closest_conns_pair[1]: # check because the connector might have been deleted
-				closest_conns_pair[1].texture_polygon.color = Color(0.749, 0.718, 0.745)
+				closest_conns_pair[1].texture_polygon.color = closest_conns_pair[1].connector_color
 		closest_conns_pair = new_conn_pair
-		closest_conns_pair[0].texture_polygon.color = Color(0.0, 0.886, 0.516)
-		closest_conns_pair[1].texture_polygon.color = Color(0.0, 0.886, 0.516)
+		if not RoomConnections.check_placement_rules(
+			new_conn_pair[0].get_parent_room(),
+		 	new_conn_pair[1].get_parent_room(),
+			false):
+			closest_conns_pair[0].texture_polygon.color = Color(0.945, 0.376, 0.267, 1.0)
+			closest_conns_pair[1].texture_polygon.color = Color(0.945, 0.376, 0.267, 1.0)
+		else:
+			closest_conns_pair[0].texture_polygon.color = Color(0.0, 0.886, 0.516)
+			closest_conns_pair[1].texture_polygon.color = Color(0.0, 0.886, 0.516)
 	elif closest_conns_pair:
-		closest_conns_pair[0].texture_polygon.color = Color(0.749, 0.718, 0.745)
-		closest_conns_pair[1].texture_polygon.color = Color(0.749, 0.718, 0.745)
+		closest_conns_pair[0].texture_polygon.color = closest_conns_pair[0].connector_color
+		closest_conns_pair[1].texture_polygon.color = closest_conns_pair[1].connector_color
 		closest_conns_pair = []
 	if locked:
 		check_connection_timer.stop()
