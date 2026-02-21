@@ -36,6 +36,11 @@ gdscript/warnings/unused_signal=0
 window/size/viewport_width=1600
 window/size/viewport_height=800
 
+[editor]
+
+version_control/plugin_name="GitPlugin"
+version_control/autoload_on_startup=true
+
 [global_group]
 
 Connector=""
