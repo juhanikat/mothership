@@ -314,7 +314,7 @@ func _can_be_activated() -> bool:
 ## This behavior might need to be changed if deactivating a room becomes a more complex thing than it currently is.
 func _can_be_deactivated() -> bool:
 	if not activated:
-		push_error("Tried to deactivate room that was not active, this should never happen!")
+		push_error("Tried to deactivate room that was not active, this probably should not happen!")
 		return false
 	if always_activated:
 		GlobalNotice.display("Cannot deactivate %s: It is set to be always active." % [parent_room.room_name], "warning")

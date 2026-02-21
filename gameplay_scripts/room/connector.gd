@@ -6,12 +6,14 @@ extends Area2D
 @export var texture_polygon: Polygon2D
 @export var check_connection_timer: Timer
 
+@onready var main: Main = get_tree().root.get_node("Main")
+
 var connector_color = Color("bfb7be")
 var hovering: bool = false
 
 
 func _ready() -> void:
-	create_navigation_polygon()
+	# nav regions are disabled by default, and enabled once the room is connected
 	create_texture()
 
 
@@ -46,11 +48,13 @@ func check_deletion() -> void:
 	var overlapping_conns: Array[Connector] = get_overlapping_connectors()
 	if len(overlapping_conns) > 0:
 		if not (len(overlapping_conns) == 1 and connected_to() == overlapping_conns[0]):
+			main.remove_nav_obstacle(self)
 			queue_free()
 	var overlapping_rooms: Array[Room] = get_overlapping_rooms()
 	if len(overlapping_rooms) > 0:
 		# Connectors can overlap exactly one room (the one they are connected to), this is easier than to fix the overlap
 		if not (len(overlapping_rooms) == 1 and connected_to() and connected_to() in overlapping_rooms[0].get_own_connectors()):
+			main.remove_nav_obstacle(self)
 			queue_free()
 
 

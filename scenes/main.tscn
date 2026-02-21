@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://ony8uad06hvx"]
+[gd_scene format=3 uid="uid://ony8uad06hvx"]
 
 [ext_resource type="Script" uid="uid://6umoox1qwm3k" path="res://gameplay_scripts/main.gd" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://d1spf4ifa2e2j" path="res://scenes/hud.tscn" id="2_0wfyh"]
@@ -11,7 +11,7 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-384, -320, -384, 1088, 1472, 1088, 1472, -320)])
 agent_radius = 5.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("hud", "camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "testing_room_nodes", "testing_room_locations")]
+[node name="Main" type="Node2D" unique_id=208644578 node_paths=PackedStringArray("hud", "camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "testing_room_nodes", "testing_room_locations")]
 script = ExtResource("1_0wfyh")
 hud = NodePath("HUD")
 camera = NodePath("Camera2D")
@@ -24,29 +24,29 @@ room_info_nodes = NodePath("RoomInfoNodes")
 testing_room_nodes = NodePath("TestingRooms")
 testing_room_locations = NodePath("TestingRoomLocations")
 
-[node name="TestingRooms" type="Node2D" parent="."]
+[node name="TestingRooms" type="Node2D" parent="." unique_id=1313263165]
 
-[node name="TestingRoomLocations" type="Node2D" parent="."]
+[node name="TestingRoomLocations" type="Node2D" parent="." unique_id=1217516926]
 
-[node name="Location1" type="Node2D" parent="TestingRoomLocations"]
+[node name="Location1" type="Node2D" parent="TestingRoomLocations" unique_id=353181841]
 position = Vector2(272, 384)
 
-[node name="Location2" type="Node2D" parent="TestingRoomLocations"]
+[node name="Location2" type="Node2D" parent="TestingRoomLocations" unique_id=1489865618]
 position = Vector2(408, 384)
 
-[node name="Location3" type="Node2D" parent="TestingRoomLocations"]
+[node name="Location3" type="Node2D" parent="TestingRoomLocations" unique_id=342456675]
 position = Vector2(408, 208)
 
-[node name="Location4" type="Node2D" parent="TestingRoomLocations"]
+[node name="Location4" type="Node2D" parent="TestingRoomLocations" unique_id=533463770]
 position = Vector2(560, 384)
 
-[node name="Location5" type="Node2D" parent="TestingRoomLocations"]
+[node name="Location5" type="Node2D" parent="TestingRoomLocations" unique_id=2068342295]
 position = Vector2(408, 480)
 
-[node name="Location6" type="Node2D" parent="TestingRoomLocations"]
+[node name="Location6" type="Node2D" parent="TestingRoomLocations" unique_id=992784123]
 position = Vector2(568, 480)
 
-[node name="BackgroundSVG" type="TextureRect" parent="."]
+[node name="BackgroundSVG" type="TextureRect" parent="." unique_id=116091259]
 z_index = -3
 offset_left = -7880.0
 offset_top = -6888.0
@@ -56,30 +56,30 @@ texture = ExtResource("4_jyhfs")
 stretch_mode = 1
 metadata/_edit_lock_ = true
 
-[node name="HUD" parent="." instance=ExtResource("2_0wfyh")]
+[node name="HUD" parent="." unique_id=1566810548 instance=ExtResource("2_0wfyh")]
 
-[node name="Notice" parent="." instance=ExtResource("5_tbgi4")]
+[node name="Notice" parent="." unique_id=694631321 instance=ExtResource("5_tbgi4")]
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=232492864]
 position = Vector2(576, 328)
 editor_draw_drag_margin = true
 
-[node name="RoomNodes" type="Node2D" parent="."]
+[node name="RoomNodes" type="Node2D" parent="." unique_id=52481816]
 
-[node name="NavActor" type="Node2D" parent="."]
+[node name="NavActor" type="Node2D" parent="." unique_id=1712778543]
 
-[node name="NavigationAgent" type="NavigationAgent2D" parent="NavActor"]
+[node name="NavigationAgent" type="NavigationAgent2D" parent="NavActor" unique_id=265205227]
 
-[node name="PathLine" type="Line2D" parent="."]
+[node name="PathLine" type="Line2D" parent="." unique_id=525078973]
 z_index = 1
 default_color = Color(0.286147, 0.60386, 1, 1)
 
-[node name="RoomInfoNodes" type="Control" parent="."]
+[node name="RoomInfoNodes" type="Control" parent="." unique_id=478415384]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
-visible = false
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=772328449]
 navigation_polygon = SubResource("NavigationPolygon_jyhfs")
+use_edge_connections = false

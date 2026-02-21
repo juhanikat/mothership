@@ -39,7 +39,8 @@ var crew_quarters_limit: int = 3
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var used_crew_names: Array[String] = [] # to make sure no crew member name is used twice, should improve this later
 
-
+# maps a room/connector to the NavObstacle created by it, so we can remove the obstacle if the room/connector is removed for any reason
+var nav_obstacles = {}
 
 
 
@@ -48,7 +49,7 @@ func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
 	var new_room = room_scene.instantiate()
 	new_room.init_room(RoomData.room_data[room_type])
 	new_room.global_position = pos
-	testing_room_nodes.add_child(new_room)
+	room_nodes.add_child(new_room)
 	return new_room
 
 
@@ -210,12 +211,15 @@ func cut_room_shape_from_nav_region(room: Room, connectors: Array[Connector]) ->
 	var room_polygon = room.polygon.polygon
 	var global_room_polygon = []
 	var nav_obstacle
+	var rotated_point: Vector2
 	for point in room_polygon:
-		global_room_polygon.append(point + room.global_position)
+		rotated_point = point.rotated(deg_to_rad(room.rotation_degrees))
+		global_room_polygon.append(rotated_point + room.global_position)
 
 	nav_obstacle = NavigationObstacle2D.new()
 	nav_obstacle.vertices = global_room_polygon
 	nav_obstacle.affect_navigation_mesh = true
+	nav_obstacles[room] = nav_obstacle
 	nav_region.add_child(nav_obstacle)
 
 	for connector in connectors:
@@ -227,11 +231,23 @@ func cut_room_shape_from_nav_region(room: Room, connectors: Array[Connector]) ->
 		nav_obstacle = NavigationObstacle2D.new()
 		nav_obstacle.vertices = global_connector_polygon
 		nav_obstacle.affect_navigation_mesh = true
+		nav_obstacle.avoidance_enabled = false
+		nav_obstacles[connector] = nav_obstacle
 		nav_region.add_child(nav_obstacle)
 
-	if nav_region.is_baking():
+	while nav_region.is_baking():
 		await nav_region.bake_finished
-	nav_region.bake_navigation_polygon(false)
+	nav_region.bake_navigation_polygon()
+
+
+func remove_nav_obstacle(key) -> void:
+	var obstacle = nav_obstacles[key]
+	obstacle.queue_free()
+	nav_obstacles.erase(key)
+
+	while nav_region.is_baking():
+		await nav_region.bake_finished
+	nav_region.bake_navigation_polygon()
 
 
 func new_cargo_order(cargo_bay: Room) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://b5dj4e3qdd2f6"]
+[gd_scene format=3 uid="uid://b5dj4e3qdd2f6"]
 
 [ext_resource type="Script" uid="uid://bniolhgkcwsnj" path="res://gameplay_scripts/room/room.gd" id="1_ppkfq"]
 
@@ -56,7 +56,7 @@ _data = {
 &"show_highlight": SubResource("Animation_ppkfq")
 }
 
-[node name="Room" type="Area2D" node_paths=PackedStringArray("check_connection_timer", "texture_polygon", "crew_member_node", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
+[node name="Room" type="Area2D" unique_id=2146794284 node_paths=PackedStringArray("check_connection_timer", "texture_polygon", "crew_member_node", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
 script = ExtResource("1_ppkfq")
 check_connection_timer = NodePath("CheckConnectionTimer")
 texture_polygon = NodePath("TexturePolygon")
@@ -73,105 +73,103 @@ all_room_highlights = NodePath("AllRoomHighlightLines")
 raycast = NodePath("RayCast2D")
 raycast_line = NodePath("RayCast2D/RayCastLine")
 
-[node name="CheckConnectionTimer" type="Timer" parent="."]
+[node name="CheckConnectionTimer" type="Timer" parent="." unique_id=1229037443]
 wait_time = 0.1
 autostart = true
 
-[node name="Polygon" type="CollisionPolygon2D" parent="."]
+[node name="Polygon" type="CollisionPolygon2D" parent="." unique_id=1694953508]
 
-[node name="TexturePolygon" type="Polygon2D" parent="."]
+[node name="TexturePolygon" type="Polygon2D" parent="." unique_id=2023107656]
 color = Color(0.884932, 0.78636, 0.391851, 1)
 uv = PackedVector2Array(-472, -25, -221, -28, -235, 58)
 
-[node name="AssignedCrewMembers" type="Node2D" parent="."]
+[node name="AssignedCrewMembers" type="Node2D" parent="." unique_id=1210250576]
 
-[node name="HighlightLine" type="Line2D" parent="."]
+[node name="HighlightLine" type="Line2D" parent="." unique_id=1320779008]
 closed = true
 default_color = Color(1, 1, 1, 0)
 
-[node name="HighlightAnimationPlayer" type="AnimationPlayer" parent="HighlightLine"]
-libraries = {
-&"": SubResource("AnimationLibrary_j33j0")
-}
+[node name="HighlightAnimationPlayer" type="AnimationPlayer" parent="HighlightLine" unique_id=894697153]
+libraries/ = SubResource("AnimationLibrary_j33j0")
 
-[node name="HighlightLineTimer" type="Timer" parent="HighlightLine"]
+[node name="HighlightLineTimer" type="Timer" parent="HighlightLine" unique_id=2065156109]
 one_shot = true
 
-[node name="AllRoomShapes" type="Area2D" parent="."]
+[node name="AllRoomShapes" type="Area2D" parent="." unique_id=1264928451]
 collision_layer = 0
 collision_mask = 0
 
-[node name="LShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+[node name="LShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes" unique_id=680720657]
 visible = false
 polygon = PackedVector2Array(-64, -64, 64, -64, 64, 0, 0, 0, 0, 64, -64, 64)
 
-[node name="TShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+[node name="TShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes" unique_id=2044493745]
 visible = false
 polygon = PackedVector2Array(-96, 64, 96, 64, 96, 0, 32, 0, 32, -64, -32, -64, -32, 0, -96, 0)
 
-[node name="SquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+[node name="SquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes" unique_id=592905513]
 visible = false
 polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 
-[node name="BigSquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+[node name="BigSquareShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes" unique_id=99446402]
 visible = false
 polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
 
-[node name="LongHallwayShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+[node name="LongHallwayShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes" unique_id=287958670]
 visible = false
 polygon = PackedVector2Array(-192, -16, -192, 16, 192, 16, 192, -16)
 
-[node name="MediumHallwayShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes"]
+[node name="MediumHallwayShapePolygon" type="CollisionPolygon2D" parent="AllRoomShapes" unique_id=760214504]
 visible = false
 polygon = PackedVector2Array(-128, -16, -128, 16, 128, 16, 128, -16)
 
-[node name="AllRoomHighlightLines" type="Node2D" parent="."]
+[node name="AllRoomHighlightLines" type="Node2D" parent="." unique_id=1853684584]
 
-[node name="LShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
+[node name="LShapeLine" type="Line2D" parent="AllRoomHighlightLines" unique_id=139855457]
 visible = false
 points = PackedVector2Array(-64, -64, 64, -64, 64, 0, 0, 0, 0, 64, -64, 64)
 closed = true
 
-[node name="TShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
+[node name="TShapeLine" type="Line2D" parent="AllRoomHighlightLines" unique_id=1062623348]
 visible = false
 points = PackedVector2Array(-32, -64, 32, -64, 32, 0, 96, 0, 96, 64, -96, 64, -96, 0, -32, 0)
 closed = true
 
-[node name="SquareShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
+[node name="SquareShapeLine" type="Line2D" parent="AllRoomHighlightLines" unique_id=245867939]
 visible = false
 points = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 closed = true
 
-[node name="BigSquareShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
+[node name="BigSquareShapeLine" type="Line2D" parent="AllRoomHighlightLines" unique_id=233139609]
 visible = false
 points = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
 closed = true
 
-[node name="LongHallwayShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
+[node name="LongHallwayShapeLine" type="Line2D" parent="AllRoomHighlightLines" unique_id=1830168826]
 visible = false
 position = Vector2(-128, 48)
 points = PackedVector2Array(-64, -64, 320, -64, 320, -32, -64, -32)
 closed = true
 
-[node name="MediumHallwayShapeLine" type="Line2D" parent="AllRoomHighlightLines"]
+[node name="MediumHallwayShapeLine" type="Line2D" parent="AllRoomHighlightLines" unique_id=1091792409]
 visible = false
 position = Vector2(-128, 48)
 points = PackedVector2Array(0, -64, 256, -64, 256, -32, 0, -32)
 closed = true
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=384726328]
 
-[node name="Node2D" type="Node2D" parent="."]
+[node name="Node2D" type="Node2D" parent="." unique_id=1417498704]
 
-[node name="NavigationAgent2D" type="NavigationAgent2D" parent="Node2D"]
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="Node2D" unique_id=2107574388]
 
-[node name="Connectors" type="Node2D" parent="."]
+[node name="Connectors" type="Node2D" parent="." unique_id=460106328]
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
+[node name="RayCast2D" type="RayCast2D" parent="." unique_id=871139315]
 visible = false
 collide_with_areas = true
 
-[node name="RayCastLine" type="Line2D" parent="RayCast2D"]
+[node name="RayCastLine" type="Line2D" parent="RayCast2D" unique_id=2017706347]
 visible = false
 width = 2.0
 default_color = Color(1, 0.329412, 0.333333, 0.619608)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://cisar4i6gjwbk"]
+[gd_scene format=3 uid="uid://cisar4i6gjwbk"]
 
 [ext_resource type="Script" uid="uid://c7ucqj3vxc1cq" path="res://scenes/event_popup.gd" id="1_fu0u0"]
 [ext_resource type="Texture2D" uid="uid://be5if2dq2bmx3" path="res://inkscape files/event_background.svg" id="2_yoxec"]
@@ -11,7 +11,7 @@ border_width_right = 10
 border_width_bottom = 10
 border_color = Color(0.0687983, 0.0687983, 0.0687982, 1)
 
-[node name="EventPopup" type="CanvasLayer" node_paths=PackedStringArray("event_title_label", "event_description_label", "event_choice_button_container", "close_button")]
+[node name="EventPopup" type="CanvasLayer" unique_id=1232905112 node_paths=PackedStringArray("event_title_label", "event_description_label", "event_choice_button_container", "close_button")]
 layer = 2
 script = ExtResource("1_fu0u0")
 event_title_label = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/EventTitle")
@@ -19,7 +19,7 @@ event_description_label = NodePath("PanelContainer/MarginContainer/VBoxContainer
 event_choice_button_container = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/EventChoiceButtons")
 close_button = NodePath("PanelContainer/MarginContainer/VBoxContainer/MarginContainer/MenuBar/CloseButton")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=367360124]
 auto_translate_mode = 1
 anchors_preset = -1
 anchor_left = 0.2
@@ -33,24 +33,24 @@ size_flags_vertical = 6
 theme_override_styles/panel = SubResource("StyleBoxFlat_yoxec")
 metadata/_edit_use_anchors_ = true
 
-[node name="BackgroundSVG" type="TextureRect" parent="PanelContainer"]
+[node name="BackgroundSVG" type="TextureRect" parent="PanelContainer" unique_id=1153423468]
 self_modulate = Color(1, 1, 1, 0.592157)
 layout_mode = 2
 texture = ExtResource("2_yoxec")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1850083527]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1206059067]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1365931389]
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.1
@@ -59,25 +59,25 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
-[node name="MenuBar" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/MarginContainer"]
+[node name="MenuBar" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/MarginContainer" unique_id=1836490433]
 layout_direction = 3
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/MarginContainer/MenuBar"]
+[node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/MarginContainer/MenuBar" unique_id=1737854095]
 layout_mode = 2
 text = "Close"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=526457092]
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.75
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=950416971]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="EventTitle" type="RichTextLabel" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="EventTitle" type="RichTextLabel" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1815273970]
 layout_mode = 2
 size_flags_vertical = 4
 bbcode_enabled = true
@@ -86,7 +86,7 @@ fit_content = true
 horizontal_alignment = 1
 metadata/_edit_use_anchors_ = true
 
-[node name="EventDescription" type="RichTextLabel" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="EventDescription" type="RichTextLabel" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1410185472]
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
@@ -95,20 +95,20 @@ description"
 fit_content = true
 metadata/_edit_use_anchors_ = true
 
-[node name="EventChoiceButtons" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="EventChoiceButtons" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1979658360]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.5
 
-[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/EventChoiceButtons"]
+[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/EventChoiceButtons" unique_id=1328838334]
 layout_mode = 2
 text = "button 1"
 
-[node name="Button2" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/EventChoiceButtons"]
+[node name="Button2" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/EventChoiceButtons" unique_id=807212507]
 layout_mode = 2
 text = "button 2"
 
-[node name="Button3" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/EventChoiceButtons"]
+[node name="Button3" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/EventChoiceButtons" unique_id=1096724906]
 layout_mode = 2
 text = "button 3"
 

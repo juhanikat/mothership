@@ -186,13 +186,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			queue_free()
 			return
 
-
-
 		if event.is_action_pressed("move_room") and not connecting_rooms and not rotating:
 			connecting_rooms = true
 			var conn_pair = get_connection_candidates()
 			if conn_pair:
-				print(rotating)
 				var connected = await try_to_connect_rooms(conn_pair)
 				if connected:
 					picked = false
@@ -214,10 +211,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			global_position = global_mouse_pos
 			room_info.global_position = global_position + RoomData.room_info_pos[_shape] # + room_info.relative_pos
 
-		if event.is_action_pressed("rotate_tile"):
+		if event.is_action_pressed("rotate_tile") and not rotating:
 			rotating = true
 			var rotation_tween = get_tree().create_tween()
-			rotation_tween.tween_property(self, "rotation_degrees", rotation_degrees + 90, 0.3)
+			rotation_tween.tween_property(self, "rotation_degrees", rotation_degrees + 90, 0.3).set_trans(Tween.TRANS_BACK)
 			# waits for rotation before doing anything else, otherwise connecting rooms while the room is rotating might crash the game
 			await rotation_tween.finished
 			rotating = false
@@ -400,6 +397,8 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		adjacent_rooms.append(other_room)
 		room_info.update_adjacent_rooms_label(adjacent_rooms)
 		main.cut_room_shape_from_nav_region(self, get_own_connectors())
+		# connector nav regions are disabled until connected
+		connector1.create_navigation_polygon()
 	elif connector2 in get_own_connectors():
 		locked = true
 		var other_room = connector1.get_parent_room()

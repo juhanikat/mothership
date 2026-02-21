@@ -1,19 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://bj8pqne0ixkqs"]
+[gd_scene format=3 uid="uid://bj8pqne0ixkqs"]
 
 [ext_resource type="Script" uid="uid://cilnba8yxxsj2" path="res://gameplay_scripts/room/connector.gd" id="1_xi27r"]
 
-[node name="Connector" type="Area2D" node_paths=PackedStringArray("collision_polygon", "nav_region", "texture_polygon") groups=["Connector"]]
+[node name="Connector" type="Area2D" unique_id=1943392651 node_paths=PackedStringArray("collision_polygon", "nav_region", "texture_polygon") groups=["Connector"]]
 script = ExtResource("1_xi27r")
 collision_polygon = NodePath("CollisionPolygon2D")
 nav_region = NodePath("NavigationRegion2D")
 texture_polygon = NodePath("TexturePolygon")
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=2057452512]
 polygon = PackedVector2Array(-8, -8, -8, 8, 8, 8, 8, -8)
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=63464588]
 
-[node name="TexturePolygon" type="Polygon2D" parent="."]
+[node name="TexturePolygon" type="Polygon2D" parent="." unique_id=55951072]
 color = Color(0.747857, 0.719012, 0.743748, 1)
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
