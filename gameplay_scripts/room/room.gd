@@ -27,10 +27,11 @@ var room_info: RoomInfo # The room's info box, this is a child of the main node
 var hovering: bool = false # true when mouse is hovering over this room.
 var picked: bool = false # true when the room is picked by mouse.
 var locked: bool = false # true once room has been placed and can no longer be moved.
+var rotating: bool = false # true if the room is currently rotating.
 
 var connecting_rooms: bool = false # used in _unhandled_input to keep room still while connecting.
 var closest_conns_pair = [] # used to highlight two Connectors that are close enough to pair
-var target_rotation: float = 0
+
 
 var room_name: String
 var room_type: RoomData.RoomType
@@ -145,14 +146,6 @@ func _ready() -> void:
 	main.room_info_nodes.add_child(new_room_info)
 
 
-func _process(_delta: float) -> void:
-	rotation_degrees = lerpf(rotation_degrees, target_rotation, 0.15)
-
-	#snap rotation to target value once close enough, might prevent some bugs with rounding
-	if abs(rotation_degrees - target_rotation) < 0.05:
-		rotation_degrees = target_rotation
-
-
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("activate_room") and hovering and not GlobalVariables.room_is_picked:
 		if gameplay.activated:
@@ -185,18 +178,21 @@ func _unhandled_input(event: InputEvent) -> void:
 					GlobalVariables.picked_crew = assigned_crew[0]
 		return
 
-	if event.is_action_pressed("cancel_room") and picked:
-		room_info.queue_free()
-		main.spawned_room_names[room_name] -= 1
-		GlobalVariables.room_is_picked = false
-		queue_free()
-		return
+	if picked:
+		if event.is_action_pressed("cancel_room"):
+			room_info.queue_free()
+			main.spawned_room_names[room_name] -= 1
+			GlobalVariables.room_is_picked = false
+			queue_free()
+			return
 
-	if event.is_action_pressed("move_room"):
-		if picked and not connecting_rooms:
+
+
+		if event.is_action_pressed("move_room") and not connecting_rooms and not rotating:
 			connecting_rooms = true
 			var conn_pair = get_connection_candidates()
 			if conn_pair:
+				print(rotating)
 				var connected = await try_to_connect_rooms(conn_pair)
 				if connected:
 					picked = false
@@ -213,13 +209,18 @@ func _unhandled_input(event: InputEvent) -> void:
 				locked = true
 				room_info.shrink_info()
 
-	if event is InputEventMouseMotion and picked and not connecting_rooms:
-		var global_mouse_pos = get_global_mouse_position()
-		global_position = global_mouse_pos
-		room_info.global_position = global_position + RoomData.room_info_pos[_shape] # + room_info.relative_pos
+		if event is InputEventMouseMotion and not connecting_rooms:
+			var global_mouse_pos = get_global_mouse_position()
+			global_position = global_mouse_pos
+			room_info.global_position = global_position + RoomData.room_info_pos[_shape] # + room_info.relative_pos
 
-	if event.is_action_pressed("rotate_tile") and picked:
-		target_rotation += 90
+		if event.is_action_pressed("rotate_tile"):
+			rotating = true
+			var rotation_tween = get_tree().create_tween()
+			rotation_tween.tween_property(self, "rotation_degrees", rotation_degrees + 90, 0.3)
+			# waits for rotation before doing anything else, otherwise connecting rooms while the room is rotating might crash the game
+			await rotation_tween.finished
+			rotating = false
 
 
 ## Call this before the room is added to the scene tree.
@@ -260,19 +261,23 @@ func get_connection_candidates() -> Array:
 ## Called when a room is placed while near another room.
 ## If the room can be placed, the "room_connected" signal is emitted and the list of own connectors
 ## is looped through so that ALL newly adjacent rooms can get connected properly.
-func try_to_connect_rooms(connector_pair) -> bool:
+func try_to_connect_rooms(connector_pair, no_animation: bool = false) -> bool:
 	var rules_passed = RoomConnections.check_placement_rules(self, connector_pair[1].get_parent_room())
 	if not rules_passed:
 		return false
 
 	## Actual movement code
 	var to = connector_pair[1].global_position - connector_pair[0].global_position
-	var room_movement_tween = get_tree().create_tween()
-	var room_info_movement_tween = get_tree().create_tween()
-	room_movement_tween.tween_property(self, "global_position", global_position + to, 0.2)
-	room_info_movement_tween.tween_property(room_info, "global_position", room_info.global_position + to, 0.2)
-	# waits for room to reposition before checking overlaps etc.
-	await room_movement_tween.finished
+	if no_animation:
+		global_position += to
+		room_info.global_position += to
+	else:
+		var room_movement_tween = get_tree().create_tween()
+		var room_info_movement_tween = get_tree().create_tween()
+		room_movement_tween.tween_property(self, "global_position", global_position + to, 0.2)
+		room_info_movement_tween.tween_property(room_info, "global_position", room_info.global_position + to, 0.2)
+		# waits for room to reposition before checking overlaps etc.
+		await room_movement_tween.finished
 
 	await get_tree().physics_frame
 	if len(overlapping_rooms) > 0:

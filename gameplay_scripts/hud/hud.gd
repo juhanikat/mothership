@@ -122,8 +122,6 @@ func _on_room_spawned(room: Room) -> void:
 
 
 func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
-	print("täs")
-	print(spawned_room)
 	if connector1.get_parent_room() == spawned_room or connector2.get_parent_room() == spawned_room:
 		# TODO: remove the hardcoded turn number here?
 		if GlobalVariables.turn != 1 and not GlobalVariables.CAN_PICK_MULTIPLE_ROOMS:

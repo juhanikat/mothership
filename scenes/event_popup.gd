@@ -15,6 +15,7 @@ func _ready() -> void:
 		button.queue_free()
 	hide()
 
+
 func show_event(event_data: Dictionary) -> void:
 	if GlobalVariables.events_disabled:
 		return

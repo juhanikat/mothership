@@ -77,7 +77,7 @@ func _ready() -> void:
 			new_room.connecting_rooms = true
 			var conn_pair = new_room.get_connection_candidates()
 			if conn_pair:
-				var connected = await new_room.try_to_connect_rooms(conn_pair)
+				var connected = await new_room.try_to_connect_rooms(conn_pair, true)
 				if connected:
 					new_room.picked = false
 					GlobalVariables.room_is_picked = false
@@ -231,7 +231,7 @@ func cut_room_shape_from_nav_region(room: Room, connectors: Array[Connector]) ->
 
 	if nav_region.is_baking():
 		await nav_region.bake_finished
-	nav_region.bake_navigation_polygon()
+	nav_region.bake_navigation_polygon(false)
 
 
 func new_cargo_order(cargo_bay: Room) -> void:

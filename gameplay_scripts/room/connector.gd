@@ -49,7 +49,7 @@ func check_deletion() -> void:
 			queue_free()
 	var overlapping_rooms: Array[Room] = get_overlapping_rooms()
 	if len(overlapping_rooms) > 0:
-		# COnnectors can overlap exactly one room (the one they are connected to), this is easier than to fix the overlap
+		# Connectors can overlap exactly one room (the one they are connected to), this is easier than to fix the overlap
 		if not (len(overlapping_rooms) == 1 and connected_to() and connected_to() in overlapping_rooms[0].get_own_connectors()):
 			queue_free()
 
