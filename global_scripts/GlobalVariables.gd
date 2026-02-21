@@ -9,7 +9,7 @@ var picked_crew = null
 
 # DEV OPTIONS
 var events_disabled: bool = true
-var create_testing_rooms: bool = true
-var NO_CARGO_BAY_REQUIREMENT: bool = true
-var NO_GAME_OVER: bool = true
-var CAN_PICK_MULTIPLE_ROOMS: bool = false
+const CREATE_TESTING_ROOMS: bool = true
+const NO_CARGO_BAY_REQUIREMENT: bool = true
+const NO_GAME_OVER: bool = true
+const CAN_PICK_MULTIPLE_ROOMS: bool = false

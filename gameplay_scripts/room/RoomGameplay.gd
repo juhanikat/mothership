@@ -8,7 +8,7 @@ var activated: bool = false
 var activate_when_connected: bool = false # can be deactivated, but is automatically activated when connected (if possible)
 var always_activated: bool = false # Room is activated automatically once connected, and cannot be deactivated
 var always_deactivated: bool = false
-var cannot_be_deactivated: bool = false # used by e.g. Cargo Bay and Crew Quarters
+var cannot_be_deactivated_manually: bool = false # used by e.g. Cargo Bay and Crew Quarters
 var accessible_by_crew: bool = true
 
 var power_usage: int
@@ -70,7 +70,7 @@ func init_gameplay_features(data: Dictionary) -> void:
 	always_activated = _data.get("always_activated", false)
 	activate_when_connected = _data.get("activate_when_connected", false)
 	always_deactivated = _data.get("always_deactivated", false)
-	cannot_be_deactivated = _data.get("cannot_be_deactivated", false)
+	cannot_be_deactivated_manually = _data.get("cannot_be_deactivated_manually", false)
 	accessible_by_crew = _data.get("accessible_by_crew", true)
 
 	GlobalSignals.room_connected.connect(_on_room_connected)
@@ -111,9 +111,7 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 	parent_room.texture_polygon.color.a += 0.5
 	if power_usage != 0:
 		var sufficient_power_supplier = find_power_supplier()
-		sufficient_power_supplier.gameplay.power_supply.capacity -= power_usage
-		sufficient_power_supplier.gameplay.supplies_to.append(parent_room)
-		sufficient_power_supplier.room_info.update_power_supply_label(sufficient_power_supplier.gameplay.power_supply)
+		sufficient_power_supplier.gameplay.add_power_consumer(parent_room)
 	if show_activation_notice:
 		GlobalNotice.display("Room activated.")
 	return true
@@ -121,31 +119,31 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 
 ## Called when an activated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been deactivated, and false otherwise.
-func deactivate_room(ignore_power_supplier: bool = false, show_deactivation_notice: bool = false) -> bool:
-	if _can_be_deactivated():
-		match parent_room_type:
-			RoomType.GARDEN:
-				GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
-			RoomType.POWER_PLANT:
-				for room: Room in supplies_to:
-					room.gameplay.deactivate_room()
-				supplies_to.clear()
+## NOTE: this function also calls remove_power_consumer(), if needed.
+func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = false, show_deactivation_notice: bool = false) -> bool:
+	if not _can_be_deactivated(automatic):
+		return false
 
-		if power_usage != 0 and not ignore_power_supplier:
-			for power_supplier: Room in get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)):
-				if parent_room in power_supplier.gameplay.supplies_to:
-					# remove this room from the power supplier's list
-					power_supplier.gameplay.power_supply.capacity += power_usage
-					power_supplier.gameplay.supplies_to.erase(parent_room)
-					power_supplier.room_info.update_power_supply_label(power_supplier.gameplay.power_supply)
-					break
+	match parent_room_type:
+		RoomType.GARDEN:
+			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
+		RoomType.POWER_PLANT:
+			for room: Room in supplies_to:
+				if room.room_type == RoomType.COMMAND_ROOM and automatic and not GlobalVariables.NO_GAME_OVER:
+					GlobalNotice.display("Game over! There are no active command rooms.", "error", -1)
+				room.gameplay.deactivate_room(true, automatic)
 
-		activated = false
-		parent_room.texture_polygon.color.a -= 0.5
-		if show_deactivation_notice:
-			GlobalNotice.display("Room deactivated.")
-		return true
-	return false
+	if power_usage != 0 and not ignore_power_supplier:
+		for power_supplier: Room in get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)):
+			if parent_room in power_supplier.gameplay.supplies_to:
+				power_supplier.gameplay.remove_power_consumer(parent_room)
+				break
+
+	activated = false
+	parent_room.texture_polygon.color.a -= 0.5
+	if show_deactivation_notice:
+		GlobalNotice.display("Room deactivated.")
+	return true
 
 
 ## Assigns a crew member to this room, removing them from their previous room. Also updates both affected room_info nodes.
@@ -198,8 +196,22 @@ func _unassign_crew(crew_member: CrewMember) -> bool:
 	match parent_room_type:
 		RoomType.POWER_PLANT:
 			power_supply.capacity -= 5
-
 	return true
+
+
+func add_power_consumer(room: Room) -> void:
+	assert(parent_room_type == RoomType.POWER_PLANT)
+	power_supply.capacity -= room.gameplay.power_usage
+	supplies_to.append(room)
+	parent_room.room_info.update_power_supply_label(power_supply)
+
+
+func remove_power_consumer(room: Room) -> void:
+	assert(parent_room_type == RoomType.POWER_PLANT)
+	assert(room in supplies_to)
+	power_supply.capacity += room.gameplay.power_usage
+	supplies_to.erase(room)
+	parent_room.room_info.update_power_supply_label(power_supply)
 
 
 ## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
@@ -211,8 +223,9 @@ func next_turn() -> void:
 	if parent_room_type == RoomType.POWER_PLANT:
 		var fuel_storage = _find_sufficient_fuel_storage()
 		if not fuel_storage:
-			GlobalNotice.display("Power Plant does not have any accessible fuel and has been deactivated.", "warning")
-			if not deactivate_room():
+			if deactivate_room(false, true):
+				GlobalNotice.display("Power Plant does not have any accessible fuel and has been deactivated.", "warning")
+			else:
 				push_error("Power Plant ran out of fuel but stayed activated since some supplied to rooms cannot be deactivated, fix!")
 		else:
 			fuel_storage.gameplay.fuel_remaining -= 1
@@ -222,7 +235,7 @@ func next_turn() -> void:
 		var ration_storage = _find_sufficient_ration_storage()
 		if not ration_storage:
 			GlobalNotice.display("Canteen does not have any accessible rations and has been deactivated.", "warning")
-			deactivate_room()
+			deactivate_room(false, true)
 		else:
 			ration_storage.gameplay.rations_remaining -= 1
 			ration_storage.room_info.update_rations_remaining_label(ration_storage.gameplay.rations_remaining)
@@ -232,7 +245,7 @@ func next_turn() -> void:
 		GlobalSignals.delivery_status_changed.emit(current_delivery)
 		if current_delivery.turns_left == 0:
 			delivery_in_progress = false
-			cannot_be_deactivated = false
+			cannot_be_deactivated_manually = false
 			if current_delivery.type == "Fuel":
 				var all_fuel_storages = get_tree().get_nodes_in_group(str(RoomType.FUEL_STORAGE))
 				if not all_fuel_storages:
@@ -257,7 +270,7 @@ func next_turn() -> void:
 					GlobalNotice.display("Rations delivered to a random Ration Storage.")
 			else:
 				push_error("Invalid delivery type!!")
-			deactivate_room()
+			deactivate_room(false, true)
 			return
 
 
@@ -314,24 +327,23 @@ func _can_be_activated() -> bool:
 ## NOTE: unlike _try_to_activate(), this function doesn't call any functions or send signals related to deactivating the room,
 ## it simply checks if it is possible to do so. It does show error messages though.
 ## This behavior might need to be changed if deactivating a room becomes a more complex thing than it currently is.
-func _can_be_deactivated() -> bool:
+func _can_be_deactivated(automatic: bool = false) -> bool:
 	if not activated:
 		push_error("Tried to deactivate room that was not active, this probably should not happen!")
 		return false
 	if always_activated:
 		GlobalNotice.display("Cannot deactivate %s: It is set to be always active." % [parent_room.room_name], "warning")
 		return false
-	if cannot_be_deactivated:
-		GlobalNotice.display("Cannot deactivate %s: 'cannot_be_deactivated' is set to true." % [parent_room.room_name], "warning")
+	if cannot_be_deactivated_manually and not automatic:
+		GlobalNotice.display("%s cannot be deactivated." % [parent_room.room_name], "warning")
 		return false
 
 	match parent_room_type:
 		RoomData.RoomType.POWER_PLANT:
-			if len(supplies_to) > 0:
-				for room: Room in supplies_to:
-					if room.gameplay._can_be_deactivated() == false:
-						GlobalNotice.display("Cannot deactivate Power Plant: One of the supplied rooms cannot be deactivated.", "warning")
-						return false
+			for room: Room in supplies_to:
+				if room.gameplay._can_be_deactivated(automatic) == false:
+					GlobalNotice.display("Cannot deactivate Power Plant: One of the supplied rooms cannot be deactivated.", "warning")
+					return false
 		RoomType.WPP:
 			var cannot_deactivate = false
 			var activated_wpps = get_tree().get_nodes_in_group(str(RoomType.WPP)).filter(func(wpp): return wpp.gameplay.activated)
@@ -396,7 +408,7 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 		if always_activated or activate_when_connected:
 			var was_activated = activate_room()
 			if was_activated:
-				GlobalNotice.display("Room activated automatically!")
+				GlobalNotice.display("%s activated automatically!" % [parent_room.room_name])
 			elif always_activated:
 				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")
 
@@ -404,7 +416,7 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 
 func _on_cargo_bay_order_made(delivery: Dictionary) -> void:
 	if delivery.made_by == parent_room:
-		cannot_be_deactivated = true
+		cannot_be_deactivated_manually = true
 		order_in_progress = false
 		delivery_in_progress = true
 		current_delivery = delivery

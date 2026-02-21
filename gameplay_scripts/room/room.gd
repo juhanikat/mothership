@@ -259,7 +259,6 @@ func get_connection_candidates() -> Array:
 ## If the room can be placed, the "room_connected" signal is emitted and the list of own connectors
 ## is looped through so that ALL newly adjacent rooms can get connected properly.
 func try_to_connect_rooms(connector_pair, no_animation: bool = false) -> bool:
-	print("here")
 	var rules_passed = RoomConnections.check_placement_rules(self, connector_pair[1].get_parent_room())
 	if not rules_passed:
 		return false

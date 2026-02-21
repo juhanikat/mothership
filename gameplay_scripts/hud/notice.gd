@@ -32,7 +32,8 @@ func display(text: String, type: String = "info", time: float = 2) -> void:
 
 	show()
 	animation_player.play("show_notification")
-	notification_timer.start(time)
+	if time != -1:
+		notification_timer.start(time)
 
 
 func _on_timer_timeout() -> void:

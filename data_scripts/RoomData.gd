@@ -88,6 +88,7 @@ const _command_room_data: Dictionary[String, Variant] = {
 	"power_usage": 1,
 	"crew_needed": {"min": 0, "max": 3},
 	"activate_when_connected": true,
+	"cannot_be_deactivated_manually": true,
 
 }
 
@@ -98,6 +99,7 @@ const _power_plant_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
 	"crew_needed": {"min": 0, "max": 4},
+	"activate_when_connected": true,
 	"power_supply": {"capacity": 10, "range": 5}
 }
 
@@ -122,7 +124,6 @@ const _crew_quarters_data: Dictionary[String, Variant] = {
 	"power_usage": 1,
 	"crew_amount": 4,
 	"crew_needed": {"min": 0, "max": 4},
-	"cannot_be_deactivated": true
 }
 
 const _canteen_data: Dictionary[String, Variant] = {

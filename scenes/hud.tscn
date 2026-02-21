@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://d1spf4ifa2e2j"]
+[gd_scene format=3 uid="uid://d1spf4ifa2e2j"]
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://gameplay_scripts/hud/hud.gd" id="1_ahhtf"]
 [ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://scenes/room_selection.tscn" id="2_5ysmq"]
@@ -13,7 +13,7 @@ bg_color = Color(0.392165, 0.478501, 0.478927, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ysmq"]
 bg_color = Color(0.0768358, 0.0768358, 0.0768358, 1)
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selection", "event_popup")]
+[node name="HUD" type="CanvasLayer" unique_id=1061309850 node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selection", "event_popup")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -36,9 +36,9 @@ next_turn_button = NodePath("PanelContainer2/HBoxContainer/NextTurnButton")
 room_selection = NodePath("RoomSelection")
 event_popup = NodePath("EventPopup")
 
-[node name="RoomSelection" parent="." instance=ExtResource("2_5ysmq")]
+[node name="RoomSelection" parent="." unique_id=941023662 instance=ExtResource("2_5ysmq")]
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=2066148056]
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.197531
@@ -46,15 +46,15 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="DevOptionsHintLabel" type="RichTextLabel" parent="PanelContainer"]
+[node name="DevOptionsHintLabel" type="RichTextLabel" parent="PanelContainer" unique_id=1385817192]
 visible = false
 layout_mode = 2
 text = "Press D top show dev options"
 
-[node name="TopBar" type="HBoxContainer" parent="PanelContainer"]
+[node name="TopBar" type="HBoxContainer" parent="PanelContainer" unique_id=1870748426]
 layout_mode = 2
 
-[node name="CrewRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="CrewRoomList" type="ItemList" parent="PanelContainer/TopBar" unique_id=2146472970]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -63,7 +63,7 @@ allow_search = false
 auto_width = true
 same_column_width = true
 
-[node name="MaintenanceRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="MaintenanceRoomList" type="ItemList" parent="PanelContainer/TopBar" unique_id=1578639105]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -72,7 +72,7 @@ allow_search = false
 auto_width = true
 same_column_width = true
 
-[node name="LuxuryRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="LuxuryRoomList" type="ItemList" parent="PanelContainer/TopBar" unique_id=869339276]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -81,7 +81,7 @@ allow_search = false
 auto_width = true
 same_column_width = true
 
-[node name="SpecialRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="SpecialRoomList" type="ItemList" parent="PanelContainer/TopBar" unique_id=1931706367]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -90,7 +90,7 @@ allow_search = false
 auto_width = true
 same_column_width = true
 
-[node name="EmergencyRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="EmergencyRoomList" type="ItemList" parent="PanelContainer/TopBar" unique_id=638971454]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -99,7 +99,7 @@ allow_search = false
 auto_width = true
 same_column_width = true
 
-[node name="ResearchRoomList" type="ItemList" parent="PanelContainer/TopBar"]
+[node name="ResearchRoomList" type="ItemList" parent="PanelContainer/TopBar" unique_id=446020698]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -108,20 +108,20 @@ allow_search = false
 auto_width = true
 same_column_width = true
 
-[node name="AddRoomButton" type="Button" parent="PanelContainer/TopBar"]
+[node name="AddRoomButton" type="Button" parent="PanelContainer/TopBar" unique_id=1120218174]
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 14
 text = "Add Selected Room"
 
-[node name="PathBuildModeLabel" type="RichTextLabel" parent="PanelContainer/TopBar"]
+[node name="PathBuildModeLabel" type="RichTextLabel" parent="PanelContainer/TopBar" unique_id=879711262]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/normal_font_size = 14
 text = "path build mode label"
 fit_content = true
 
-[node name="PathInfoLabel" type="RichTextLabel" parent="PanelContainer/TopBar"]
+[node name="PathInfoLabel" type="RichTextLabel" parent="PanelContainer/TopBar" unique_id=1266782826]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.5
@@ -129,13 +129,13 @@ theme_override_font_sizes/normal_font_size = 13
 text = "path build mode label"
 fit_content = true
 
-[node name="DisableEventsButton" type="CheckButton" parent="PanelContainer/TopBar"]
+[node name="DisableEventsButton" type="CheckButton" parent="PanelContainer/TopBar" unique_id=82970568]
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 14
 text = "Disable Events"
 
-[node name="PanelContainer2" type="PanelContainer" parent="."]
+[node name="PanelContainer2" type="PanelContainer" parent="." unique_id=1049318872]
 anchors_preset = -1
 anchor_top = 0.771605
 anchor_right = 0.277778
@@ -145,35 +145,35 @@ offset_bottom = 6.10352e-05
 grow_vertical = 0
 metadata/_edit_use_anchors_ = true
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2" unique_id=373315063]
 layout_mode = 2
 
-[node name="StatisticsVbox" type="VBoxContainer" parent="PanelContainer2/HBoxContainer"]
+[node name="StatisticsVbox" type="VBoxContainer" parent="PanelContainer2/HBoxContainer" unique_id=1267736636]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox"]
+[node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox" unique_id=547639262]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/normal_font_size = 14
 text = "Crew amount: 0"
 fit_content = true
 
-[node name="CrewQuartersLimitLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox"]
+[node name="CrewQuartersLimitLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox" unique_id=1487362203]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/normal_font_size = 14
 text = "Crew Quarters limit: 0"
 fit_content = true
 
-[node name="DeliveryInfoLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer"]
+[node name="DeliveryInfoLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer" unique_id=981746242]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.63
 text = "delivery info here"
 fit_content = true
 
-[node name="HelpButton" type="Button" parent="PanelContainer2/HBoxContainer"]
+[node name="HelpButton" type="Button" parent="PanelContainer2/HBoxContainer" unique_id=569514692]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.43
@@ -181,7 +181,7 @@ focus_mode = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_ahhtf")
 text = "Help"
 
-[node name="NextTurnButton" type="Button" parent="PanelContainer2/HBoxContainer"]
+[node name="NextTurnButton" type="Button" parent="PanelContainer2/HBoxContainer" unique_id=113916053]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.63
@@ -189,51 +189,50 @@ focus_mode = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_oo0fn")
 text = "Next Turn"
 
-[node name="EventPopup" parent="." instance=ExtResource("2_oo0fn")]
+[node name="EventPopup" parent="." unique_id=428488923 instance=ExtResource("2_oo0fn")]
 visible = false
 
-[node name="CargoPopup" type="PopupPanel" parent="."]
+[node name="CargoPopup" type="PopupPanel" parent="." unique_id=1933097239]
+oversampling_override = 1.0
 title = "Cargo"
 initial_position = 1
 size = Vector2i(200, 180)
 visible = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_5ysmq")
 
-[node name="RichTextLabel" type="RichTextLabel" parent="CargoPopup"]
+[node name="RichTextLabel" type="RichTextLabel" parent="CargoPopup" unique_id=1812076557]
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.344444
-offset_right = 200.0
-offset_bottom = 180.0
+offset_bottom = 118.00008
 text = "What do you want to order?"
 metadata/_edit_use_anchors_ = true
 
-[node name="CargoOptionsHBox" type="HBoxContainer" parent="CargoPopup"]
+[node name="CargoOptionsHBox" type="HBoxContainer" parent="CargoPopup" unique_id=1266883250]
 anchors_preset = -1
 anchor_top = 0.483333
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 200.0
-offset_bottom = 180.0
+offset_top = -86.99994
 size_flags_vertical = 8
 metadata/_edit_use_anchors_ = true
 
-[node name="FuelButton" type="Button" parent="CargoPopup/CargoOptionsHBox"]
+[node name="FuelButton" type="Button" parent="CargoPopup/CargoOptionsHBox" unique_id=564887224]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Fuel"
 
-[node name="RationsButton" type="Button" parent="CargoPopup/CargoOptionsHBox"]
+[node name="RationsButton" type="Button" parent="CargoPopup/CargoOptionsHBox" unique_id=898973814]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Rations"
 
-[node name="HelpPopup" type="PopupPanel" parent="."]
+[node name="HelpPopup" type="PopupPanel" parent="." unique_id=1117474712]
 initial_position = 1
 size = Vector2i(1000, 537)
 borderless = false
 
-[node name="HelpTextLabel" type="RichTextLabel" parent="HelpPopup"]
+[node name="HelpTextLabel" type="RichTextLabel" parent="HelpPopup" unique_id=505145856]
 anchors_preset = -1
 anchor_left = 0.004
 anchor_top = 0.008

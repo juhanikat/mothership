@@ -68,12 +68,11 @@ func _ready() -> void:
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
 	GlobalSignals.turn_advanced.connect(_on_next_turn)
 
-	if GlobalVariables.create_testing_rooms:
-		var testing_room_types = [RoomType.CREW_QUARTERS, RoomType.CANTEEN, RoomType.POWER_PLANT, RoomType.COMMAND_ROOM, RoomType.RATION_STORAGE, RoomType.FUEL_STORAGE]
+	if GlobalVariables.CREATE_TESTING_ROOMS:
+		# keep fuel storage before power plant in the spawn order, or the power plant won't activate automatically
+		var testing_room_types = [RoomType.CREW_QUARTERS, RoomType.CANTEEN, RoomType.FUEL_STORAGE, RoomType.POWER_PLANT, RoomType.COMMAND_ROOM, RoomType.RATION_STORAGE]
 		for location: Node2D in testing_room_locations.get_children():
 			# creates testing room and adds it as a child to TestingRooms.
-			# it's best to keep TestingROomLocations in a straight line so the rooms can connect easily
-			# also, make sure the amount of spawned rooms matches the amount of locations!
 			var new_room = create_testing_room(testing_room_types.pop_front(), location.global_position)
 			# connects all rooms that are placed by default, as long as they are near enough one another
 			new_room.connecting_rooms = true
@@ -203,11 +202,6 @@ func find_path(from: Vector2, to: Vector2) -> void:
 ## Returns true if the player has done all that is needed to do on the current turn
 ## (for example, the three starting rooms have to be placed on the first turn to continue).
 func check_turn_requirements() -> bool:
-	if not command_room.gameplay.activated:
-		var active_power_plants = get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)).filter(func(comm): return comm.gameplay.activated)
-		if len(active_power_plants) == 0 or not command_room.gameplay.find_power_supplier(true):
-			pass
-
 	if GlobalVariables.turn == 1:
 		var all_room_types = get_tree().get_nodes_in_group("Room").map(func(room: Room): return room.room_type)
 		for required_type in [RoomData.RoomType.COMMAND_ROOM, RoomData.RoomType.FUEL_STORAGE, RoomData.RoomType.POWER_PLANT]:
@@ -284,10 +278,6 @@ func _on_next_turn() -> void:
 	GlobalVariables.turn += 1
 	for gameplay: RoomGameplay in get_tree().get_nodes_in_group("RoomGameplay"):
 		gameplay.next_turn()
-
-	var active_command_rooms = get_tree().get_nodes_in_group(str(RoomType.COMMAND_ROOM)).filter(func(comm): return comm.gameplay.activated)
-	if len(active_command_rooms) == 0:
-		GlobalNotice.display("Game over! There are no active command rooms.", "error")
 
 	var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)) \
 	.filter(func(room: Room): return room.gameplay.activated)
