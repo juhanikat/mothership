@@ -12,7 +12,7 @@ var cannot_be_deactivated_manually: bool = false # used by e.g. Cargo Bay and Cr
 var accessible_by_crew: bool = true
 
 var power_usage: int
-var crew_needed = {} # with keys "min" and "max", if assigned crew is less than min, the room cannot be activated.
+var crew_needed = { } # with keys "min" and "max", if assigned crew is less than min, the room cannot be activated.
 
 # FOR CARGO BAY
 var order_in_progress: bool = false
@@ -411,7 +411,6 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 				GlobalNotice.display("%s activated automatically!" % [parent_room.room_name])
 			elif always_activated:
 				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")
-
 
 
 func _on_cargo_bay_order_made(delivery: Dictionary) -> void:

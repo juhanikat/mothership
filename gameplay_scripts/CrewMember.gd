@@ -12,6 +12,7 @@ var picked: bool = false
 
 ## NOTE: Currently, room.gd is responsible for changing the <picked> variable, and moving the crew member between rooms.
 
+
 func _process(_delta: float) -> void:
 	if picked:
 		var global_mouse_pos = get_global_mouse_position()
@@ -35,6 +36,7 @@ func create_random_name(already_used: Array[String]) -> String:
 			break
 		random_name = "C"
 	return random_name
+
 
 ## Return an Array of Rooms this CrewMember can access from their current location.
 ## Does not include their own location.

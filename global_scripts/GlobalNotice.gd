@@ -1,6 +1,5 @@
 extends Node
 
-
 @onready var notice_node: Notice = get_tree().root.get_node("Main").get_node("Notice")
 
 

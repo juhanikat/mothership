@@ -9,7 +9,6 @@ extends CanvasLayer
 @onready var hud = get_parent()
 
 
-
 func _ready() -> void:
 	for button in event_choice_button_container.get_children():
 		button.queue_free()

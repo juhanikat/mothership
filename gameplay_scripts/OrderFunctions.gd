@@ -1,4 +1,5 @@
 extends Script
+
 class_name OrderFunctions
 
 ## Holds functions related to the selection of new rooms and events.
@@ -7,12 +8,12 @@ class_name OrderFunctions
 static var basic_orders = OrderData.basic_orders.duplicate(true)
 static var special_orders = OrderData.special_orders.duplicate(true)
 
-
 # NOTE: The orders appended to this Array are modified from the original orders!
 static var order_history: Array[OrderData.Order] = []
 
 const RoomCategory = RoomData.RoomCategory
 const Order = OrderData.Order
+
 
 static func room_sort(a: Dictionary, b: Dictionary) -> bool:
 	var category_preference = [
@@ -21,7 +22,7 @@ static func room_sort(a: Dictionary, b: Dictionary) -> bool:
 		RoomCategory.EMERGENCY_ROOM,
 		RoomCategory.RESEARCH_ROOM,
 		RoomCategory.LUXURY_ROOM,
-		RoomCategory.SPECIAL_ROOM
+		RoomCategory.SPECIAL_ROOM,
 	]
 	if category_preference.find(a.room_category) > category_preference.find(b.room_category):
 		return false
@@ -47,7 +48,7 @@ static func _get_normal_order(active_data_rooms: int = 0) -> Dictionary:
 
 ## Returns an order's data, converting the "rooms" value from enums to room_data dicts.
 static func _get_specific_order(order_enum: OrderData.Order, active_data_rooms: int) -> Dictionary:
-	var new_order: Dictionary = {}
+	var new_order: Dictionary = { }
 	if order_enum in basic_orders:
 		new_order = basic_orders[order_enum].duplicate(true)
 	else:

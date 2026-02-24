@@ -1,38 +1,36 @@
 extends Node
-class_name OrderData
 
+class_name OrderData
 
 ## Holds data related to the selection of new rooms etc.
 ## Actual HUD for the room selection is elsewhere.
 ## Also check out CaptainFunctions.gd.
 
 # The normal orders.
-enum Order {RANDOM_ORDER, NEUTRAL_ORDER_1, NEUTRAL_ORDER_2, NEUTRAL_ORDER_3, STARTING_ORDER, CARGO_BAY_ORDER, RESEARCH_ROOM_ORDER}
+enum Order { RANDOM_ORDER, NEUTRAL_ORDER_1, NEUTRAL_ORDER_2, NEUTRAL_ORDER_3, STARTING_ORDER, CARGO_BAY_ORDER, RESEARCH_ROOM_ORDER }
 
 const ROOMS = RoomData.RoomType
 const ROOM_CATEGORIES = RoomData.RoomCategory
-
-
 
 # One of these is chosen based on the number of activate Data Analysis rooms
 const basic_orders = {
 	Order.NEUTRAL_ORDER_1: _neutral_order_1,
 	Order.NEUTRAL_ORDER_2: _neutral_order_2,
 	Order.NEUTRAL_ORDER_3: _neutral_order_3,
-	}
+}
 
 # These orders can appear e.g. on specific turns
 const special_orders = {
 	Order.RANDOM_ORDER: _random_order,
 	Order.CARGO_BAY_ORDER: _cargo_bay_order,
 	Order.RESEARCH_ROOM_ORDER: _research_room_order,
-	Order.STARTING_ORDER: _starting_order
+	Order.STARTING_ORDER: _starting_order,
 }
 
 const _starting_order = {
 	"description": "We need a few basic rooms to get started.",
-	"rooms": [ROOMS.POWER_PLANT, ROOMS.FUEL_STORAGE, ROOMS.COMMAND_ROOM]
-	}
+	"rooms": [ROOMS.POWER_PLANT, ROOMS.FUEL_STORAGE, ROOMS.COMMAND_ROOM],
+}
 
 # choose 5 random rooms from every room in the game
 const _random_order = {
@@ -45,7 +43,7 @@ const _random_order = {
 		ROOM_CATEGORIES.RESEARCH_ROOM,
 		ROOM_CATEGORIES.SPECIAL_ROOM,
 	],
-	"choose_from": 5
+	"choose_from": 5,
 }
 
 const _neutral_order_1 = {
@@ -83,12 +81,12 @@ const _research_room_order = {
 	"description": "It's time to build a new research station.",
 	"room_categories_array": [
 		ROOM_CATEGORIES.RESEARCH_ROOM,
-	]
-	}
+	],
+}
 
 const _cargo_bay_order = {
 	"description": "The Commander wants you to build a Cargo Bay to import and export resources.",
 	"rooms": [
-		ROOMS.CARGO_BAY
-	]
-	}
+		ROOMS.CARGO_BAY,
+	],
+}

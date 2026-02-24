@@ -38,11 +38,10 @@ var total_crew: int = 0
 var crew_quarters_limit: int = 3
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var used_crew_names: Array[String] = [] # to make sure no crew member name is used twice, should improve this later
-var command_room : Room
+var command_room: Room
 
 # maps a room/connector to the NavObstacle created by it, so we can remove the obstacle if the room/connector is removed for any reason
-var nav_obstacles = {}
-
+var nav_obstacles = { }
 
 
 ## Creates a new room at <pos>, and adds it as a child to TestingRoom.

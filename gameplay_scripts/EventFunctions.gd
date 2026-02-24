@@ -1,7 +1,6 @@
 class_name EventFunctions
 extends Script
 
-
 const EVENTS = EventData.EVENTS
 const CHOICES = EventData.CHOICES
 const RoomType = RoomData.RoomType
@@ -10,7 +9,7 @@ const RoomType = RoomData.RoomType
 ## Returns a random events data from a pool of possible events, by first checking each events "can_appear_func" status,
 ## then picking a random event from that pool by using their "probability" value (bigger number = better chance to get picked)
 static func get_random_event(scene_tree: SceneTree) -> Dictionary:
-	var event_ranges: Dictionary[EventData.EVENTS, Array] = {}
+	var event_ranges: Dictionary[EventData.EVENTS, Array] = { }
 	var max_number = 0
 	for event: EventData.EVENTS in EventData.event_data:
 		var data = EventData.event_data[event]
@@ -21,7 +20,7 @@ static func get_random_event(scene_tree: SceneTree) -> Dictionary:
 
 	if len(event_ranges) == 0:
 		# No events can appear at the moment
-		return {}
+		return { }
 
 	var rand_number = randi_range(0, max_number - 1)
 	for event: EventData.EVENTS in event_ranges:
@@ -41,8 +40,8 @@ static func get_random_event(scene_tree: SceneTree) -> Dictionary:
 	push_error("Random number was: %d" % [rand_number])
 	push_error("The ranges in event_ranges Array were:")
 	for event in event_ranges:
-		push_error("" .join(event_ranges[event]))
-	return {}
+		push_error("".join(event_ranges[event]))
+	return { }
 
 
 static func print_event_info(scene_tree: SceneTree) -> void:

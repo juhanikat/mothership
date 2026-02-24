@@ -32,7 +32,6 @@ var rotating: bool = false # true if the room is currently rotating.
 var connecting_rooms: bool = false # used in _unhandled_input to keep room still while connecting.
 var closest_conns_pair = [] # used to highlight two Connectors that are close enough to pair
 
-
 var room_name: String
 var room_type: RoomData.RoomType
 var room_category: RoomData.RoomCategory
@@ -316,6 +315,7 @@ func try_to_connect_rooms(connector_pair, no_animation: bool = false) -> bool:
 			GlobalSignals.room_connected.emit(connector, connected_to)
 	return true
 
+
 ## <deleted_connectors> is a list of conn directions which are not added to this room,
 ## e.g. ["up", "down"].
 func create_connectors(deleted_connectors: Array[String]) -> void:
@@ -450,8 +450,9 @@ func _on_check_connection_timer_timeout() -> void:
 		closest_conns_pair = new_conn_pair
 		if not RoomConnections.check_placement_rules(
 			new_conn_pair[0].get_parent_room(),
-		 	new_conn_pair[1].get_parent_room(),
-			false):
+			new_conn_pair[1].get_parent_room(),
+			false,
+		):
 			closest_conns_pair[0].texture_polygon.color = Color(0.945, 0.376, 0.267, 1.0)
 			closest_conns_pair[1].texture_polygon.color = Color(0.945, 0.376, 0.267, 1.0)
 		else:

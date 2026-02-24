@@ -1,14 +1,28 @@
 class_name RoomData
 extends Node
 
-
-enum RoomShape {LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape, MediumHallwayShape}
+enum RoomShape { LShape, TShape, SmallSquareShape, BigSquareShape, LongHallwayShape, MediumHallwayShape }
 enum RoomType {
-	COMMAND_ROOM, POWER_PLANT, ENGINE_ROOM, CARGO_BAY, CREW_QUARTERS,
-	CANTEEN, LAVATORY, RATION_STORAGE, WPP, FUEL_STORAGE, GARDEN, ROBOTICS, WEAPONS_RESEARCH, DATA_ANALYSIS, ARMORY, HALLWAY, CABLE_DUCT, PLACEHOLDER_ROOM
+	COMMAND_ROOM,
+	POWER_PLANT,
+	ENGINE_ROOM,
+	CARGO_BAY,
+	CREW_QUARTERS,
+	CANTEEN,
+	LAVATORY,
+	RATION_STORAGE,
+	WPP,
+	FUEL_STORAGE,
+	GARDEN,
+	ROBOTICS,
+	WEAPONS_RESEARCH,
+	DATA_ANALYSIS,
+	ARMORY,
+	HALLWAY,
+	CABLE_DUCT,
+	PLACEHOLDER_ROOM,
 }
-enum RoomCategory {CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, EMERGENCY_ROOM, LUXURY_ROOM, SPECIAL_ROOM}
-
+enum RoomCategory { CREW_ROOM, MAINTENANCE_ROOM, RESEARCH_ROOM, EMERGENCY_ROOM, LUXURY_ROOM, SPECIAL_ROOM }
 
 const room_colors = {
 	RoomCategory.CREW_ROOM: Color(0.212, 0.561, 0.812),
@@ -16,9 +30,8 @@ const room_colors = {
 	RoomCategory.RESEARCH_ROOM: Color(0.678, 0.0, 0.68),
 	RoomCategory.EMERGENCY_ROOM: Color(0.681, 0.257, 0.219),
 	RoomCategory.LUXURY_ROOM: Color(0.394, 0.834, 0.113),
-	RoomCategory.SPECIAL_ROOM: Color(0.925, 0.925, 0.925)
-	}
-
+	RoomCategory.SPECIAL_ROOM: Color(0.925, 0.925, 0.925),
+}
 
 ## Maps the shape of a room to the top left corner of the room the info should be.
 const room_info_pos = {
@@ -27,31 +40,29 @@ const room_info_pos = {
 	RoomShape.SmallSquareShape: Vector2(-32, -32),
 	RoomShape.BigSquareShape: Vector2(-64, -64),
 	RoomShape.LongHallwayShape: Vector2(-192, -20),
-	RoomShape.MediumHallwayShape: Vector2(-128, -20)
+	RoomShape.MediumHallwayShape: Vector2(-128, -20),
 }
-
 
 ## Maps a RoomShape to an Array containing the locations of its connectors.
 const room_connectors = {
 	RoomShape.LShape: [Vector2(72, -32), Vector2(-32, 72)],
 	RoomShape.TShape: [Vector2(0, -72), Vector2(104, 32), Vector2(-104, 32)],
-	RoomShape.SmallSquareShape: [Vector2(0, -40),Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
+	RoomShape.SmallSquareShape: [Vector2(0, -40), Vector2(40, 0), Vector2(0, 40), Vector2(-40, 0)],
 	RoomShape.BigSquareShape: [Vector2(0, -72), Vector2(72, 0), Vector2(0, 72), Vector2(-72, 0)],
 	RoomShape.LongHallwayShape: [Vector2(-200, 0), Vector2(200, 0)],
-	RoomShape.MediumHallwayShape: [Vector2(-136, 0), Vector2(136, 0)]
+	RoomShape.MediumHallwayShape: [Vector2(-136, 0), Vector2(136, 0)],
 }
 
 ## Maps a RoomShape to an Array containing the directions of its connectors.
 ## Used if a room wants to only have e.g. the up and down connectors actually appear.
 const room_conn_directions = {
 	RoomShape.LShape: ["right", "down"],
-	RoomShape.TShape:  ["up", "right", "left"],
+	RoomShape.TShape: ["up", "right", "left"],
 	RoomShape.SmallSquareShape: ["up", "right", "down", "left"],
 	RoomShape.BigSquareShape: ["up", "right", "down", "left"],
 	RoomShape.LongHallwayShape: ["left", "right"],
-	RoomShape.MediumHallwayShape: ["left", "right"]
+	RoomShape.MediumHallwayShape: ["left", "right"],
 }
-
 
 ## NOTE: Use this dict in other scripts.
 const room_data = {
@@ -71,14 +82,12 @@ const room_data = {
 	RoomType.HALLWAY: _hallway_data,
 	RoomType.CABLE_DUCT: _cable_duct_data,
 	RoomType.ARMORY: _armory_data,
-	RoomType.PLACEHOLDER_ROOM: _placeholder_room_data
+	RoomType.PLACEHOLDER_ROOM: _placeholder_room_data,
 }
-
 
 ## TODO: Use classes instead of dicts here to get autocomplete?
 
 ## SPECIAL ROOMS
-
 
 const _command_room_data: Dictionary[String, Variant] = {
 	"room_name": "Command Room",
@@ -86,10 +95,9 @@ const _command_room_data: Dictionary[String, Variant] = {
 	"room_desc": "",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 3},
+	"crew_needed": { "min": 0, "max": 3 },
 	"activate_when_connected": true,
 	"cannot_be_deactivated_manually": true,
-
 }
 
 const _power_plant_data: Dictionary[String, Variant] = {
@@ -98,9 +106,9 @@ const _power_plant_data: Dictionary[String, Variant] = {
 	"room_desc": "Provides power for nearby rooms. Needs a Fuel Storage within 3 rooms to activate. When activated, uses 1 Fuel each turn.",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 0,
-	"crew_needed": {"min": 0, "max": 4},
+	"crew_needed": { "min": 0, "max": 4 },
 	"activate_when_connected": true,
-	"power_supply": {"capacity": 10, "range": 5}
+	"power_supply": { "capacity": 10, "range": 5 },
 }
 
 const _cargo_bay_data: Dictionary[String, Variant] = {
@@ -109,12 +117,10 @@ const _cargo_bay_data: Dictionary[String, Variant] = {
 	"room_desc": "Allows importing resources such as fuel. Each delivery takes 3 turns to complete, and the room is locked in a powered state during that time.",
 	"room_category": RoomCategory.SPECIAL_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
-
 ## CREW ROOMS
-
 
 const _crew_quarters_data: Dictionary[String, Variant] = {
 	"room_name": "Crew Quarters",
@@ -123,7 +129,7 @@ const _crew_quarters_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1,
 	"crew_amount": 4,
-	"crew_needed": {"min": 0, "max": 4},
+	"crew_needed": { "min": 0, "max": 4 },
 }
 
 const _canteen_data: Dictionary[String, Variant] = {
@@ -132,7 +138,7 @@ const _canteen_data: Dictionary[String, Variant] = {
 	"room_desc": "Must be placed adjacent to a Crew Room. Needs a Ration Storage next to it to activate. When activated, uses 1 Ration each turn.",
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
 const _lavatory_data: Dictionary[String, Variant] = {
@@ -141,7 +147,7 @@ const _lavatory_data: Dictionary[String, Variant] = {
 	"room_desc": "Must be placed adjacent to a Crew Room. There must be a Waste Processing Plant on the station to activate.",
 	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
 const _ration_storage_data: Dictionary[String, Variant] = {
@@ -152,10 +158,9 @@ const _ration_storage_data: Dictionary[String, Variant] = {
 	"always_activated": true,
 	"power_usage": 0,
 	"rations_amount": 10,
-	"crew_needed": {"min": 0, "max": 0},
-	"delete_conns": ["left", "down", "right"]
+	"crew_needed": { "min": 0, "max": 0 },
+	"delete_conns": ["left", "down", "right"],
 }
-
 
 ## MAINTENANCE ROOMS
 
@@ -167,8 +172,8 @@ const _wpp_data: Dictionary[String, Variant] = {
 					that are activated at the end of the turn.",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 2,
-	"crew_needed": {"min": 0, "max": 3},
-	"delete_conns": ["left", "down", "right"]
+	"crew_needed": { "min": 0, "max": 3 },
+	"delete_conns": ["left", "down", "right"],
 }
 
 const _hallway_data: Dictionary[String, Variant] = {
@@ -179,7 +184,7 @@ const _hallway_data: Dictionary[String, Variant] = {
 	"power_usage": 0,
 	"always_deactivated": true,
 	"accessible_by_crew": true,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
 const _cable_duct_data: Dictionary[String, Variant] = {
@@ -190,7 +195,7 @@ const _cable_duct_data: Dictionary[String, Variant] = {
 	"power_usage": 0,
 	"accessible_by_crew": false,
 	"always_deactivated": true,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
 const _fuel_storage_data: Dictionary[String, Variant] = {
@@ -201,8 +206,8 @@ const _fuel_storage_data: Dictionary[String, Variant] = {
 	"power_usage": 0,
 	"always_activated": true,
 	"fuel_amount": 5,
-	"crew_needed": {"min": 0, "max": 0},
-	"delete_conns": ["left", "down", "right"]
+	"crew_needed": { "min": 0, "max": 0 },
+	"delete_conns": ["left", "down", "right"],
 }
 
 const _placeholder_room_data: Dictionary[String, Variant] = {
@@ -212,12 +217,10 @@ const _placeholder_room_data: Dictionary[String, Variant] = {
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
 	"always_deactivated": true,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
-
 ## LUXURY ROOMS
-
 
 const _garden_data: Dictionary[String, Variant] = {
 	"room_name": "Garden",
@@ -227,12 +230,10 @@ const _garden_data: Dictionary[String, Variant] = {
 	"power_usage": 0,
 	"crew_quarters_limit_increase": 2,
 	"always_activated": true,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
-
 ## RESEARCH ROOMS
-
 
 const _robotics_data: Dictionary[String, Variant] = {
 	"room_name": "Robotics",
@@ -240,7 +241,7 @@ const _robotics_data: Dictionary[String, Variant] = {
 	"room_desc": "",
 	"room_category": RoomCategory.RESEARCH_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
 const _weapons_research_data: Dictionary[String, Variant] = {
@@ -249,8 +250,8 @@ const _weapons_research_data: Dictionary[String, Variant] = {
 	"room_desc": "Unlocks new rooms.",
 	"room_category": RoomCategory.RESEARCH_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 0},
-	"delete_conns": ["up"]
+	"crew_needed": { "min": 0, "max": 0 },
+	"delete_conns": ["up"],
 }
 
 const _data_analysis_data: Dictionary[String, Variant] = {
@@ -259,12 +260,10 @@ const _data_analysis_data: Dictionary[String, Variant] = {
 	"room_desc": "If activated at the start of a turn, adds an extra room option to choose from.",
 	"room_category": RoomCategory.RESEARCH_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 0},
+	"crew_needed": { "min": 0, "max": 0 },
 }
 
-
 ## COMBAT ROOMS
-
 
 const _armory_data: Dictionary[String, Variant] = {
 	"room_name": "Armory",
@@ -272,5 +271,5 @@ const _armory_data: Dictionary[String, Variant] = {
 	"room_desc": "Contains weapons to help your crew fight intruders.",
 	"room_category": RoomCategory.EMERGENCY_ROOM,
 	"power_usage": 1,
-	"crew_needed": {"min": 0, "max": 0},
-	}
+	"crew_needed": { "min": 0, "max": 0 },
+}

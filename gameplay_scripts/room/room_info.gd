@@ -24,7 +24,7 @@ var crew_member_scene = load("res://scenes/crew_member.tscn")
 	traits_label: "ON_HOVER",
 	resource_label: "ON_HOVER",
 	description_label: "ON_HOVER",
-	adjacent_rooms_label: "ON_HOVER"
+	adjacent_rooms_label: "ON_HOVER",
 }
 
 var parent_room: Room
@@ -33,6 +33,7 @@ var default_size: Vector2 # this is set to be the same size as the node appears 
 var hovering: bool = false
 
 var crew_texture = load("res://icon.svg")
+
 
 func _ready() -> void:
 	default_size = size

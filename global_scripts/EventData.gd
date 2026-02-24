@@ -5,16 +5,23 @@ extends Node
 const RoomType = RoomData.RoomType
 const RoomCategory = RoomData.RoomCategory
 
-enum EVENTS {FIRE_1, IMPOSTERS_1, SHOCK_1, BUILD_RESEARCH, POWER_PLANT_MAINTENANCE_1, POWER_PLANT_MAINTENANCE_2_SUCCESS,
-POWER_PLANT_MAINTENANCE_2_FAILURE}
+enum EVENTS {
+	FIRE_1,
+	IMPOSTERS_1,
+	SHOCK_1,
+	BUILD_RESEARCH,
+	POWER_PLANT_MAINTENANCE_1,
+	POWER_PLANT_MAINTENANCE_2_SUCCESS,
+	POWER_PLANT_MAINTENANCE_2_FAILURE,
+}
 
-enum CHOICES {PPM_1_A, PPM_1_B}
+enum CHOICES { PPM_1_A, PPM_1_B }
 
 var _build_research_data = {
 	"title": "Build more Research Rooms",
 	"description": "",
 	"probability": 1,
-	"can_appear_func": func(scene_tree: SceneTree): return len(scene_tree.get_nodes_in_group(str(RoomCategory.RESEARCH_ROOM))) < GlobalVariables.turn / 3.0
+	"can_appear_func": func(scene_tree: SceneTree): return len(scene_tree.get_nodes_in_group(str(RoomCategory.RESEARCH_ROOM))) < GlobalVariables.turn / 3.0,
 }
 
 var _shock_1_data = {
@@ -24,7 +31,7 @@ var _shock_1_data = {
 	\"We're still investigating, but it doesn't seem to be originating from any machinery. Nothing's damaged yet either, but that might change soon.\"
 	",
 	"probability": 1,
-	"can_appear_func": func(_scene_tree: SceneTree): return true
+	"can_appear_func": func(_scene_tree: SceneTree): return true,
 }
 
 var _power_plant_maintenance_1_data = {
@@ -32,9 +39,12 @@ var _power_plant_maintenance_1_data = {
 	"description": "One of the Power Plants on your station has been active for quite a long time. If able, consider powering it down so your crew can make repairs and overhauls.
 	",
 	"probability": 1,
-	"choices": [{"text": "Deactivate the Power Plant for one turn.", "value": CHOICES.PPM_1_A}, {"text": "Ignore.", "value": CHOICES.PPM_1_B}],
-	"can_appear_func": func(scene_tree: SceneTree): return len(scene_tree.get_nodes_in_group(str(RoomType.POWER_PLANT)) \
-					.filter(func(room: Room): return room.gameplay.activated)) > 0
+	"choices": [{ "text": "Deactivate the Power Plant for one turn.", "value": CHOICES.PPM_1_A }, { "text": "Ignore.", "value": CHOICES.PPM_1_B }],
+	"can_appear_func": func(scene_tree: SceneTree):
+		return len(
+			scene_tree.get_nodes_in_group(str(RoomType.POWER_PLANT)) \
+			.filter(func(room: Room): return room.gameplay.activated),
+		) > 0,
 }
 
 var _power_plant_maintenance_2_success_data = {
@@ -42,7 +52,7 @@ var _power_plant_maintenance_2_success_data = {
 	"description": "The Power Plant has been deactivated.
 	",
 	"probability": 0,
-	"can_appear_func": func(_scene_tree: SceneTree): return false
+	"can_appear_func": func(_scene_tree: SceneTree): return false,
 }
 
 var _power_plant_maintenance_2_failure_data = {
@@ -50,7 +60,7 @@ var _power_plant_maintenance_2_failure_data = {
 	"description": "The Power Plant could not be deactivated! It is probably supplying power to a room that is always active.
 	",
 	"probability": 0,
-	"can_appear_func": func(_scene_tree: SceneTree): return false
+	"can_appear_func": func(_scene_tree: SceneTree): return false,
 }
 
 # this has to be last

@@ -1,6 +1,6 @@
 extends CanvasLayer
-class_name RoomSelection
 
+class_name RoomSelection
 
 @export var order_description_label: RichTextLabel
 @export var room_container: HBoxContainer
