@@ -15,7 +15,7 @@ func clear_room_buttons() -> void:
 ## Adds one or more room buttons to the side panel (change this to have pictures of the rooms later).
 ## Also show the description of the order.
 func show_order(description: String, room_data_array: Array[Dictionary]) -> void:
-	order_description_label.text = "\"%s\"" % [description]
+	order_description_label.text = description
 	for room_data in room_data_array:
 		var new_room_button = Button.new()
 		var button_text_color = RoomData.room_colors[room_data["room_category"]]

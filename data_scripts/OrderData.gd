@@ -28,7 +28,7 @@ const special_orders = {
 }
 
 const _starting_order = {
-	"description": "We need a few basic rooms to get started.",
+	"description": "Build the starting rooms to get started.",
 	"rooms": [ROOMS.POWER_PLANT, ROOMS.FUEL_STORAGE, ROOMS.COMMAND_ROOM],
 }
 
@@ -47,7 +47,7 @@ const _random_order = {
 }
 
 const _neutral_order_1 = {
-	"description": "The Commander has no orders for you. Choose the room you think would best fit our current situation.",
+	"description": "Choose from the following rooms:",
 	"room_categories_dict": {
 		ROOM_CATEGORIES.CREW_ROOM: 1,
 		ROOM_CATEGORIES.MAINTENANCE_ROOM: 2,
@@ -58,7 +58,7 @@ const _neutral_order_1 = {
 
 # neutral order 2 and 3 are unlocked by a research room?
 const _neutral_order_2 = {
-	"description": "The Commander has no orders for you. Choose the room you think would best fit our current situation.",
+	"description": "Choose from the following rooms:",
 	"room_categories_dict": {
 		ROOM_CATEGORIES.CREW_ROOM: 1,
 		ROOM_CATEGORIES.MAINTENANCE_ROOM: 2,
@@ -68,7 +68,7 @@ const _neutral_order_2 = {
 }
 
 const _neutral_order_3 = {
-	"description": "The Commander has no orders for you. Choose the room you think would best fit our current situation.",
+	"description": "Choose from the following rooms:",
 	"room_categories_dict": {
 		ROOM_CATEGORIES.CREW_ROOM: 1,
 		ROOM_CATEGORIES.MAINTENANCE_ROOM: 2,
@@ -85,7 +85,7 @@ const _research_room_order = {
 }
 
 const _cargo_bay_order = {
-	"description": "The Commander wants you to build a Cargo Bay to import and export resources.",
+	"description": "Build a Cargo Bay.",
 	"rooms": [
 		ROOMS.CARGO_BAY,
 	],

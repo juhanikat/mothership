@@ -88,7 +88,7 @@ static func _get_specific_order(order_enum: OrderData.Order, active_data_rooms: 
 
 
 static func get_order_for_next_turn(active_data_rooms: int) -> Dictionary:
-	if GlobalVariables.turn == 1:
+	if GlobalVariables.turn == 1 and not GlobalVariables.NO_STARTING_ORDER:
 		return _get_specific_order(Order.STARTING_ORDER, active_data_rooms)
 	if GlobalVariables.turn == 3:
 		return _get_specific_order(Order.CARGO_BAY_ORDER, active_data_rooms)
