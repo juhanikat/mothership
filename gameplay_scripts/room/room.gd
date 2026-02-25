@@ -286,6 +286,8 @@ func try_to_connect_rooms(connector_pair, no_animation: bool = false) -> bool:
 			# must be done here
 			overlapping_rooms[0].replace_placeholder(self)
 			GlobalNotice.display("Replaced a placeholder room.")
+			for conn in get_own_connectors():
+				conn.check_deletion()
 			if gameplay.always_activated:
 				gameplay.activate_room()
 				GlobalNotice.display("Room activated automatically!")

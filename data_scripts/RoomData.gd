@@ -189,7 +189,7 @@ const _hallway_data: Dictionary[String, Variant] = {
 
 const _cable_duct_data: Dictionary[String, Variant] = {
 	"room_name": "Cable Duct",
-	"room_shape": RoomShape.LongHallwayShape,
+	"room_shape": RoomShape.MediumHallwayShape,
 	"room_desc": "Impassable by crew.",
 	"room_category": RoomCategory.MAINTENANCE_ROOM,
 	"power_usage": 0,
