@@ -11,5 +11,5 @@ var events_disabled: bool = true
 const CREATE_TESTING_ROOMS: bool = true
 const NO_STARTING_ORDER: bool = true
 const NO_CARGO_BAY_REQUIREMENT: bool = true
-const NO_GAME_OVER: bool = true
+const NO_GAME_OVER: bool = false
 const CAN_PICK_MULTIPLE_ROOMS: bool = false

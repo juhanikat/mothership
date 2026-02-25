@@ -12,7 +12,7 @@ var cannot_be_deactivated_manually: bool = false # used by e.g. Cargo Bay and Cr
 var accessible_by_crew: bool = true
 
 var power_usage: int
-var crew_needed = { } # with keys "min" and "max", if assigned crew is less than min, the room cannot be activated.
+var crew_needed: Dictionary = { } # with keys "min" and "max", if assigned crew is less than min, the room cannot be activated.
 
 # FOR CARGO BAY
 var order_in_progress: bool = false
@@ -132,6 +132,15 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 				if room.room_type == RoomType.COMMAND_ROOM and automatic and not GlobalVariables.NO_GAME_OVER:
 					GlobalNotice.display("Game over! There are no active command rooms.", "error", -1)
 				room.gameplay.deactivate_room(true, automatic)
+		RoomType.CARGO_BAY:
+			if delivery_in_progress:
+				# cancel delivery, and update hud
+				var cancelled_delivery = current_delivery
+				cancelled_delivery.turns_left = 0
+				GlobalSignals.delivery_status_changed.emit(cancelled_delivery)
+				delivery_in_progress = false
+				turns_until_delivery = -1
+				current_delivery = { }
 
 	if power_usage != 0 and not ignore_power_supplier:
 		for power_supplier: Room in get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)):
@@ -139,6 +148,7 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 				power_supplier.gameplay.remove_power_consumer(parent_room)
 				break
 
+	print("here")
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
 	if show_deactivation_notice:
@@ -245,7 +255,6 @@ func next_turn() -> void:
 		GlobalSignals.delivery_status_changed.emit(current_delivery)
 		if current_delivery.turns_left == 0:
 			delivery_in_progress = false
-			cannot_be_deactivated_manually = false
 			if current_delivery.type == "Fuel":
 				var all_fuel_storages = get_tree().get_nodes_in_group(str(RoomType.FUEL_STORAGE))
 				if not all_fuel_storages:
@@ -329,7 +338,7 @@ func _can_be_activated() -> bool:
 ## This behavior might need to be changed if deactivating a room becomes a more complex thing than it currently is.
 func _can_be_deactivated(automatic: bool = false) -> bool:
 	if not activated:
-		push_error("Tried to deactivate room that was not active, this probably should not happen!")
+		push_error("Tried to deactivate room that was not active (%s), this probably should not happen!" % [parent_room.room_name])
 		return false
 	if always_activated:
 		GlobalNotice.display("Cannot deactivate %s: It is set to be always active." % [parent_room.room_name], "warning")
@@ -355,10 +364,6 @@ func _can_be_deactivated(automatic: bool = false) -> bool:
 						cannot_deactivate = true
 			if cannot_deactivate:
 				GlobalNotice.display("Cannot deactivate Waste Processing Plant: There are activated Lavatories that depend on it.", "warning")
-				return false
-		RoomType.CARGO_BAY:
-			if delivery_in_progress:
-				GlobalNotice.display("Cannot deactivate Cargo Bay: A delivery is in progress.", "warning")
 				return false
 
 	return true
@@ -415,7 +420,6 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 
 func _on_cargo_bay_order_made(delivery: Dictionary) -> void:
 	if delivery.made_by == parent_room:
-		cannot_be_deactivated_manually = true
 		order_in_progress = false
 		delivery_in_progress = true
 		current_delivery = delivery
