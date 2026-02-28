@@ -67,6 +67,7 @@ func init_gameplay_features(p_parent_room: Room, p_data: Dictionary) -> void:
 
 	if "power_supply" in _data.keys():
 		power_supply = _data["power_supply"].duplicate(true)
+		parent_room.add_to_group("PowerSupplier")
 	if parent_room_type == RoomType.CREW_QUARTERS:
 		crew_amount = _data["crew_amount"]
 	elif parent_room_type == RoomType.FUEL_STORAGE:
@@ -104,9 +105,8 @@ func activate_room(automatic: bool = false, show_activation_notice: bool = false
 		RoomType.AEH:
 			var green_connectors = get_tree().get_nodes_in_group("Connector")\
 			.filter(func(conn: Connector): return conn.connected_to())
-			power_supply.capacity = len(green_connectors) / 4
+			power_supply.capacity = floor(len(green_connectors) / 4.0)
 			parent_room.room_info.update_power_supply_label(power_supply)
-			print(power_supply.capacity)
 
 		RoomType.CREW_QUARTERS:
 			# activate each crew member that lives here (they are also assigned to this room)
@@ -125,7 +125,7 @@ func activate_room(automatic: bool = false, show_activation_notice: bool = false
 	activated = true
 	parent_room.texture_polygon.color.a += 0.5
 	if power_usage != 0:
-		var sufficient_power_supplier = find_power_supplier()
+		var sufficient_power_supplier = find_power_suppliers()[0]
 		sufficient_power_supplier.gameplay.add_power_consumer(parent_room)
 	if show_activation_notice:
 		GlobalNotice.display("Room activated.")
@@ -141,6 +141,15 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 	if not _can_be_deactivated(automatic):
 		return false
 
+	if parent_room.is_in_group("PowerSupplier"):
+		for room: Room in supplies_to:
+			print(room.room_name)
+			if not room.gameplay.can_switch_suppliers(parent_room):
+				# there are no other possible power suppliers for the supplied room
+				room.gameplay.deactivate_room(true, automatic)
+			else:
+				room.gameplay.switch_power_suppliers(parent_room)
+
 	match parent_room_type:
 		RoomType.CREW_QUARTERS:
 			var deactivation_msg = "Deactivated: "
@@ -150,11 +159,6 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 			GlobalNotice.display(deactivation_msg)
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
-		RoomType.POWER_PLANT:
-			for room: Room in supplies_to:
-				if room.room_type == RoomType.COMMAND_ROOM and automatic and not GlobalVariables.NO_GAME_OVER:
-					GlobalNotice.display("Game over! There are no active command rooms.", "error", -1)
-				room.gameplay.deactivate_room(true, automatic)
 		RoomType.CARGO_BAY:
 			if delivery_in_progress:
 				# cancel delivery, and update hud
@@ -164,9 +168,12 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 				delivery_in_progress = false
 				turns_until_delivery = -1
 				current_delivery = { }
+		RoomType.COMMAND_ROOM:
+			if not GlobalVariables.NO_GAME_OVER:
+				GlobalNotice.display("Game over! There are no active command rooms.", "error", -1)
 
 	if power_usage != 0 and not ignore_power_supplier:
-		for power_supplier: Room in get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)):
+		for power_supplier: Room in get_tree().get_nodes_in_group("PowerSupplier"):
 			if parent_room in power_supplier.gameplay.supplies_to:
 				power_supplier.gameplay.remove_power_consumer(parent_room)
 				break
@@ -259,14 +266,14 @@ func deactivate_crew(crew_member: CrewMember) -> void:
 
 
 func add_power_consumer(room: Room) -> void:
-	assert(parent_room_type == RoomType.POWER_PLANT)
+	assert(parent_room_type in [RoomType.POWER_PLANT, RoomType.AEH])
 	power_supply.capacity -= room.gameplay.power_usage
 	supplies_to.append(room)
 	parent_room.room_info.update_power_supply_label(power_supply)
 
 
 func remove_power_consumer(room: Room) -> void:
-	assert(parent_room_type == RoomType.POWER_PLANT)
+	assert(parent_room_type in [RoomType.POWER_PLANT, RoomType.AEH])
 	assert(room in supplies_to)
 	power_supply.capacity += room.gameplay.power_usage
 	supplies_to.erase(room)
@@ -279,7 +286,7 @@ func next_turn() -> void:
 	if not activated:
 		return
 
-	if parent_room_type == RoomType.POWER_PLANT:
+	if parent_room_type in [RoomType.POWER_PLANT, RoomType.AEH]:
 		var fuel_storage = _find_sufficient_fuel_storage()
 		if not fuel_storage:
 			if deactivate_room(false, true):
@@ -344,9 +351,9 @@ func _can_be_activated() -> bool:
 		return false
 
 	# power plant check
-	var sufficient_power_supplier
+	var sufficient_power_supplier: Room
 	if power_usage != 0:
-		sufficient_power_supplier = find_power_supplier()
+		sufficient_power_supplier = find_power_suppliers()[0]
 		if not sufficient_power_supplier:
 			GlobalNotice.display("Cannot activate room: There are no active Power Plants nearby.", "warning")
 			return false
@@ -396,12 +403,13 @@ func _can_be_deactivated(automatic: bool = false) -> bool:
 		GlobalNotice.display("%s cannot be deactivated." % [parent_room.room_name], "warning")
 		return false
 
+	if parent_room.is_in_group("PowerSupplier"):
+		for room: Room in supplies_to:
+			if room.gameplay.can_switch_suppliers(parent_room) == false and room.gameplay._can_be_deactivated(automatic) == false:
+				GlobalNotice.display("Cannot deactivate Power Plant: One of the supplied rooms cannot be deactivated or moved to another power supplier.", "warning")
+				return false
+
 	match parent_room_type:
-		RoomData.RoomType.POWER_PLANT:
-			for room: Room in supplies_to:
-				if room.gameplay._can_be_deactivated(automatic) == false:
-					GlobalNotice.display("Cannot deactivate Power Plant: One of the supplied rooms cannot be deactivated.", "warning")
-					return false
 		RoomType.WPP:
 			var cannot_deactivate = false
 			var activated_wpps = get_tree().get_nodes_in_group(str(RoomType.WPP)).filter(func(wpp): return wpp.gameplay.activated)
@@ -418,24 +426,42 @@ func _can_be_deactivated(automatic: bool = false) -> bool:
 	return true
 
 
-## Returns the nearest power supplier with sufficient capacity and range if one was found,
-## and null otherwise. If include_deactivated is true, include all power plants in the search.
-func find_power_supplier(include_deactivated: bool = false):
+## Returns all power suppliers with sufficient capacity and range (relative to this room).
+## If include_deactivated is true, include all power suppliers in the search.
+func find_power_suppliers(include_deactivated: bool = false) -> Array[Room]:
 	var not_in_range = true
-	var power_suppliers = get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)) + get_tree().get_nodes_in_group(str(RoomType.AEH))
+	var all_power_suppliers = get_tree().get_nodes_in_group("PowerSupplier")
+	var returned: Array[Room] = []
 	if not include_deactivated:
-		power_suppliers = power_suppliers.filter(func(supplier): return supplier.gameplay.activated)
-	for power_supplier: Room in power_suppliers:
+		all_power_suppliers = all_power_suppliers.filter(func(supplier): return supplier.gameplay.activated)
+	for power_supplier: Room in all_power_suppliers:
 		var power_supplier_reach = RoomConnections.get_all_rooms(power_supplier, power_supplier.gameplay.power_supply.range)
 		if parent_room in power_supplier_reach:
 			not_in_range = false
 			if power_supplier.gameplay.power_supply.capacity >= power_usage:
-				return power_supplier
+				returned.append(power_supplier)
 	if not_in_range:
 		GlobalNotice.display("Cannot power room: No activated suppliers in range.", "warning")
-	else:
+	elif len(returned) == 0:
 		GlobalNotice.display("Cannot power room: Activated suppliers in range do not have enough capacity.", "warning")
-	return null
+	return returned
+
+
+## Remember to check if this is possible with can_switch_suppliers() first.
+func switch_power_suppliers(current_supplier: Room) -> void:
+	assert(current_supplier.room_type in [RoomType.POWER_PLANT, RoomType.AEH])
+	var power_suppliers: Array[Room] = find_power_suppliers().filter(func(supplier: Room): return supplier != current_supplier)
+	current_supplier.gameplay.remove_power_consumer(parent_room)
+	power_suppliers[0].gameplay.add_power_consumer(parent_room)
+
+
+func can_switch_suppliers(current_supplier: Room) -> bool:
+	assert(current_supplier.room_type in [RoomType.POWER_PLANT, RoomType.AEH])
+	var power_suppliers: Array[Room] = find_power_suppliers().filter(func(supplier: Room): return supplier != current_supplier)
+	print(power_suppliers)
+	if len(power_suppliers) == 0:
+		return false
+	return true
 
 
 ## Find any Fuel Storage (nearest first) that has fuel remaining and is in range (3 rooms) of this room.
@@ -468,10 +494,10 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")
 
 	# all rooms do these
-	if (parent_room_type == RoomType.AEH):
+	if parent_room_type == RoomType.AEH:
 		var green_connectors = get_tree().get_nodes_in_group("Connector")\
 		.filter(func(conn: Connector): return conn.connected_to())
-		power_supply.capacity = len(green_connectors) / 4
+		power_supply.capacity = floor(len(green_connectors) / 4.0)
 		parent_room.room_info.update_power_supply_label(power_supply)
 
 
