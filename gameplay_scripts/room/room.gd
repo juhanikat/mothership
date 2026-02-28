@@ -2,11 +2,13 @@ class_name Room
 extends Area2D
 
 const RoomShape = RoomData.RoomShape
+const RoomType = RoomData.RoomType
 const MAX_CONNECTOR_DISTANCE = 40
 
 @export var check_connection_timer: Timer
 @export var texture_polygon: Polygon2D
-@export var crew_member_node: Node2D
+@export var assigned_crew_members_node: Node2D
+@export var deactivated_crew_members_node: Node2D
 @export var highlight_line: Line2D
 @export var highlight_line_timer: Timer
 @export var highlight_anim_player: AnimationPlayer
@@ -125,10 +127,7 @@ func _ready() -> void:
 
 	GlobalSignals.room_connected.connect(_on_room_connected)
 
-	# RoomGameplay handles supplying power etc. gameplay things
-	gameplay = RoomGameplay.new()
-	add_child(gameplay)
-	gameplay.init_gameplay_features(_data)
+
 
 	var overwrite_name = ""
 	if not main.spawned_room_names.get(room_name):
@@ -143,6 +142,11 @@ func _ready() -> void:
 	new_room_info.global_position = global_position + RoomData.room_info_pos[_shape]
 	room_info = new_room_info
 	main.room_info_nodes.add_child(new_room_info)
+
+	# RoomGameplay handles supplying power etc. gameplay things
+	gameplay = RoomGameplay.new()
+	gameplay.init_gameplay_features(self, _data)
+	add_child(gameplay)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -172,9 +176,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				var assigned_crew = get_tree().get_nodes_in_group("CrewMember").filter(func(crew: CrewMember): return crew.assigned_to == self)
 				if len(assigned_crew) > 0:
-					assigned_crew[0].picked = true
-					assigned_crew[0].show()
-					GlobalVariables.picked_crew = assigned_crew[0]
+					for crew: CrewMember in assigned_crew:
+						if not crew.inactive:
+							assigned_crew[0].picked = true
+							assigned_crew[0].show()
+							GlobalVariables.picked_crew = assigned_crew[0]
+							return
+					GlobalNotice.display("Cannot pick up Crew: All crewmembers in this room are inactive.")
 		return
 
 	if picked:

@@ -2,6 +2,7 @@ class_name RoomGameplay
 extends Node
 
 const RoomType = RoomData.RoomType
+var parent_room: Room
 var parent_room_type: RoomData.RoomType
 
 var activated: bool = false
@@ -26,16 +27,17 @@ var fuel_remaining: int = 0
 # FOR RATION STORAGE
 var rations_remaining: int = 0
 
-# FOR POWER SUPPLIERS
+# FOR POWER PLANT
 var power_supply = { } # "capacity" and "range"
 var supplies_to: Array[Room] = []
 
-# FOR CREW SUPPLIERS
+# FOR CREW QUARTERS
 var crew_amount: int = 0 # amount of Crew this CrewQuarters will give once activated
+var first_activation: bool = true # set to false once the room has been activated for the first time
+var living_crewmembers: Array[CrewMember] = []
 # NOTE: Assigned crew are children of a node in the Room scene, there is no list for them
 var _data: Dictionary[String, Variant]
 
-@onready var parent_room: Room
 @onready var main: Main = get_tree().root.get_node("Main")
 @onready var hud: Hud = main.get_node("HUD")
 
@@ -44,16 +46,24 @@ var crew_member_scene = load("res://scenes/crew_member.tscn")
 
 ## RoomGameplay is created and added as a child to a Room node (in room.gd).
 func _ready() -> void:
-	add_to_group("RoomGameplay")
-	parent_room = get_parent()
-	parent_room_type = parent_room.room_type
 	main = get_tree().root.get_node("Main")
+	# CREATE CREW
+	for i in range(crew_amount):
+		# NOTE: creates new crew members, fix this if Crew Quarters can ever be disabled and enabled again
+		var new_crew_member: CrewMember = crew_member_scene.instantiate()
+		new_crew_member.init_crew_member(new_crew_member.create_random_name(main.used_crew_names), parent_room)
+		living_crewmembers.append(new_crew_member)
+		main.used_crew_names.append(new_crew_member.crewmember_name)
+	parent_room.room_info.update_living_crew_container(living_crewmembers)
 
 
-func init_gameplay_features(data: Dictionary) -> void:
-	_data = data
+func init_gameplay_features(p_parent_room: Room, p_data: Dictionary) -> void:
+	_data = p_data
+	parent_room = p_parent_room
+	parent_room_type = parent_room.room_type
 	# adds room to group with the same value as its RoomType enum
 	parent_room.add_to_group(str(RoomData.room_data.find_key(_data)))
+	add_to_group("RoomGameplay")
 
 	if "power_supply" in _data.keys():
 		power_supply = _data["power_supply"].duplicate(true)
@@ -77,29 +87,27 @@ func init_gameplay_features(data: Dictionary) -> void:
 	GlobalSignals.cargo_bay_order_made.connect(_on_cargo_bay_order_made)
 
 
-func get_crew() -> Array[CrewMember]:
+## Get all CrewMembers that are assigned to this room.
+func get_assigned_crew() -> Array[CrewMember]:
 	var all_crew_nodes: Array[CrewMember] = []
-	all_crew_nodes.assign(parent_room.crew_member_node.get_children())
+	all_crew_nodes.assign(parent_room.assigned_crew_members_node.get_children())
 	return all_crew_nodes
 
 
 ## Called when a deactivated room is middle-clicked. Calls lots of other functions depending on room type.
 ## Returns true if the room has been activated, and false otherwise.
 ## NOTE: Rooms with "always_activated" set to true have already been activated before this function!
-func activate_room(show_activation_notice: bool = false) -> bool:
+func activate_room(automatic: bool = false, show_activation_notice: bool = false) -> bool:
 	if not _can_be_activated():
 		return false
-
 	match parent_room_type:
 		RoomType.CREW_QUARTERS:
-			for i in range(crew_amount):
-				# NOTE: creates new crew members, fix this if Crew Quarters can ever be disabled and enabled again
-				var new_crew_member: CrewMember = crew_member_scene.instantiate()
-				new_crew_member.init_crew_member(new_crew_member.create_random_name(main.used_crew_names), parent_room)
-				main.used_crew_names.append(new_crew_member.crewmember_name)
-				# new crew members are assigned to their Crew Quarters by default
-				self.assign_crew(new_crew_member)
-			hud.update_crew_amount_label(4)
+			# activate each crew member that lives here (they are also assigned to this room)
+			var activation_msg = "Activated: "
+			for crew: CrewMember in living_crewmembers:
+				activate_crew(crew)
+				activation_msg += ", %s" % [crew.crewmember_name]
+			GlobalNotice.display(activation_msg)
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_raised.emit(_data["crew_quarters_limit_increase"])
 		RoomType.CARGO_BAY:
@@ -114,6 +122,8 @@ func activate_room(show_activation_notice: bool = false) -> bool:
 		sufficient_power_supplier.gameplay.add_power_consumer(parent_room)
 	if show_activation_notice:
 		GlobalNotice.display("Room activated.")
+	if automatic:
+		parent_room.highlight(1)
 	return true
 
 
@@ -125,6 +135,12 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 		return false
 
 	match parent_room_type:
+		RoomType.CREW_QUARTERS:
+			var deactivation_msg = "Deactivated: "
+			for crew: CrewMember in living_crewmembers:
+				deactivate_crew(crew)
+				deactivation_msg += ", %s" % [crew.crewmember_name]
+			GlobalNotice.display(deactivation_msg)
 		RoomType.GARDEN:
 			GlobalSignals.crew_quarters_limit_lowered.emit(_data["crew_quarters_limit_increase"])
 		RoomType.POWER_PLANT:
@@ -148,7 +164,6 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 				power_supplier.gameplay.remove_power_consumer(parent_room)
 				break
 
-	print("here")
 	activated = false
 	parent_room.texture_polygon.color.a -= 0.5
 	if show_deactivation_notice:
@@ -160,30 +175,31 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 func assign_crew(crew_member: CrewMember) -> bool:
 	var previous_room: Room = crew_member.assigned_to
 	if previous_room and previous_room == parent_room:
+		print("on")
 		return false
 
-	if len(get_crew()) == crew_needed.max:
+	if len(get_assigned_crew()) == crew_needed.max:
 		GlobalNotice.display("Cannot assign crew to %s: The maximum amount is %s." % [str(parent_room.room_name), str(crew_needed.min)], "warning")
 		return false
 
-	if crew_member.assigned_to:
+	if previous_room:
 		var crew_accessible_rooms = RoomConnections.get_all_rooms(parent_room, -1, true)
 		# if there is no path to the previous room, the crewmember cannot be assigned
-		if crew_member.assigned_to not in crew_accessible_rooms:
+		if previous_room not in crew_accessible_rooms:
 			GlobalNotice.display("Cannot assign crew to %s: There is no crew accessible path there." % [str(parent_room.room_name)], "warning")
 			return false
-
-	if previous_room:
-		var crew_unassigned = previous_room.gameplay._unassign_crew(crew_member)
+		var crew_unassigned = previous_room.gameplay.unassign_crew(crew_member)
 		if not crew_unassigned:
 			return false
 
 	crew_member.assigned_to = parent_room
-	parent_room.crew_member_node.add_child(crew_member)
-	parent_room.room_info.update_assigned_crew_container(parent_room.crew_member_node.get_children())
+	# reparent() because the crew member might be asgined to a LivingCrewMembersNode
+	parent_room.assigned_crew_members_node.add_child(crew_member)
+	parent_room.room_info.update_assigned_crew_container(get_assigned_crew())
 	crew_member.hide()
 	parent_room.highlight(1)
 
+	## CREW EFFECTS ON ROOM GO HERE
 	match parent_room_type:
 		RoomType.POWER_PLANT:
 			power_supply.capacity += 5
@@ -193,20 +209,48 @@ func assign_crew(crew_member: CrewMember) -> bool:
 
 
 ## Only call this if the crew member is actually assigned here.
-func _unassign_crew(crew_member: CrewMember) -> bool:
-	assert(crew_member in parent_room.crew_member_node.get_children(), "Crew member is not assigned to this room.")
-	if len(get_crew()) == crew_needed.min:
-		GlobalNotice.display("Cannot unassign crew from %s: It needs at least %s crew members." % [str(parent_room.room_name), str(crew_needed.min)], "warning")
-		return false
+func unassign_crew(crew_member: CrewMember) -> bool:
+	assert(crew_member in parent_room.assigned_crew_members_node.get_children(), "Crew member is not assigned to this room.")
 
-	parent_room.crew_member_node.remove_child(crew_member)
-	parent_room.room_info.update_assigned_crew_container(parent_room.crew_member_node.get_children())
+	parent_room.assigned_crew_members_node.remove_child(crew_member)
+	parent_room.room_info.update_assigned_crew_container(get_assigned_crew())
 	crew_member.assigned_to = null
 
+	## CREW EFFECTS ON ROOM GO HERE
 	match parent_room_type:
 		RoomType.POWER_PLANT:
 			power_supply.capacity -= 5
 	return true
+
+
+## Only call this if the CrewMember's HOME room is this Room.
+## Activate the CrewMember and assign them to their current room (= Crew Quarters)
+## Called when e.g. their home Room is activated after being deactivated.
+func activate_crew(crew_member: CrewMember) -> void:
+	assert(crew_member.home == parent_room)
+	assert(crew_member.inactive == true)
+	var previous_room: Room = crew_member.assigned_to
+	assert(previous_room == null)
+
+	crew_member.toggle_inactive()
+	assign_crew(crew_member)
+
+
+## Only call this if the CrewMember's HOME room is this Room.
+## Unassign the CrewMember, Return them to their home Room and make them unavailable.
+## Called when e.g. their home Room is deactivated.
+func deactivate_crew(crew_member: CrewMember) -> void:
+	assert(crew_member.home == parent_room)
+	assert(crew_member.inactive == false)
+
+	var previous_room: Room = crew_member.assigned_to
+	assert(previous_room != null)
+	previous_room.gameplay.unassign_crew(crew_member)
+
+	crew_member.toggle_inactive()
+	crew_member.home.room_info.update_assigned_crew_container(crew_member.home.gameplay.get_assigned_crew())
+
+
 
 
 func add_power_consumer(room: Room) -> void:
@@ -290,7 +334,7 @@ func _can_be_activated() -> bool:
 		GlobalNotice.display("Cannot activate room: It is set to be always deactivated.", "warning")
 		return false
 
-	if len(get_crew()) < crew_needed.min:
+	if len(get_assigned_crew()) < crew_needed.min:
 		GlobalNotice.display("Cannot activate room: It needs at least %s crew members." % [str(crew_needed.min)], "warning")
 		return false
 
@@ -413,7 +457,8 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 		if always_activated or activate_when_connected:
 			var was_activated = activate_room()
 			if was_activated:
-				GlobalNotice.display("%s activated automatically!" % [parent_room.room_name])
+				pass
+				#GlobalNotice.display("%s activated automatically!" % [parent_room.room_name])
 			elif always_activated:
 				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")
 

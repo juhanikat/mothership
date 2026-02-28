@@ -3,6 +3,8 @@ extends PanelContainer
 
 @export var assigned_crew_members_container: HBoxContainer
 @export var assigned_crew_members_container_label: RichTextLabel
+@export var living_crew_members_container: HBoxContainer
+@export var living_crew_members_container_label: RichTextLabel
 @export var room_name_label: RichTextLabel
 @export var power_usage_label: RichTextLabel
 @export var crew_needed_label: RichTextLabel
@@ -10,7 +12,6 @@ extends PanelContainer
 @export var resource_label: RichTextLabel
 @export var description_label: RichTextLabel
 @export var adjacent_rooms_label: RichTextLabel
-@export var crew_member_label_duplicate: RichTextLabel
 
 var crew_member_scene = load("res://scenes/crew_member.tscn")
 
@@ -142,15 +143,27 @@ func update_rations_remaining_label(current_rations_remaining: int) -> void:
 	resource_label.text = "%s rations remaining." % [str(current_rations_remaining)]
 
 
-func update_assigned_crew_container(current_crew: Array[Node]) -> void:
+func update_assigned_crew_container(current_crew: Array[CrewMember]) -> void:
 	for label in assigned_crew_members_container.get_children():
 		label.queue_free()
 	for crew_member in current_crew:
-		var crew_name_label: RichTextLabel = crew_member_label_duplicate.duplicate()
-		crew_name_label.text = crew_member.crewmember_name
+		var crew_name_label: RichTextLabel = crew_member.name_label.duplicate()
 		parent_room.room_info.assigned_crew_members_container.add_child(crew_name_label)
 		crew_name_label.show()
 	if len(current_crew) == 0:
 		assigned_crew_members_container_label.hide()
 	else:
 		assigned_crew_members_container_label.show()
+
+
+func update_living_crew_container(current_crew: Array[CrewMember]) -> void:
+	for label in living_crew_members_container.get_children():
+		label.queue_free()
+	for crew_member in current_crew:
+		var crew_name_label: RichTextLabel = crew_member.name_label.duplicate()
+		parent_room.room_info.living_crew_members_container.add_child(crew_name_label)
+		crew_name_label.show()
+	if len(current_crew) == 0:
+		living_crew_members_container_label.hide()
+	else:
+		living_crew_members_container_label.show()

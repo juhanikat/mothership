@@ -2,17 +2,16 @@ class_name CrewMember
 extends Control
 
 var crewmember_name: String
-var crew_quarters: Room # the CrewMember's assigned Crew Quarters
+var home: Room # the CrewMember's assigned Crew Quarters
 var assigned_to: Room # the CrewMember's current location
 
 var hovering: bool = false
 var picked: bool = false
+var inactive: bool = true
 
 @export var name_label: RichTextLabel
 
 ## NOTE: Currently, room.gd is responsible for changing the <picked> variable, and moving the crew member between rooms.
-
-
 func _process(_delta: float) -> void:
 	if picked:
 		var global_mouse_pos = get_global_mouse_position()
@@ -20,9 +19,9 @@ func _process(_delta: float) -> void:
 
 
 ## NOTE: <assigned_to> is set inside a function in RoomGameplay.gd.
-func init_crew_member(p_name: String, p_crew_quarters: Room):
+func init_crew_member(p_name: String, p_home: Room):
 	crewmember_name = p_name
-	crew_quarters = p_crew_quarters
+	home = p_home
 
 	name_label.text = crewmember_name
 
@@ -36,6 +35,15 @@ func create_random_name(already_used: Array[String]) -> String:
 			break
 		random_name = "C"
 	return random_name
+
+
+func toggle_inactive() -> void:
+	if inactive:
+		inactive = false
+		name_label.text = crewmember_name
+	else:
+		inactive = true
+		name_label.text = "[color=red]%s[/color]testing" % [crewmember_name]
 
 
 ## Return an Array of Rooms this CrewMember can access from their current location.
