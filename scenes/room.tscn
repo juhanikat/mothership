@@ -73,6 +73,7 @@ all_room_shapes = NodePath("AllRoomShapes")
 all_room_highlights = NodePath("AllRoomHighlightLines")
 raycast = NodePath("RayCast2D")
 raycast_line = NodePath("RayCast2D/RayCastLine")
+metadata/_edit_lock_ = true
 
 [node name="CheckConnectionTimer" type="Timer" parent="." unique_id=1229037443]
 wait_time = 0.1

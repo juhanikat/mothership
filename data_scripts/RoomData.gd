@@ -12,6 +12,7 @@ enum RoomType {
 	LAVATORY,
 	RATION_STORAGE,
 	WPP,
+	AEH,
 	FUEL_STORAGE,
 	GARDEN,
 	ROBOTICS,
@@ -73,6 +74,7 @@ const room_data = {
 	RoomType.CANTEEN: _canteen_data,
 	RoomType.LAVATORY: _lavatory_data,
 	RoomType.RATION_STORAGE: _ration_storage_data,
+	RoomType.AEH: _aeh_data,
 	RoomType.WPP: _wpp_data,
 	RoomType.FUEL_STORAGE: _fuel_storage_data,
 	RoomType.GARDEN: _garden_data,
@@ -98,6 +100,7 @@ const _command_room_data: Dictionary[String, Variant] = {
 	"crew_needed": { "min": 0, "max": 3 },
 	"activate_when_connected": true,
 	"cannot_be_deactivated_manually": true,
+	"delete_conns": ["up", "right", "down"]
 }
 
 const _power_plant_data: Dictionary[String, Variant] = {
@@ -176,6 +179,18 @@ const _wpp_data: Dictionary[String, Variant] = {
 	"delete_conns": ["left", "down", "right"],
 }
 
+const _aeh_data: Dictionary[String, Variant] = {
+	"room_name": "Airflow Energy Harvester",
+	"room_shape": RoomShape.LShape,
+	"room_desc": "Powers 1 room for every 4 green connectors on the station (rounded down).",
+	"room_category": RoomCategory.MAINTENANCE_ROOM,
+	"power_usage": 0,
+	"power_supply": { "capacity": -1, "range": 10 },
+	"crew_needed": { "min": 0, "max": 3 },
+	"activate_when_connected": true,
+	#"delete_conns": ["up", "right", "down"]
+}
+
 const _hallway_data: Dictionary[String, Variant] = {
 	"room_name": "Hallway",
 	"room_shape": RoomShape.MediumHallwayShape,
@@ -225,10 +240,10 @@ const _placeholder_room_data: Dictionary[String, Variant] = {
 const _garden_data: Dictionary[String, Variant] = {
 	"room_name": "Garden",
 	"room_shape": RoomShape.SmallSquareShape,
-	"room_desc": "Raises your crew quarter limit by 2.",
-	"room_category": RoomCategory.LUXURY_ROOM,
+	"room_desc": "Each adjacent Crew Quarters can has their Crew Capacity increased by 2.",
+	"room_category": RoomCategory.CREW_ROOM,
 	"power_usage": 0,
-	"crew_quarters_limit_increase": 2,
+	"crew_supply_increase": 2,
 	"always_activated": true,
 	"crew_needed": { "min": 0, "max": 0 },
 }

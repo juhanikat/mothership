@@ -214,7 +214,7 @@ func check_turn_requirements() -> bool:
 			return false
 
 	for room: Room in get_tree().get_nodes_in_group("Room"):
-		if len(room.gameplay.get_assigned_crew()) == room.gameplay.crew_needed.min:
+		if len(room.gameplay.get_assigned_crew()) < room.gameplay.crew_needed.min:
 			GlobalNotice.display("%s needs at least %s crew members." % [str(room.room_name), str(room.gameplay.crew_needed.min)], "warning")
 			return false
 	return true

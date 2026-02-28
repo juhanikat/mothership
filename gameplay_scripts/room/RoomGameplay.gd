@@ -27,7 +27,7 @@ var fuel_remaining: int = 0
 # FOR RATION STORAGE
 var rations_remaining: int = 0
 
-# FOR POWER PLANT
+# FOR POWER PLANT AND AEH
 var power_supply = { } # "capacity" and "range"
 var supplies_to: Array[Room] = []
 
@@ -101,6 +101,13 @@ func activate_room(automatic: bool = false, show_activation_notice: bool = false
 	if not _can_be_activated():
 		return false
 	match parent_room_type:
+		RoomType.AEH:
+			var green_connectors = get_tree().get_nodes_in_group("Connector")\
+			.filter(func(conn: Connector): return conn.connected_to())
+			power_supply.capacity = len(green_connectors) / 4
+			parent_room.room_info.update_power_supply_label(power_supply)
+			print(power_supply.capacity)
+
 		RoomType.CREW_QUARTERS:
 			# activate each crew member that lives here (they are also assigned to this room)
 			var activation_msg = "Activated: "
@@ -249,8 +256,6 @@ func deactivate_crew(crew_member: CrewMember) -> void:
 
 	crew_member.toggle_inactive()
 	crew_member.home.room_info.update_assigned_crew_container(crew_member.home.gameplay.get_assigned_crew())
-
-
 
 
 func add_power_consumer(room: Room) -> void:
@@ -417,7 +422,7 @@ func _can_be_deactivated(automatic: bool = false) -> bool:
 ## and null otherwise. If include_deactivated is true, include all power plants in the search.
 func find_power_supplier(include_deactivated: bool = false):
 	var not_in_range = true
-	var power_suppliers = get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT))
+	var power_suppliers = get_tree().get_nodes_in_group(str(RoomType.POWER_PLANT)) + get_tree().get_nodes_in_group(str(RoomType.AEH))
 	if not include_deactivated:
 		power_suppliers = power_suppliers.filter(func(supplier): return supplier.gameplay.activated)
 	for power_supplier: Room in power_suppliers:
@@ -461,6 +466,13 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 				#GlobalNotice.display("%s activated automatically!" % [parent_room.room_name])
 			elif always_activated:
 				push_error("Room with always_activated set to true did not have enough power to activate, it should not be able to be placed!!!! fix!!!")
+
+	# all rooms do these
+	if (parent_room_type == RoomType.AEH):
+		var green_connectors = get_tree().get_nodes_in_group("Connector")\
+		.filter(func(conn: Connector): return conn.connected_to())
+		power_supply.capacity = len(green_connectors) / 4
+		parent_room.room_info.update_power_supply_label(power_supply)
 
 
 func _on_cargo_bay_order_made(delivery: Dictionary) -> void:
