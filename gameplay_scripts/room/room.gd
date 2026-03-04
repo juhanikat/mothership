@@ -36,6 +36,7 @@ var closest_conns_pair = [] # used to highlight two Connectors that are close en
 
 var room_name: String
 var room_type: RoomData.RoomType
+var resource_cost: int = 0
 var room_category: RoomData.RoomCategory
 var overlapping_rooms: Array[Room] = []
 var adjacent_rooms: Array[Room] = [] # updated when any room is attached to this one
@@ -228,7 +229,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## Call this before the room is added to the scene tree.
-func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false) -> void:
+func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false, no_resource_cost: bool = false) -> void:
 	_data = i_data
 	_shape = _data["room_shape"]
 	room_name = _data["room_name"]
@@ -237,6 +238,8 @@ func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false) -> 
 	picked = is_picked
 	if is_picked:
 		GlobalVariables.room_is_picked = true
+	if not no_resource_cost:
+		resource_cost = _data["resource_cost"]
 
 
 func highlight(time: float = 2.0) -> void:

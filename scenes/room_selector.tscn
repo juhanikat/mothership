@@ -1,13 +1,12 @@
 [gd_scene format=3 uid="uid://bha52nfpavehy"]
 
-[ext_resource type="Script" uid="uid://dmq65ad0ipcv4" path="res://gameplay_scripts/hud/room_selection.gd" id="1_ayfju"]
+[ext_resource type="Script" uid="uid://dmq65ad0ipcv4" path="res://gameplay_scripts/hud/room_selector.gd" id="1_yt7iy"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cs5ee"]
 bg_color = Color(0, 0, 0, 0.745098)
 
-[node name="RoomSelection" type="CanvasLayer" unique_id=463627268 node_paths=PackedStringArray("order_description_label", "room_container")]
-script = ExtResource("1_ayfju")
-order_description_label = NodePath("SelectionPanel/HBoxContainer/OrderDescription")
+[node name="RoomSelector" type="CanvasLayer" unique_id=463627268 node_paths=PackedStringArray("room_container")]
+script = ExtResource("1_yt7iy")
 room_container = NodePath("SelectionPanel/HBoxContainer/RoomContainer")
 
 [node name="SelectionPanel" type="PanelContainer" parent="." unique_id=346100080]
@@ -23,15 +22,6 @@ metadata/_edit_use_anchors_ = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="SelectionPanel" unique_id=476675178]
 layout_mode = 2
-
-[node name="OrderDescription" type="RichTextLabel" parent="SelectionPanel/HBoxContainer" unique_id=1646632941]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.5
-text = "order description
-goes
-here
-srdf"
 
 [node name="RoomContainer" type="HBoxContainer" parent="SelectionPanel/HBoxContainer" unique_id=1592582349]
 layout_mode = 2

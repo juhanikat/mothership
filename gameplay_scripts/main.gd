@@ -47,7 +47,7 @@ var nav_obstacles = { }
 ## Creates a new room at <pos>, and adds it as a child to TestingRoom.
 func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
 	var new_room = room_scene.instantiate()
-	new_room.init_room(RoomData.room_data[room_type])
+	new_room.init_room(RoomData.room_data[room_type], false, true)
 	new_room.global_position = pos
 	room_nodes.add_child(new_room)
 	return new_room
@@ -55,13 +55,7 @@ func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
 
 func _ready() -> void:
 	camera.zoom = default_zoom
-	var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)) \
-	.filter(func(room: Room): return room.gameplay.activated)
-	var first_order = OrderFunctions.get_order_for_next_turn(len(active_data_analysis_rooms))
-
-	var possible_rooms: Array[Dictionary]
-	possible_rooms.assign(first_order.selected_rooms)
-	hud.room_selection.show_order(first_order.description, possible_rooms)
+	hud.room_selector.show_selection()
 
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
@@ -267,8 +261,8 @@ func new_cargo_order(cargo_bay: Room) -> void:
 	hud.show_cargo_popup(cargo_bay)
 
 
-func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
-	var delivery = { "type": order_type, "turns_left": 3, "made_by": ordering_cargo_bay }
+func order_cargo(order_type: RoomGameplay.DeliveryType, ordering_cargo_bay: Room) -> bool:
+	var delivery = { "type": order_type, "turns_left": 3, "amount": 5, "made_by": ordering_cargo_bay }
 	GlobalSignals.cargo_bay_order_made.emit(delivery)
 	return true
 
@@ -276,26 +270,9 @@ func order_cargo(order_type: String, ordering_cargo_bay: Room) -> bool:
 ## Gets a new order from the captain and shows the corresponding buttons in the HUD.
 ## Also calls next_turn() inside each RoomGameplay.
 func _on_next_turn() -> void:
-	if hud.event_popup.visible:
-		hud.event_popup.hide()
-
 	GlobalVariables.turn += 1
 	for gameplay: RoomGameplay in get_tree().get_nodes_in_group("RoomGameplay"):
 		gameplay.next_turn()
-
-	var active_data_analysis_rooms = get_tree().get_nodes_in_group(str(RoomType.DATA_ANALYSIS)) \
-	.filter(func(room: Room): return room.gameplay.activated)
-	var next_order = OrderFunctions.get_order_for_next_turn(len(active_data_analysis_rooms))
-
-	var possible_rooms: Array[Dictionary]
-	possible_rooms.assign(next_order.selected_rooms)
-	hud.room_selection.clear_room_buttons()
-	hud.room_selection.show_order(next_order.description, possible_rooms)
-
-	EventFunctions.print_event_info(get_tree())
-	var next_event_data = EventFunctions.get_random_event(get_tree())
-	if next_event_data:
-		hud.event_popup.show_event(next_event_data)
 
 
 func _on_crew_added(amount: int) -> void:

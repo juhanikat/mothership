@@ -12,6 +12,7 @@ extends CanvasLayer
 @export var cargo_options_box: HBoxContainer
 @export var path_build_mode_label: RichTextLabel
 @export var path_info_label: RichTextLabel
+@export var resources_label: RichTextLabel
 @export var total_crew_amount_label: RichTextLabel
 @export var crew_quarters_limit_label: RichTextLabel
 @export var delivery_info_label: RichTextLabel
@@ -22,13 +23,14 @@ extends CanvasLayer
 
 @export var next_turn_button: Button
 
-@export var room_selection: RoomSelection
+@export var room_selector: RoomSelector
 @export var event_popup: EventPopup
 
 var total_crew: int = 0 # changed by the update() function in this script
 var crew_quarters_limit: int
 
 var spawned_room = null
+var total_resources: int = 0
 
 @onready var main: Main = get_parent()
 @onready var room_category_to_item_list = {
@@ -52,6 +54,7 @@ func _ready() -> void:
 
 	GlobalSignals.room_spawned.connect(_on_room_spawned)
 	GlobalSignals.room_connected.connect(_on_room_connected)
+	GlobalSignals.resources_changed.connect(_on_resources_changed)
 
 	path_build_mode_label.text = "Path build mode: OFF"
 	path_info_label.text = "No path yet"
@@ -92,7 +95,16 @@ func show_cargo_popup(cargo_bay: Room) -> void:
 	for button: Button in cargo_options_box.get_children():
 		if len(button.pressed.get_connections()) > 0:
 			button.pressed.disconnect(_on_cargo_options_button_pressed)
-		button.pressed.connect(_on_cargo_options_button_pressed.bind(button.text, cargo_bay))
+
+		var delivery_type: RoomGameplay.DeliveryType
+		match button.text:
+			"Fuel":
+				delivery_type = RoomGameplay.DeliveryType.FUEL
+			"Rations":
+				delivery_type = RoomGameplay.DeliveryType.RATIONS
+			"Resources":
+				delivery_type = RoomGameplay.DeliveryType.RESOURCES
+		button.pressed.connect(_on_cargo_options_button_pressed.bind(delivery_type, cargo_bay))
 	cargo_popup.popup()
 
 
@@ -121,12 +133,13 @@ func _on_room_spawned(room: Room) -> void:
 	spawned_room = room
 
 
-func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
-	if connector1.get_parent_room() == spawned_room or connector2.get_parent_room() == spawned_room:
-		# TODO: remove the hardcoded turn number here?
-		if GlobalVariables.turn != 1 and not GlobalVariables.CAN_PICK_MULTIPLE_ROOMS:
-			room_selection.hide()
-			spawned_room = null
+func _on_room_connected(_connector1: Connector, _connector2: Connector) -> void:
+	pass
+
+
+func _on_resources_changed(amount: int) -> void:
+	total_resources += amount
+	resources_label.text = "Resources: %" % [str(total_resources)]
 
 
 func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:
@@ -141,7 +154,6 @@ func _on_next_turn_button_pressed() -> void:
 		return
 	if GlobalVariables.room_is_picked:
 		return
-	room_selection.show()
 	GlobalSignals.turn_advanced.emit()
 
 
@@ -166,7 +178,7 @@ func _on_room_list_item_selected(_index: int, current_item_list: ItemList) -> vo
 			item_list.deselect_all()
 
 
-func _on_cargo_options_button_pressed(cargo_type: String, cargo_bay: Room) -> void:
+func _on_cargo_options_button_pressed(cargo_type: RoomGameplay.DeliveryType, cargo_bay: Room) -> void:
 	# sets cargo type depending on the text of the Button pressed
 	main.order_cargo(cargo_type, cargo_bay)
 	cargo_popup.hide()

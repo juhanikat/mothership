@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://d1spf4ifa2e2j"]
 
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://gameplay_scripts/hud/hud.gd" id="1_ahhtf"]
-[ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://scenes/room_selection.tscn" id="2_5ysmq"]
+[ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://scenes/room_selector.tscn" id="2_5ysmq"]
 [ext_resource type="PackedScene" uid="uid://cisar4i6gjwbk" path="res://scenes/event_popup.tscn" id="2_oo0fn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ahhtf"]
@@ -13,7 +13,7 @@ bg_color = Color(0.392165, 0.478501, 0.478927, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ysmq"]
 bg_color = Color(0.0768358, 0.0768358, 0.0768358, 1)
 
-[node name="HUD" type="CanvasLayer" unique_id=1061309850 node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selection", "event_popup")]
+[node name="HUD" type="CanvasLayer" unique_id=1061309850 node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selector", "event_popup")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -33,10 +33,10 @@ dev_toolbar = NodePath("PanelContainer/TopBar")
 dev_options_hint_label = NodePath("PanelContainer/DevOptionsHintLabel")
 disable_events_toggle = NodePath("PanelContainer/TopBar/DisableEventsButton")
 next_turn_button = NodePath("PanelContainer2/HBoxContainer/NextTurnButton")
-room_selection = NodePath("RoomSelection")
+room_selector = NodePath("RoomSelector")
 event_popup = NodePath("EventPopup")
 
-[node name="RoomSelection" parent="." unique_id=941023662 instance=ExtResource("2_5ysmq")]
+[node name="RoomSelector" parent="." unique_id=463627268 instance=ExtResource("2_5ysmq")]
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=2066148056]
 anchors_preset = -1
@@ -152,6 +152,13 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="ResourcesLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox" unique_id=282966580]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 14
+text = "Resources: 0"
+fit_content = true
+
 [node name="TotalCrewAmountLabel" type="RichTextLabel" parent="PanelContainer2/HBoxContainer/StatisticsVbox" unique_id=547639262]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -245,17 +252,11 @@ offset_bottom = 533.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 bbcode_enabled = true
-text = "Pick rooms from the panel at the top of the screen. When a room is picked up, place it down so that one of its connectors is near another connector to connect it. Connected rooms cannot be moved again. While holding a room, press right click if you want to cancel placing it and pick another.
+text = "Your goal is to survive for as long as you can! You fail if the Command Room runs out of power. 
 
-There are four different room categories: 
-- Crew Rooms contain facilities to increase the size of your crew. The Crew Quarters is the most important room in this category, and each Crew Quarters needs its own Canteen and Lavatory.
-- Maintenance Rooms are the backbone of the station and are needed for other rooms to function. They can also help you design the layout of the station and make it run more effectively, especially later in the game.
-- Research Rooms unlock new room types.
-- Special Rooms such as Power Plants and the Command Room are rare and can only be built on specific turns. They have important gameplay mechanics assigned to them.
+Building rooms costs resources. 
 
-Pressing the \"Next turn\" button in the bottom left corner of the screen advances the game. You can choose 1 new room to add to the station each turn. Advancing the turn also has other effects, such as depleting one fuel resource to power each of your Power Plants.
-
-You lose the game if the Command Room runs out of power or there is not enough crew to man it (this is not implemented yet).
+Each Crew Member needs 1 ration per turn. If you don’t have enough rations, the Crew Members cannot work (they are shown in red in their Crew Quarters) until you have enough rations. Each Crew Room cluster also needs an activated Canteen and Lavatory for the Crew Members to work. Crew can work at most 3 rooms away from their Crew Room cluster.
 "
 fit_content = true
 metadata/_edit_use_anchors_ = true

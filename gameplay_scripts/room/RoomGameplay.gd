@@ -16,10 +16,11 @@ var power_usage: int
 var crew_needed: Dictionary = { } # with keys "min" and "max", if assigned crew is less than min, the room cannot be activated.
 
 # FOR CARGO BAY
+enum DeliveryType {FUEL, RATIONS, RESOURCES}
 var order_in_progress: bool = false
 var delivery_in_progress: bool = false
 var turns_until_delivery: int = -1
-var current_delivery: Dictionary # Contains type, turns_left, and made_by: Room
+var current_delivery: Dictionary # Contains type: DeliveryType, turns_left: int, amount: int, and made_by: Room
 
 # FOR FUEL STORAGE
 var fuel_remaining: int = 0
@@ -311,7 +312,7 @@ func next_turn() -> void:
 		GlobalSignals.delivery_status_changed.emit(current_delivery)
 		if current_delivery.turns_left == 0:
 			delivery_in_progress = false
-			if current_delivery.type == "Fuel":
+			if current_delivery.type == DeliveryType.FUEL:
 				var all_fuel_storages = get_tree().get_nodes_in_group(str(RoomType.FUEL_STORAGE))
 				if not all_fuel_storages:
 					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
@@ -322,7 +323,7 @@ func next_turn() -> void:
 					random_fuel_storage.room_info.update_fuel_remaining_label(random_fuel_storage.gameplay.fuel_remaining)
 					random_fuel_storage.highlight()
 					GlobalNotice.display("Fuel delivered to a random Fuel Storage.")
-			elif current_delivery.type == "Rations":
+			elif current_delivery.type == DeliveryType.RATIONS:
 				var all_ration_storages = get_tree().get_nodes_in_group(str(RoomType.RATION_STORAGE))
 				if not all_ration_storages:
 					GlobalNotice.display("Could not deliver Fuel: There aren't any Fuel Storages on the station.")
@@ -333,6 +334,8 @@ func next_turn() -> void:
 					random_ration_storage.room_info.update_rations_remaining_label(random_ration_storage.gameplay.rations_remaining)
 					random_ration_storage.highlight()
 					GlobalNotice.display("Rations delivered to a random Ration Storage.")
+			elif current_delivery.type == DeliveryType.RESOURCES:
+				GlobalSignals.resources_changed.emit(current_delivery.amount)
 			else:
 				push_error("Invalid delivery type!!")
 			deactivate_room(false, true)
