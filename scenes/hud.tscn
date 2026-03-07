@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bej65is377k75" path="res://gameplay_scripts/hud/hud.gd" id="1_ahhtf"]
 [ext_resource type="PackedScene" uid="uid://bha52nfpavehy" path="res://scenes/room_selector.tscn" id="2_5ysmq"]
 [ext_resource type="PackedScene" uid="uid://cisar4i6gjwbk" path="res://scenes/event_popup.tscn" id="2_oo0fn"]
+[ext_resource type="PackedScene" uid="uid://b2hljfbu67bkx" path="res://scenes/room_info.tscn" id="3_6fi6k"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ahhtf"]
 bg_color = Color(0.300296, 0.453884, 0.300172, 1)
@@ -13,7 +14,7 @@ bg_color = Color(0.392165, 0.478501, 0.478927, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ysmq"]
 bg_color = Color(0.0768358, 0.0768358, 0.0768358, 1)
 
-[node name="HUD" type="CanvasLayer" unique_id=1061309850 node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selector", "event_popup")]
+[node name="HUD" type="CanvasLayer" unique_id=1061309850 node_paths=PackedStringArray("crew_room_list", "maintenance_room_list", "luxury_room_list", "special_room_list", "emergency_room_list", "research_room_list", "help_popup", "cargo_popup", "cargo_options_box", "path_build_mode_label", "path_info_label", "resources_label", "total_crew_amount_label", "crew_quarters_limit_label", "delivery_info_label", "dev_toolbar", "dev_options_hint_label", "disable_events_toggle", "next_turn_button", "room_selector", "room_info", "event_popup")]
 script = ExtResource("1_ahhtf")
 crew_room_list = NodePath("PanelContainer/TopBar/CrewRoomList")
 maintenance_room_list = NodePath("PanelContainer/TopBar/MaintenanceRoomList")
@@ -26,6 +27,7 @@ cargo_popup = NodePath("CargoPopup")
 cargo_options_box = NodePath("CargoPopup/CargoOptionsHBox")
 path_build_mode_label = NodePath("PanelContainer/TopBar/PathBuildModeLabel")
 path_info_label = NodePath("PanelContainer/TopBar/PathInfoLabel")
+resources_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVbox/ResourcesLabel")
 total_crew_amount_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVbox/TotalCrewAmountLabel")
 crew_quarters_limit_label = NodePath("PanelContainer2/HBoxContainer/StatisticsVbox/CrewQuartersLimitLabel")
 delivery_info_label = NodePath("PanelContainer2/HBoxContainer/DeliveryInfoLabel")
@@ -34,9 +36,26 @@ dev_options_hint_label = NodePath("PanelContainer/DevOptionsHintLabel")
 disable_events_toggle = NodePath("PanelContainer/TopBar/DisableEventsButton")
 next_turn_button = NodePath("PanelContainer2/HBoxContainer/NextTurnButton")
 room_selector = NodePath("RoomSelector")
+room_info = NodePath("VBoxContainer/RoomInfo")
 event_popup = NodePath("EventPopup")
 
 [node name="RoomSelector" parent="." unique_id=463627268 instance=ExtResource("2_5ysmq")]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=509293935]
+offset_right = 384.0
+offset_bottom = 704.0
+
+[node name="Control" type="Control" parent="VBoxContainer" unique_id=1324011580]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RoomInfo" parent="VBoxContainer" unique_id=1953423344 instance=ExtResource("3_6fi6k")]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Control2" type="Control" parent="VBoxContainer" unique_id=1503056927]
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=2066148056]
 anchors_preset = -1

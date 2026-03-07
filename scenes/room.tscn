@@ -56,8 +56,9 @@ _data = {
 &"show_highlight": SubResource("Animation_ppkfq")
 }
 
-[node name="Room" type="Area2D" unique_id=2146794284 node_paths=PackedStringArray("check_connection_timer", "texture_polygon", "assigned_crew_members_node", "deactivated_crew_members_node", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
+[node name="Room" type="Area2D" unique_id=2146794284 node_paths=PackedStringArray("room_name_label", "check_connection_timer", "texture_polygon", "assigned_crew_members_node", "deactivated_crew_members_node", "highlight_line", "highlight_line_timer", "highlight_anim_player", "nav_region", "nav_agent", "connectors_node", "polygon", "all_room_shapes", "all_room_highlights", "raycast", "raycast_line") groups=["Room"]]
 script = ExtResource("1_ppkfq")
+room_name_label = NodePath("RoomNameLabel")
 check_connection_timer = NodePath("CheckConnectionTimer")
 texture_polygon = NodePath("TexturePolygon")
 assigned_crew_members_node = NodePath("AssignedCrewMembers")
@@ -74,6 +75,15 @@ all_room_highlights = NodePath("AllRoomHighlightLines")
 raycast = NodePath("RayCast2D")
 raycast_line = NodePath("RayCast2D/RayCastLine")
 metadata/_edit_lock_ = true
+
+[node name="RoomNameLabel" type="RichTextLabel" parent="." unique_id=1257221135]
+z_index = 1
+offset_right = 1.0
+mouse_filter = 2
+text = "moi"
+fit_content = true
+autowrap_mode = 0
+metadata/_edit_use_anchors_ = true
 
 [node name="CheckConnectionTimer" type="Timer" parent="." unique_id=1229037443]
 wait_time = 0.1

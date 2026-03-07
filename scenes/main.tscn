@@ -11,7 +11,7 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-384, -320, -384, 1088, 1472, 1088, 1472, -320)])
 agent_radius = 5.0
 
-[node name="Main" type="Node2D" unique_id=208644578 node_paths=PackedStringArray("hud", "camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "room_info_nodes", "testing_room_nodes", "testing_room_locations")]
+[node name="Main" type="Node2D" unique_id=208644578 node_paths=PackedStringArray("hud", "camera", "nav_region", "nav_actor", "nav_agent", "path_line", "room_nodes", "testing_room_nodes", "testing_room_locations")]
 script = ExtResource("1_0wfyh")
 hud = NodePath("HUD")
 camera = NodePath("Camera2D")
@@ -20,9 +20,12 @@ nav_actor = NodePath("NavActor")
 nav_agent = NodePath("NavActor/NavigationAgent")
 path_line = NodePath("PathLine")
 room_nodes = NodePath("RoomNodes")
-room_info_nodes = NodePath("RoomInfoNodes")
 testing_room_nodes = NodePath("TestingRooms")
 testing_room_locations = NodePath("TestingRoomLocations")
+
+[node name="HUD" parent="." unique_id=1566810548 instance=ExtResource("2_0wfyh")]
+
+[node name="Notice" parent="." unique_id=694631321 instance=ExtResource("5_tbgi4")]
 
 [node name="TestingRooms" type="Node2D" parent="." unique_id=1313263165]
 
@@ -56,10 +59,6 @@ texture = ExtResource("4_jyhfs")
 stretch_mode = 1
 metadata/_edit_lock_ = true
 
-[node name="HUD" parent="." unique_id=1566810548 instance=ExtResource("2_0wfyh")]
-
-[node name="Notice" parent="." unique_id=694631321 instance=ExtResource("5_tbgi4")]
-
 [node name="Camera2D" type="Camera2D" parent="." unique_id=232492864]
 position = Vector2(576, 328)
 editor_draw_drag_margin = true
@@ -73,12 +72,6 @@ editor_draw_drag_margin = true
 [node name="PathLine" type="Line2D" parent="." unique_id=525078973]
 z_index = 1
 default_color = Color(0.286147, 0.60386, 1, 1)
-
-[node name="RoomInfoNodes" type="Control" parent="." unique_id=478415384]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=772328449]
 navigation_polygon = SubResource("NavigationPolygon_jyhfs")

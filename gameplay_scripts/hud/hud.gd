@@ -24,13 +24,13 @@ extends CanvasLayer
 @export var next_turn_button: Button
 
 @export var room_selector: RoomSelector
+@export var room_info: RoomInfo
 @export var event_popup: EventPopup
 
 var total_crew: int = 0 # changed by the update() function in this script
 var crew_quarters_limit: int
 
 var spawned_room = null
-var total_resources: int = 0
 
 @onready var main: Main = get_parent()
 @onready var room_category_to_item_list = {
@@ -137,9 +137,8 @@ func _on_room_connected(_connector1: Connector, _connector2: Connector) -> void:
 	pass
 
 
-func _on_resources_changed(amount: int) -> void:
-	total_resources += amount
-	resources_label.text = "Resources: %" % [str(total_resources)]
+func _on_resources_changed() -> void:
+	resources_label.text = "Resources: %s" % [GlobalVariables.resources]
 
 
 func _on_show_tooltips_button_toggled(toggled_on: bool) -> void:

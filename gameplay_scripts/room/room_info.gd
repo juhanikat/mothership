@@ -35,40 +35,30 @@ var hovering: bool = false
 
 var crew_texture = load("res://icon.svg")
 
+const RoomType = RoomData.RoomType
+
 
 func _ready() -> void:
-	default_size = size
-	assigned_crew_members_container_label.hide()
-	for element in show_element:
-		# show everything while the room is being placed
-		if show_element[element] != "MANUAL":
-			element.show()
+	hide()
 
 
-## fills information from _data (positioning is done in main.gd).
-## NOTE: showing/hiding information that is visible when hovering room is done in room.gd.
-func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_name: String = "") -> void:
-	parent_room = p_room
-
-	if overwrite_name:
-		room_name_label.text = overwrite_name
-	else:
-		room_name_label.text = _data["room_name"]
+func show_info(room: Room) -> void:
+	room_name_label.text = room.room_name
 
 	traits_label.text = ""
-	if "always_activated" in _data:
+	if room.gameplay.always_activated:
 		traits_label.text += "Always active. \n"
-	if "always_deactivated" in _data:
+	if room.gameplay.always_deactivated:
 		traits_label.text += "Cannot be activated. \n"
 
-	var power_usage = _data["power_usage"]
+	var power_usage =room.gameplay.power_usage
 	if power_usage == 0:
 		power_usage_label.text = ""
 		traits_label.text += "Does not consume power. \n"
 	else:
 		power_usage_label.text = "Consumes %s power." % [str(power_usage)]
 
-	var crew_needed = _data["crew_needed"]
+	var crew_needed = room.gameplay.crew_needed
 	if crew_needed.min == 0 and crew_needed.max == 0:
 		crew_needed_label.text = ""
 		traits_label.text += "Cannot assign crew. \n"
@@ -77,18 +67,21 @@ func init_room_info(p_room: Room, _data: Dictionary[String, Variant], overwrite_
 
 	resource_label.text = ""
 
-	description_label.text = _data.get("room_desc", "No description.")
+	description_label.text = room.room_desc
 	adjacent_rooms_label.text = "No adjacent rooms."
 
-	if "power_supply" in _data.keys():
+	if len(room.gameplay.power_supply.keys()) > 0:
+		var supply_dict = room.gameplay.power_supply
 		resource_label.text = "Supplies power to rooms in range of %s (%s remaining)" % \
-		[str(_data["power_supply"]["range"]), str(_data["power_supply"]["capacity"])]
+		[str(supply_dict["range"]), str(supply_dict["capacity"])]
 
-	if "fuel_amount" in _data:
-		resource_label.text = "%s fuel remaining." % [str(_data["fuel_amount"])]
+	if room.room_type == RoomType.FUEL_STORAGE:
+		resource_label.text = "%s fuel remaining." % [str(room.gameplay.fuel_remaining)]
 
-	if "rations_amount" in _data:
-		resource_label.text = "%s rations remaining." % [str(_data["rations_amount"])]
+	if room.room_type == RoomType.RATION_STORAGE:
+		resource_label.text = "%s rations remaining." % [str(room.gameplay.rations_remaining)]
+
+	show()
 
 
 ## Called by room.gd when this room is hovered over.
@@ -97,8 +90,8 @@ func expand_info() -> void:
 	for element in show_element:
 		if show_element[element] == "ON_HOVER":
 			element.show()
-	z_index = 2
-	offset_right += 100
+	#z_index = 2
+	#offset_right += 100
 
 	for info_node in get_tree().get_nodes_in_group("RoomInfo"):
 		if info_node == self:
@@ -110,12 +103,12 @@ func shrink_info() -> void:
 	for element in show_element:
 		if show_element[element] == "ON_HOVER":
 			element.hide()
-	z_index = 0
-	set_size(default_size)
+	#z_index = 0
+	#set_size(default_size)
 
-	var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
-	stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 0.0))
-	add_theme_stylebox_override("panel", stylebox)
+	#var stylebox: StyleBoxFlat = get_theme_stylebox("panel").duplicate()
+	#stylebox.set("bg_color", Color(0.0, 0.0, 0.0, 0.0))
+	#add_theme_stylebox_override("panel", stylebox)
 
 	for info_node in get_tree().get_nodes_in_group("RoomInfo"):
 		if info_node == self:

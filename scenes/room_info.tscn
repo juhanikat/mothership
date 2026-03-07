@@ -3,17 +3,10 @@
 [ext_resource type="Script" uid="uid://ckk2sqm7720y" path="res://gameplay_scripts/room/room_info.gd" id="1_8n8ci"]
 [ext_resource type="FontFile" uid="uid://c63xjyk31oise" path="res://fonts/Xolonium-Regular.otf" id="2_lgln2"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8n8ci"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
-
-[node name="RoomInfo" type="PanelContainer" unique_id=1107993650 node_paths=PackedStringArray("assigned_crew_members_container", "assigned_crew_members_container_label", "living_crew_members_container", "living_crew_members_container_label", "room_name_label", "power_usage_label", "crew_needed_label", "traits_label", "resource_label", "description_label", "adjacent_rooms_label", "crew_member_label_duplicate") groups=["RoomInfo"]]
+[node name="RoomInfo" type="PanelContainer" unique_id=1953423344 node_paths=PackedStringArray("assigned_crew_members_container", "assigned_crew_members_container_label", "living_crew_members_container", "living_crew_members_container_label", "room_name_label", "power_usage_label", "crew_needed_label", "traits_label", "resource_label", "description_label", "adjacent_rooms_label")]
 anchors_preset = -1
-anchor_right = 0.132
-anchor_bottom = 0.316
-offset_right = -0.0639954
-offset_bottom = 0.231995
+anchor_right = 0.424
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_8n8ci")
 script = ExtResource("1_8n8ci")
 assigned_crew_members_container = NodePath("VBoxContainer/AssignedCrewMembers")
 assigned_crew_members_container_label = NodePath("VBoxContainer/AssignedCrewmembersLabel")
@@ -26,22 +19,21 @@ traits_label = NodePath("VBoxContainer/TraitsLabel")
 resource_label = NodePath("VBoxContainer/ResourceLabel")
 description_label = NodePath("VBoxContainer/DescriptionLabel")
 adjacent_rooms_label = NodePath("VBoxContainer/AdjacentRoomsLabel")
-crew_member_label_duplicate = NodePath("VBoxContainer/CrewMemberLabelDuplicate")
+metadata/_edit_use_anchors_ = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1748174182]
 z_index = 1
-custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 mouse_filter = 2
 metadata/_edit_use_anchors_ = true
 
 [node name="RoomName" type="RichTextLabel" parent="VBoxContainer" unique_id=250449259]
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_vertical = 4
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 24
 text = "room name"
 fit_content = true
 
@@ -50,7 +42,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 24
 text = "power usage"
 fit_content = true
 
@@ -60,7 +52,7 @@ size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 24
 text = "Crew needed: x-y"
 fit_content = true
 
@@ -69,13 +61,12 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 24
 text = "Assigned crew:"
 fit_content = true
 
 [node name="AssignedCrewMembers" type="HBoxContainer" parent="VBoxContainer" unique_id=226273572]
 layout_mode = 2
-size_flags_vertical = 4
 mouse_filter = 2
 
 [node name="LivingCrewMembersLabel" type="RichTextLabel" parent="VBoxContainer" unique_id=152602044]
@@ -83,13 +74,12 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 24
 text = "Living crew:"
 fit_content = true
 
 [node name="LivingCrewMembers" type="HBoxContainer" parent="VBoxContainer" unique_id=329611347]
 layout_mode = 2
-size_flags_vertical = 4
 mouse_filter = 2
 
 [node name="TraitsLabel" type="RichTextLabel" parent="VBoxContainer" unique_id=975002107]
@@ -97,7 +87,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 24
 text = "traits"
 fit_content = true
 
@@ -106,7 +96,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 24
 text = "resource info"
 fit_content = true
 
@@ -115,28 +105,19 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 24
 text = "description of 
 the room"
 fit_content = true
 
 [node name="AdjacentRoomsLabel" type="RichTextLabel" parent="VBoxContainer" unique_id=181975192]
 layout_mode = 2
+size_flags_vertical = 4
 mouse_filter = 2
 theme_override_constants/shadow_outline_size = 10
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("2_lgln2")
-theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/normal_font_size = 24
 text = "adjacent 
 rooms"
 fit_content = true
-
-[node name="CrewMemberLabelDuplicate" type="RichTextLabel" parent="VBoxContainer" unique_id=1377501372]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 0
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/normal_font_size = 10
-text = "sd"
-fit_content = true
-autowrap_mode = 0

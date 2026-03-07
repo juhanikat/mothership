@@ -55,7 +55,6 @@ func _ready() -> void:
 		new_crew_member.init_crew_member(new_crew_member.create_random_name(main.used_crew_names), parent_room)
 		living_crewmembers.append(new_crew_member)
 		main.used_crew_names.append(new_crew_member.crewmember_name)
-	parent_room.room_info.update_living_crew_container(living_crewmembers)
 
 
 func init_gameplay_features(p_parent_room: Room, p_data: Dictionary) -> void:
@@ -107,7 +106,6 @@ func activate_room(automatic: bool = false, show_activation_notice: bool = false
 			var green_connectors = get_tree().get_nodes_in_group("Connector")\
 			.filter(func(conn: Connector): return conn.connected_to())
 			power_supply.capacity = floor(len(green_connectors) / 4.0)
-			parent_room.room_info.update_power_supply_label(power_supply)
 
 		RoomType.CREW_QUARTERS:
 			# activate each crew member that lives here (they are also assigned to this room)
@@ -186,7 +184,7 @@ func deactivate_room(ignore_power_supplier: bool = false, automatic: bool = fals
 	return true
 
 
-## Assigns a crew member to this room, removing them from their previous room. Also updates both affected room_info nodes.
+## Assigns a crew member to this room, removing them from their previous room.
 func assign_crew(crew_member: CrewMember) -> bool:
 	var previous_room: Room = crew_member.assigned_to
 	if previous_room and previous_room == parent_room:
@@ -210,7 +208,6 @@ func assign_crew(crew_member: CrewMember) -> bool:
 	crew_member.assigned_to = parent_room
 	# reparent() because the crew member might be asgined to a LivingCrewMembersNode
 	parent_room.assigned_crew_members_node.add_child(crew_member)
-	parent_room.room_info.update_assigned_crew_container(get_assigned_crew())
 	crew_member.hide()
 	parent_room.highlight(1)
 
@@ -218,7 +215,6 @@ func assign_crew(crew_member: CrewMember) -> bool:
 	match parent_room_type:
 		RoomType.POWER_PLANT:
 			power_supply.capacity += 5
-			parent_room.room_info.update_power_supply_label(power_supply)
 
 	return true
 
@@ -228,7 +224,6 @@ func unassign_crew(crew_member: CrewMember) -> bool:
 	assert(crew_member in parent_room.assigned_crew_members_node.get_children(), "Crew member is not assigned to this room.")
 
 	parent_room.assigned_crew_members_node.remove_child(crew_member)
-	parent_room.room_info.update_assigned_crew_container(get_assigned_crew())
 	crew_member.assigned_to = null
 
 	## CREW EFFECTS ON ROOM GO HERE
@@ -263,14 +258,12 @@ func deactivate_crew(crew_member: CrewMember) -> void:
 	previous_room.gameplay.unassign_crew(crew_member)
 
 	crew_member.toggle_inactive()
-	crew_member.home.room_info.update_assigned_crew_container(crew_member.home.gameplay.get_assigned_crew())
 
 
 func add_power_consumer(room: Room) -> void:
 	assert(parent_room_type in [RoomType.POWER_PLANT, RoomType.AEH])
 	power_supply.capacity -= room.gameplay.power_usage
 	supplies_to.append(room)
-	parent_room.room_info.update_power_supply_label(power_supply)
 
 
 func remove_power_consumer(room: Room) -> void:
@@ -278,7 +271,6 @@ func remove_power_consumer(room: Room) -> void:
 	assert(room in supplies_to)
 	power_supply.capacity += room.gameplay.power_usage
 	supplies_to.erase(room)
-	parent_room.room_info.update_power_supply_label(power_supply)
 
 
 ## Called by main when the turn is advanced. Does not listen to a signal because things need to be done in order,
@@ -296,16 +288,24 @@ func next_turn() -> void:
 				push_error("Power Plant ran out of fuel but stayed activated since some supplied to rooms cannot be deactivated, fix!")
 		else:
 			fuel_storage.gameplay.fuel_remaining -= 1
-			fuel_storage.room_info.update_fuel_remaining_label(fuel_storage.gameplay.fuel_remaining)
 
-	if parent_room_type == RoomType.CANTEEN:
-		var ration_storage = _find_sufficient_ration_storage()
-		if not ration_storage:
-			GlobalNotice.display("Canteen does not have any accessible rations and has been deactivated.", "warning")
-			deactivate_room(false, true)
-		else:
-			ration_storage.gameplay.rations_remaining -= 1
-			ration_storage.room_info.update_rations_remaining_label(ration_storage.gameplay.rations_remaining)
+	match parent_room_type:
+		RoomType.CANTEEN:
+			var ration_storage = _find_sufficient_ration_storage()
+			if not ration_storage:
+				GlobalNotice.display("Canteen does not have any accessible rations and has been deactivated.", "warning")
+				deactivate_room(false, true)
+			else:
+				ration_storage.gameplay.rations_remaining -= 1
+		RoomType.WPP:
+			var fuel_storages = get_tree().get_nodes_in_group(str(RoomType.FUEL_STORAGE))
+			var activated_lavatories = get_tree().get_nodes_in_group(str(RoomType.LAVATORY)).filter(func(lav: Room): return lav.gameplay.activated)
+			if len(fuel_storages) > 0 and len(activated_lavatories) >= 2:
+				var random_fuel_storage: Room = fuel_storages.pick_random()
+				@warning_ignore("integer_division")
+				random_fuel_storage.gameplay.fuel_remaining += len(activated_lavatories) / 2
+				@warning_ignore("integer_division")
+				GlobalNotice.display("%s added %s fuel to a random Fuel Storage." % [parent_room.room_name, len(activated_lavatories) / 2])
 
 	if delivery_in_progress:
 		current_delivery.turns_left -= 1
@@ -320,7 +320,6 @@ func next_turn() -> void:
 				else:
 					var random_fuel_storage: Room = all_fuel_storages.pick_random()
 					random_fuel_storage.gameplay.fuel_remaining += 5
-					random_fuel_storage.room_info.update_fuel_remaining_label(random_fuel_storage.gameplay.fuel_remaining)
 					random_fuel_storage.highlight()
 					GlobalNotice.display("Fuel delivered to a random Fuel Storage.")
 			elif current_delivery.type == DeliveryType.RATIONS:
@@ -331,7 +330,6 @@ func next_turn() -> void:
 				else:
 					var random_ration_storage: Room = all_ration_storages.pick_random()
 					random_ration_storage.gameplay.rations_remaining += 10
-					random_ration_storage.room_info.update_rations_remaining_label(random_ration_storage.gameplay.rations_remaining)
 					random_ration_storage.highlight()
 					GlobalNotice.display("Rations delivered to a random Ration Storage.")
 			elif current_delivery.type == DeliveryType.RESOURCES:
@@ -354,10 +352,9 @@ func _can_be_activated() -> bool:
 		return false
 
 	# power plant check
-	var sufficient_power_supplier: Room
 	if power_usage != 0:
-		sufficient_power_supplier = find_power_suppliers()[0]
-		if not sufficient_power_supplier:
+		var power_suppliers = find_power_suppliers()
+		if len(power_suppliers) == 0:
 			GlobalNotice.display("Cannot activate room: There are no active Power Plants nearby.", "warning")
 			return false
 
@@ -378,10 +375,7 @@ func _can_be_activated() -> bool:
 				GlobalNotice.display("Cannot activate Canteen: No activated Ration Storage adjacent to it.", "warning")
 				return false
 		RoomType.LAVATORY:
-			var nearest_wpp_data = RoomConnections.find_nearest_room_type(parent_room, RoomData.RoomType.WPP)
-			if len(nearest_wpp_data) == 0 or nearest_wpp_data[0].gameplay.activated == false:
-				GlobalNotice.display("Cannot activate Lavatory: No activated Waste Processing Plant on the station.", "warning")
-				return false
+			pass
 		RoomType.POWER_PLANT:
 			var fuel_storage = _find_sufficient_fuel_storage()
 			if not fuel_storage:
@@ -414,17 +408,7 @@ func _can_be_deactivated(automatic: bool = false) -> bool:
 
 	match parent_room_type:
 		RoomType.WPP:
-			var cannot_deactivate = false
-			var activated_wpps = get_tree().get_nodes_in_group(str(RoomType.WPP)).filter(func(wpp): return wpp.gameplay.activated)
-			if len(activated_wpps) == 1:
-				# if this is the only activated WPP, it cannot be deactivated if any Lavatory is currently activated
-				for lavatory: Room in get_tree().get_nodes_in_group(str(RoomType.LAVATORY)):
-					if lavatory.gameplay.activated:
-						lavatory.highlight()
-						cannot_deactivate = true
-			if cannot_deactivate:
-				GlobalNotice.display("Cannot deactivate Waste Processing Plant: There are activated Lavatories that depend on it.", "warning")
-				return false
+			pass
 
 	return true
 
@@ -501,7 +485,6 @@ func _on_room_connected(connector1: Connector, _connector2: Connector) -> void:
 		var green_connectors = get_tree().get_nodes_in_group("Connector")\
 		.filter(func(conn: Connector): return conn.connected_to())
 		power_supply.capacity = floor(len(green_connectors) / 4.0)
-		parent_room.room_info.update_power_supply_label(power_supply)
 
 
 func _on_cargo_bay_order_made(delivery: Dictionary) -> void:

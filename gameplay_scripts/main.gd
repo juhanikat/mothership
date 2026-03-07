@@ -14,8 +14,6 @@ const room_data = RoomData.room_data
 
 # All rooms are children of this node
 @export var room_nodes: Node2D
-# All room info boxes are children of this node
-@export var room_info_nodes: Control
 
 @export var testing_room_nodes: Node2D # holds rooms that are spawned when the game starts, for testing
 @export var testing_room_locations: Node2D # holds locations for above rooms
@@ -39,6 +37,7 @@ var crew_quarters_limit: int = 3
 var spawned_room_names = { } # used to give new rooms an ordering number (purely visual atm)
 var used_crew_names: Array[String] = [] # to make sure no crew member name is used twice, should improve this later
 var command_room: Room
+var resources: int = 0 # current amount of resources
 
 # maps a room/connector to the NavObstacle created by it, so we can remove the obstacle if the room/connector is removed for any reason
 var nav_obstacles = { }
@@ -56,6 +55,8 @@ func create_testing_room(room_type: RoomData.RoomType, pos: Vector2) -> Room:
 func _ready() -> void:
 	camera.zoom = default_zoom
 	hud.room_selector.show_selection()
+
+	GlobalSignals.resources_changed.emit() # updates hud
 
 	GlobalSignals.crew_quarters_limit_raised.connect(_on_crew_quarters_limit_raised)
 	GlobalSignals.crew_quarters_limit_lowered.connect(_on_crew_quarters_limit_lowered)
@@ -75,7 +76,6 @@ func _ready() -> void:
 				if connected:
 					new_room.picked = false
 					GlobalVariables.room_is_picked = false
-					new_room.room_info.shrink_info()
 					new_room.locked = true
 			new_room.connecting_rooms = false
 
@@ -178,7 +178,7 @@ func spawn_room_at_mouse(new_room_data: Dictionary) -> Room:
 	if len(get_tree().get_nodes_in_group("Room")) == 0:
 		# this room is the first room
 		new_room.is_starting_room = true
-	# everything else, like creating room_info, is done inside the room's _ready() function
+	# everything else is done inside the room's _ready() function
 	room_nodes.add_child(new_room)
 	GlobalSignals.room_spawned.emit(new_room)
 	return new_room
@@ -249,7 +249,7 @@ func cut_room_shape_from_nav_region(room: Room, connectors: Array[Connector]) ->
 
 func remove_nav_obstacle(key) -> void:
 	var obstacle = nav_obstacles[key]
-	obstacle.queue_free()
+	obstacle.free()
 	nav_obstacles.erase(key)
 
 	while nav_region.is_baking():

@@ -5,6 +5,7 @@ const RoomShape = RoomData.RoomShape
 const RoomType = RoomData.RoomType
 const MAX_CONNECTOR_DISTANCE = 40
 
+@export var room_name_label: RichTextLabel
 @export var check_connection_timer: Timer
 @export var texture_polygon: Polygon2D
 @export var assigned_crew_members_node: Node2D
@@ -23,9 +24,7 @@ const MAX_CONNECTOR_DISTANCE = 40
 @export var raycast_line: Line2D
 
 var connector_scene = load("res://scenes/connector.tscn")
-var room_info_scene = load("res://scenes/room_info.tscn")
 
-var room_info: RoomInfo # The room's info box, this is a child of the main node
 var hovering: bool = false # true when mouse is hovering over this room.
 var picked: bool = false # true when the room is picked by mouse.
 var locked: bool = false # true once room has been placed and can no longer be moved.
@@ -35,6 +34,7 @@ var connecting_rooms: bool = false # used in _unhandled_input to keep room still
 var closest_conns_pair = [] # used to highlight two Connectors that are close enough to pair
 
 var room_name: String
+var room_desc: String
 var room_type: RoomData.RoomType
 var resource_cost: int = 0
 var room_category: RoomData.RoomCategory
@@ -49,11 +49,12 @@ var _data: Dictionary[String, Variant]
 @onready var room_shapes: Dictionary[RoomShape, PackedVector2Array]
 @onready var room_highlight_lines: Dictionary[RoomShape, PackedVector2Array]
 @onready var main: Main = get_tree().root.get_node("Main")
+@onready var hud: Hud = main.get_node("HUD")
 
 
-## NOTE: Also creates the room_info node and adds it to the main scene.
 func _ready() -> void:
 	assert(len(_data.keys()) > 0)
+	room_name_label.text = room_name
 
 	for room_shape in all_room_shapes.get_children():
 		if room_shape.name == "LShapePolygon":
@@ -138,12 +139,6 @@ func _ready() -> void:
 	if main.spawned_room_names[room_name] > 1:
 		overwrite_name = "%s (%s)" % [room_name, main.spawned_room_names[room_name]]
 
-	var new_room_info: RoomInfo = room_info_scene.instantiate()
-	new_room_info.init_room_info(self, _data, overwrite_name)
-	new_room_info.global_position = global_position + RoomData.room_info_pos[_shape]
-	room_info = new_room_info
-	main.room_info_nodes.add_child(new_room_info)
-
 	# RoomGameplay handles supplying power etc. gameplay things
 	gameplay = RoomGameplay.new()
 	gameplay.init_gameplay_features(self, _data)
@@ -188,7 +183,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if picked:
 		if event.is_action_pressed("cancel_room"):
-			room_info.queue_free()
 			main.spawned_room_names[room_name] -= 1
 			GlobalVariables.room_is_picked = false
 			queue_free()
@@ -202,7 +196,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				if connected:
 					picked = false
 					GlobalVariables.room_is_picked = false
-					room_info.shrink_info()
 					locked = true
 				connecting_rooms = false
 				return
@@ -212,12 +205,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				picked = false
 				GlobalVariables.room_is_picked = false
 				locked = true
-				room_info.shrink_info()
 
 		if event is InputEventMouseMotion and not connecting_rooms:
 			var global_mouse_pos = get_global_mouse_position()
 			global_position = global_mouse_pos
-			room_info.global_position = global_position + RoomData.room_info_pos[_shape] # + room_info.relative_pos
 
 		if event.is_action_pressed("rotate_tile") and not rotating:
 			rotating = true
@@ -233,6 +224,7 @@ func init_room(i_data: Dictionary[String, Variant], is_picked: bool = false, no_
 	_data = i_data
 	_shape = _data["room_shape"]
 	room_name = _data["room_name"]
+	room_desc = _data["room_desc"]
 	room_type = RoomData.room_data.find_key(_data)
 	room_category = _data["room_category"]
 	picked = is_picked
@@ -277,12 +269,9 @@ func try_to_connect_rooms(connector_pair, no_animation: bool = false) -> bool:
 	var to = connector_pair[1].global_position - connector_pair[0].global_position
 	if no_animation:
 		global_position += to
-		room_info.global_position += to
 	else:
 		var room_movement_tween = get_tree().create_tween()
-		var room_info_movement_tween = get_tree().create_tween()
 		room_movement_tween.tween_property(self, "global_position", global_position + to, 0.2)
-		room_info_movement_tween.tween_property(room_info, "global_position", room_info.global_position + to, 0.2)
 		# waits for room to reposition before checking overlaps etc.
 		await room_movement_tween.finished
 
@@ -318,6 +307,14 @@ func try_to_connect_rooms(connector_pair, no_animation: bool = false) -> bool:
 		if other_room_collider:
 			GlobalNotice.display("Cannot place room, this room is overlapping another room's raycast.", "warning")
 			return false
+
+	var cost = connector_pair[0].get_parent_room().resource_cost
+	if cost > GlobalVariables.resources and not GlobalVariables.INFINITE_RESOURCES:
+		GlobalNotice.display("You don't have enough resources.", "warning")
+		return false
+	else:
+		GlobalVariables.resources -= cost
+		GlobalSignals.resources_changed.emit()
 
 	GlobalSignals.room_connected.emit(connector_pair[0], connector_pair[1])
 
@@ -388,13 +385,10 @@ func get_raycast_collider():
 ## The replacer room should already be at the same coordinates as this room before calling this function.
 func replace_placeholder(replacer: Room) -> void:
 	replacer.adjacent_rooms = adjacent_rooms
-	replacer.room_info.update_adjacent_rooms_label(replacer.adjacent_rooms)
 	for room: Room in replacer.adjacent_rooms:
 		room.adjacent_rooms.append(replacer)
 		room.adjacent_rooms.erase(self)
-		room.room_info.update_adjacent_rooms_label(room.adjacent_rooms)
 
-	room_info.queue_free()
 	main.spawned_room_names[room_name] -= 1
 	queue_free()
 
@@ -408,7 +402,6 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		locked = true
 		var other_room = connector2.get_parent_room()
 		adjacent_rooms.append(other_room)
-		room_info.update_adjacent_rooms_label(adjacent_rooms)
 		main.cut_room_shape_from_nav_region(self, get_own_connectors())
 		# connector nav regions are disabled until connected
 		connector1.create_navigation_polygon()
@@ -416,12 +409,10 @@ func _on_room_connected(connector1: Connector, connector2: Connector) -> void:
 		locked = true
 		var other_room = connector1.get_parent_room()
 		adjacent_rooms.append(other_room)
-		room_info.update_adjacent_rooms_label(adjacent_rooms)
 		connector2.delete_navigation_region()
 		main.cut_room_shape_from_nav_region(self, get_own_connectors())
 
 	# done by all rooms in the game whenever any room is connected
-	room_info.shrink_info()
 	for conn in get_own_connectors():
 		conn.check_deletion()
 
@@ -439,13 +430,13 @@ func _on_area_exited(area: Area2D) -> void:
 func _on_mouse_entered() -> void:
 	hovering = true
 	if not picked:
-		room_info.expand_info()
+		hud.room_info.show_info(self)
 
 
 func _on_mouse_exited() -> void:
 	hovering = false
 	if not picked:
-		room_info.shrink_info()
+		hud.room_info.hide()
 
 
 func _on_highlight_line_timer_timeout() -> void:
@@ -454,7 +445,6 @@ func _on_highlight_line_timer_timeout() -> void:
 
 func _on_check_connection_timer_timeout() -> void:
 	var new_conn_pair = get_connection_candidates()
-
 	if new_conn_pair:
 		if closest_conns_pair:
 			closest_conns_pair[0].texture_polygon.color = closest_conns_pair[0].connector_color
